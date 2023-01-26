@@ -1,4 +1,4 @@
-package com.hexated
+package com.lagradost
 
 import com.hexated.SoraStream.Companion.consumetCrunchyrollAPI
 import com.hexated.SoraStream.Companion.filmxyAPI
