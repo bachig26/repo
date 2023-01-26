@@ -214,13 +214,13 @@ open class SoraStream : TmdbProvider() {
 
         val title = en.title ?: en.name ?: return null
         val poster = getOriImageUrl(en.posterPath)
-        val bgPoster = getOriImageUrl(en.backdropPath)
-        val orgTitle = en.originalTitle ?: en.originalName ?: return null
-        val year = (en.releaseDate ?: en.firstAirDate)?.split("-")?.first()?.toIntOrNull()
-        val rating = en.vote_average.toString().toRatingInt()
-        val genres = res.genres?.mapNotNull { it.name }
+        val bgPoster = getOriImageUrl(res.backdropPath)
+        val orgTitle = res.title ?: res.name ?: return null
+        val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
+        val rating = res.vote_average.toString().toRatingInt()
+        val genres = en.genres?.mapNotNull { it.name }
         val isAnime = genres?.contains("Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
-        val keywords = en.keywords?.results?.mapNotNull { it.name }.orEmpty()
+        val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
             .ifEmpty { res.keywords?.keywords?.mapNotNull { it.name } }
 
         val actors = res.credits?.cast?.mapNotNull { cast ->
@@ -235,13 +235,13 @@ open class SoraStream : TmdbProvider() {
         val recommendations =
             en.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
 
-        val trailer = res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }
+        val trailer = en.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }
             ?.randomOrNull()
 
         return if (type == TvType.TvSeries) {
             val lastSeason = res.seasons?.lastOrNull()?.seasonNumber
             val episodes = res.seasons?.mapNotNull { season ->
-                app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey")
+                app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey&language=vi-VN")
                     .parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
                         Episode(
                             LinkData(
@@ -281,7 +281,7 @@ open class SoraStream : TmdbProvider() {
                 this.plot = res.overview
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
-                this.showStatus = getStatus(res.status)
+                this.showStatus = getStatus(en.status)
                 this.recommendations = recommendations
                 this.actors = actors
                 addTrailer(trailer)
@@ -304,7 +304,7 @@ open class SoraStream : TmdbProvider() {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
-                this.plot = res.overview
+                this.plot = en.overview
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.recommendations = recommendations
