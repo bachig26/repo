@@ -212,9 +212,9 @@ open class SoraStream : TmdbProvider() {
         val en = app.get(enUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
 
-        val title = en.title ?: en.name ?: return null
+        val title = res.title ?: res.name ?: return null
         val poster = getOriImageUrl(en.posterPath)
-        val bgPoster = getOriImageUrl(res.backdropPath)
+        val bgPoster = getOriImageUrl(en.backdropPath)
         val orgTitle = res.title ?: res.name ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
@@ -278,10 +278,10 @@ open class SoraStream : TmdbProvider() {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
-                this.plot = res.overview
+                this.plot = en.overview
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
-                this.showStatus = getStatus(en.status)
+                this.showStatus = getStatus(res.status)
                 this.recommendations = recommendations
                 this.actors = actors
                 addTrailer(trailer)
