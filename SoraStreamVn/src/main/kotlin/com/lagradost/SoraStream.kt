@@ -45,6 +45,7 @@ open class SoraStream : TmdbProvider() {
     override var name = "SoraStreamVn"
     override val hasMainPage = true
     override val hasDownloadSupport = true
+    override var lang = "vi"
     override val instantLinkLoading = true
     override val useMetaLoadResponse = true
     override val hasChromecastSupport = true
@@ -212,14 +213,14 @@ open class SoraStream : TmdbProvider() {
             ?: throw ErrorLoadingException("Invalid Json Response")
 
         val title = en.title ?: en.name ?: return null
-        val poster = getOriImageUrl(res.posterPath)
-        val bgPoster = getOriImageUrl(res.backdropPath)
-        val orgTitle = res.originalTitle ?: res.originalName ?: return null
-        val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
-        val rating = res.vote_average.toString().toRatingInt()
+        val poster = getOriImageUrl(en.posterPath)
+        val bgPoster = getOriImageUrl(en.backdropPath)
+        val orgTitle = en.originalTitle ?: en.originalName ?: return null
+        val year = (en.releaseDate ?: en.firstAirDate)?.split("-")?.first()?.toIntOrNull()
+        val rating = en.vote_average.toString().toRatingInt()
         val genres = res.genres?.mapNotNull { it.name }
         val isAnime = genres?.contains("Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
-        val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
+        val keywords = en.keywords?.results?.mapNotNull { it.name }.orEmpty()
             .ifEmpty { res.keywords?.keywords?.mapNotNull { it.name } }
 
         val actors = res.credits?.cast?.mapNotNull { cast ->
@@ -232,7 +233,7 @@ open class SoraStream : TmdbProvider() {
             )
         } ?: return null
         val recommendations =
-            res.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
+            en.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
 
         val trailer = res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }
             ?.randomOrNull()
@@ -240,7 +241,7 @@ open class SoraStream : TmdbProvider() {
         return if (type == TvType.TvSeries) {
             val lastSeason = res.seasons?.lastOrNull()?.seasonNumber
             val episodes = res.seasons?.mapNotNull { season ->
-                app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey&language=vi-VN")
+                app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey")
                     .parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
                         Episode(
                             LinkData(
