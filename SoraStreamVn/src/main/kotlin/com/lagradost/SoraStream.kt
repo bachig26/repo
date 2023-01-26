@@ -127,25 +127,25 @@ open class SoraStream : TmdbProvider() {
     }
 
     override val mainPage = mainPageOf(
-        "$tmdbAPI/trending/all/day?api_key=$apiKey&region=US&language=vi-VN" to "Thịnh hành",
-        "$tmdbAPI/movie/popular?api_key=$apiKey&region=US&language=vi-VN" to "Phim lẻ phổ biến",
-        "$tmdbAPI/tv/popular?api_key=$apiKey&region=US&language=vi-VN" to "Phim bộ phổ biến",
+        "$tmdbAPI/trending/all/day?api_key=$apiKey&language=vi" to "Thịnh hành",
+        "$tmdbAPI/movie/popular?api_key=$apiKey&language=en" to "Phim lẻ phổ biến",
+        "$tmdbAPI/tv/popular?api_key=$apiKey&language=vi" to "Phim bộ phổ biến",
 //        "$tmdbAPI/tv/airing_today?api_key=$apiKey&region=" to "Airing Today TV Shows",
-        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&region=US&language=vi-VN" to "Phim bộ đang chiếu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=213&language=vi-VN" to "Netflix",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=1024&language=vi-VN" to "Amazon",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=2739&language=vi-VN" to "Disney+",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=453&language=vi-VN" to "Hulu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=2552&language=vi-VN" to "Apple TV+",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=49&language=vi-VN" to "HBO",
-        "$tmdbAPI/movie/top_rated?api_key=$apiKey&region=US&language=vi-VN" to "Top Phim lẻ",
-        "$tmdbAPI/tv/top_rated?api_key=$apiKey&region=US&language=vi-VN" to "Top Phim bộ",
-        "$tmdbAPI/movie/upcoming?api_key=$apiKey&region=US&language=vi-VN" to "Phim sắp chiếu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_original_language=ko&language=vi-VN" to "Phim hàn",
-        "$tmdbAPI/tv/airing_today?api_key=$apiKey&with_keywords=210024|222243&sort_by=primary_release_date.desc&language=vi-VN" to "Anime hôm nay",
-        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&with_keywords=210024|222243&sort_by=primary_release_date.desc&language=vi-VN" to "Anime đang chiếu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&with_keywords=210024|222243&language=vi-VN" to "Anime",
-        "$tmdbAPI/discover/movie?api_key=$apiKey&with_keywords=210024|222243&language=vi-VN" to "Anime lẻ",
+        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&language=vi" to "Phim bộ đang chiếu",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_networks=213" to "Netflix",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_networks=1024" to "Amazon",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_networks=2739" to "Disney+",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_networks=453" to "Hulu",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_networks=2552" to "Apple TV+",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_networks=49" to "HBO",
+        "$tmdbAPI/movie/top_rated?api_key=$apiKey&language=vi" to "Top Phim lẻ",
+        "$tmdbAPI/tv/top_rated?api_key=$apiKey&language=vi" to "Top Phim bộ",
+        "$tmdbAPI/movie/upcoming?api_key=$apiKey&language=vi" to "Phim sắp chiếu",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_original_language=ko" to "Phim hàn",
+        "$tmdbAPI/tv/airing_today?api_key=$apiKey&language=vi&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Anime hôm nay",
+        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&language=vi&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Anime đang chiếu",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi&with_keywords=210024|222243" to "Anime",
+        "$tmdbAPI/discover/movie?api_key=$apiKey&language=vi&with_keywords=210024|222243" to "Anime lẻ",
     )
 
     private fun getImageUrl(link: String?): String? {
@@ -165,7 +165,7 @@ open class SoraStream : TmdbProvider() {
         val adultQuery =
             if (settingsForProvider.enableAdult) "" else "&without_keywords=190370|13059|226161|195669"
         val type = if (request.data.contains("/movie")) "movie" else "tv"
-        val home = app.get("${request.data}$adultQuery&page=$page&language=vi-VN")
+        val home = app.get("${request.data}$adultQuery&page=$page&language=vi")
             .parsedSafe<Results>()?.results
             ?.mapNotNull { media ->
                 media.toSearchResponse(type)
@@ -185,7 +185,7 @@ open class SoraStream : TmdbProvider() {
 
     override suspend fun search(query: String): List<SearchResponse>? {
         return app.get(
-            "$tmdbAPI/search/multi?api_key=$apiKey&language=vi-VN&query=$query&page=1&include_adult=${settingsForProvider.enableAdult}",
+            "$tmdbAPI/search/multi?api_key=$apiKey&language=vi&query=$query&page=1&include_adult=${settingsForProvider.enableAdult}",
             referer = "$mainAPI/"
         ).parsedSafe<Results>()?.results?.mapNotNull { media ->
             media.toSearchResponse()
