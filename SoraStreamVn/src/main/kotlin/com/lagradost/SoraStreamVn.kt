@@ -41,8 +41,8 @@ import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import kotlin.math.roundToInt
 
-open class SoraStream : TmdbProvider() {
-    override var name = "SoraStream"
+open class SoraStreamVN : TmdbProvider() {
+    override var name = "SoraStreamVn"
     override val hasMainPage = true
     override val hasDownloadSupport = true
     override val instantLinkLoading = true
