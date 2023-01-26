@@ -9,7 +9,7 @@ import android.content.Context
 class SoraStreamPlugin: Plugin() {
     override fun load(context: Context) {
         // All providers should be added in this manner. Please don't edit the providers list directly.
-        registerMainAPI(SoraStreamVn())
+        registerMainAPI(SoraStream())
         registerExtractorAPI(StreamM4u())
         registerExtractorAPI(Sblongvu())
     }
