@@ -18,7 +18,7 @@ import org.jsoup.Jsoup
 
 val session = Session(Requests().baseClient)
 
-object SoraExtractor : SoraStreamVn() {
+object SoraExtractor : SoraStream() {
 
     /*
     suspend fun invokeLocalSources(
