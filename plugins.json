@@ -1,0 +1,88 @@
+[
+    {
+        "iconUrl": "https://cdn.animevietsub.moe/data/logo/logoz.png",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/tuan041/repo",
+        "fileSize": 15103,
+        "status": 1,
+        "language": "vi",
+        "authors": [
+            "TuaSan"
+        ],
+        "tvTypes": [
+            "Anime"
+        ],
+        "version": 12,
+        "internalName": "AnimeVietsub",
+        "description": "Chuy\u00ean Anime Vietsub 1080P",
+        "url": "https://raw.githubusercontent.com/tuan041/repo/builds/AnimeVietsub.cs3",
+        "name": "AnimeVietsub"
+    },
+    {
+        "iconUrl": "https://www.google.com/s2/favicons?domain=xem1080.com",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/tuan041/repo",
+        "fileSize": 21325,
+        "status": 1,
+        "language": "vi",
+        "authors": [
+            "TuaSan"
+        ],
+        "tvTypes": [
+            "AsianDrama",
+            "Anime",
+            "TvSeries",
+            "Movie"
+        ],
+        "version": 5,
+        "internalName": "Phim1080",
+        "description": "Xem Phim Online Ch\u1ea5t L\u01b0\u1ee3ng Cao",
+        "url": "https://raw.githubusercontent.com/tuan041/repo/builds/Phim1080.cs3",
+        "name": "Phim1080"
+    },
+    {
+        "iconUrl": "https://www.google.com/s2/favicons?domain=phimmoichilld.net&sz=%size%",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/tuan041/repo",
+        "fileSize": 15831,
+        "status": 1,
+        "language": "vi",
+        "authors": [
+            "TuaSan"
+        ],
+        "tvTypes": [
+            "AsianDrama",
+            "Anime",
+            "TvSeries",
+            "Movie"
+        ],
+        "version": 12,
+        "internalName": "Phimmoichill",
+        "url": "https://raw.githubusercontent.com/tuan041/repo/builds/Phimmoichill.cs3",
+        "name": "Phimmoichill"
+    },
+    {
+        "iconUrl": "https://raw.githubusercontent.com/hexated/cloudstream-extensions-hexated/master/SoraStream/Icon.png",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/tuan041/repo",
+        "fileSize": 297897,
+        "status": 1,
+        "language": "vi",
+        "authors": [
+            "Hexated",
+            "Sora",
+            "TuaSan"
+        ],
+        "tvTypes": [
+            "AsianDrama",
+            "TvSeries",
+            "Anime",
+            "Movie"
+        ],
+        "version": 33,
+        "internalName": "SoraStreamVn",
+        "description": "#1 best extention based on MultiAPI",
+        "url": "https://raw.githubusercontent.com/tuan041/repo/builds/SoraStreamVn.cs3",
+        "name": "SoraStreamVn"
+    }
+]
