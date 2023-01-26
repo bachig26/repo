@@ -288,7 +288,7 @@ open class SoraStream : TmdbProvider() {
             }
         } else {
             newMovieLoadResponse(
-                title,
+                orgTitle,
                 url,
                 TvType.Movie,
                 LinkData(
