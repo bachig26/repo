@@ -1,10 +1,10 @@
 package com.lagradost
 
-import com.hexated.SoraStream.Companion.consumetCrunchyrollAPI
-import com.hexated.SoraStream.Companion.filmxyAPI
-import com.hexated.SoraStream.Companion.gdbot
-import com.hexated.SoraStream.Companion.kamyrollAPI
-import com.hexated.SoraStream.Companion.tvMoviesAPI
+import com.lagradost.SoraStream.Companion.consumetCrunchyrollAPI
+import com.lagradost.SoraStream.Companion.filmxyAPI
+import com.lagradost.SoraStream.Companion.gdbot
+import com.lagradost.SoraStream.Companion.kamyrollAPI
+import com.lagradost.SoraStream.Companion.tvMoviesAPI
 import com.lagradost.cloudstream3.APIHolder.getCaptchaToken
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
