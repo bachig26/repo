@@ -235,8 +235,8 @@ open class SoraStream : TmdbProvider() {
         val recommendations =
             en.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
 
-        val trailer = en.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }
-            ?.randomOrNull()
+        val trailer = en.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }?.OrNull()
+            .ifNull { res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" } }
 
         return if (type == TvType.TvSeries) {
             val lastSeason = res.seasons?.lastOrNull()?.seasonNumber
