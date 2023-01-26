@@ -215,7 +215,7 @@ open class SoraStream : TmdbProvider() {
         val title = res.title ?: res.name ?: return null
         val poster = getOriImageUrl(en.posterPath)
         val bgPoster = getOriImageUrl(en.backdropPath)
-        val orgTitle = res.title ?: res.name ?: return null
+        val orgTitle = en.title ?: en.name ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
         val genres = en.genres?.mapNotNull { it.name }
@@ -270,7 +270,7 @@ open class SoraStream : TmdbProvider() {
                     }
             }?.flatten() ?: listOf()
             newTvSeriesLoadResponse(
-                title,
+                orgTitle,
                 url,
                 if (isAnime) TvType.Anime else TvType.TvSeries,
                 episodes
