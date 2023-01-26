@@ -41,7 +41,7 @@ import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import kotlin.math.roundToInt
 
-open class SoraStreamVN : TmdbProvider() {
+open class SoraStream : TmdbProvider() {
     override var name = "SoraStreamVn"
     override val hasMainPage = true
     override val hasDownloadSupport = true
@@ -127,8 +127,8 @@ open class SoraStreamVN : TmdbProvider() {
     }
 
     override val mainPage = mainPageOf(
-        "$tmdbAPI/trending/all/day?api_key=$apiKey&region=vn" to "Thịnh hành",
-        "$tmdbAPI/movie/popular?api_key=$apiKey&region=vi" to "Phim lẻ phổ biến",
+        "$tmdbAPI/trending/all/day?api_key=$apiKey&region=US" to "Thịnh hành",
+        "$tmdbAPI/movie/popular?api_key=$apiKey&region=US" to "Phim lẻ phổ biến",
         "$tmdbAPI/tv/popular?api_key=$apiKey&region=US" to "Phim bộ phổ biến",
 //        "$tmdbAPI/tv/airing_today?api_key=$apiKey&region=" to "Airing Today TV Shows",
         "$tmdbAPI/tv/on_the_air?api_key=$apiKey&region=US" to "Phim bộ đang chiếu",
