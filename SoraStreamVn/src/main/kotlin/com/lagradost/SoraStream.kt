@@ -216,7 +216,7 @@ open class SoraStream : TmdbProvider() {
         val poster = getOriImageUrl(en.posterPath).orEmpty()
             .ifEmpty { getOriImageUrl(res.posterPath) }
         val bgPoster = getOriImageUrl(en.backdropPath)
-        val orgTitle = en.title ?: en.name ?: return null .orEmpty()
+        val orgTitle = en.title ?: en.name ?: .orEmpty()
             .ifEmpty { res.title ?: res.name ?: return null }
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
