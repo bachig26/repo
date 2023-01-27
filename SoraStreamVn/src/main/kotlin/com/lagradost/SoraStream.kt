@@ -218,7 +218,7 @@ open class SoraStream : TmdbProvider() {
         val orgTitle = en.title ?: en.name ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
-        val genres = en.genres?.substringAfter("Phim").trim()?.mapNotNull { it.name }
+        val genres = en.genres?.mapNotNull { it.name.text().removeSuffix("Phim").trim() }
         val isAnime = genres?.contains("Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
         val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
             .ifEmpty { res.keywords?.keywords?.mapNotNull { it.name } }
