@@ -212,10 +212,12 @@ open class SoraStream : TmdbProvider() {
         val en = app.get(enUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
 
-        val title = res.title ?: res.name ?: return null
-        val poster = getOriImageUrl(en.posterPath)
+        val title = res.title ?: res.name ?: return null 
+        val poster = getOriImageUrl(en.posterPath).orEmpty()
+            .ifEmpty { getOriImageUrl(res.posterPath) }
         val bgPoster = getOriImageUrl(en.backdropPath)
-        val orgTitle = en.title ?: en.name ?: return null
+        val orgTitle = en.title ?: en.name ?: return null .orEmpty()
+            .ifEmpty { res.title ?: res.name ?: return null }
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
         val genres = en.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
