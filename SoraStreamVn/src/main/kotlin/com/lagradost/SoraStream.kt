@@ -215,7 +215,7 @@ open class SoraStream : TmdbProvider() {
         val title = res.title ?: res.name ?: return null 
         val poster = getOriImageUrl(en.posterPath)
         val bgPoster = getOriImageUrl(res.backdropPath)
-        val orgTitle = en.title ?: res.name ?: return null
+        val orgTitle = en.title ?: en.name ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
         val genres = en.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
@@ -279,6 +279,7 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = en.overview
+                this.duration = res.episode_run_time?.average()?.toInt()
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
@@ -305,6 +306,7 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = en.overview
+                this.duration = res.runtime
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.recommendations = recommendations
