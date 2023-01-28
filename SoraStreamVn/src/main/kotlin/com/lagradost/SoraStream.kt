@@ -306,7 +306,7 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = en.overview
-                this.duration = res.runtime
+                this.duration = res.run_time
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.recommendations = recommendations
