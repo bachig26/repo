@@ -2,20 +2,23 @@ package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.mvvm.safeApiCall
+import com.lagradost.cloudstream3.LoadResponse.Companion.addAniListId
+import com.lagradost.cloudstream3.LoadResponse.Companion.addMalId
+import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
-import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.SubtitleHelper
-import com.lagradost.cloudstream3.utils.getQualityFromName
-import kotlinx.coroutines.delay
+import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
+import com.lagradost.nicehttp.RequestBodyTypes
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class LoklokVn : MainAPI() {
-    override var name = "LoklokVn"
+    override var name = "Loklok"
     override val hasMainPage = true
-    override var lang = "vi"
     override val hasChromecastSupport = true
+    override var lang = "vi"
     override val instantLinkLoading = true
+    override val hasQuickSearch = true
     override val supportedTypes = setOf(
         TvType.Movie,
         TvType.TvSeries,
@@ -32,18 +35,24 @@ class LoklokVn : MainAPI() {
     // no license found
     // thanks to https://github.com/napthedev/filmhot for providing API
     companion object {
-        private val api = base64Decode("aHR0cHM6Ly9nYS1tb2JpbGUtYXBpLmxva2xvay50dg==")
+        private val api = base64DecodeAPI("dg==LnQ=b2s=a2w=bG8=aS4=YXA=ZS0=aWw=b2I=LW0=Z2E=Ly8=czo=dHA=aHQ=")
         private val apiUrl = "$api/${base64Decode("Y21zL2FwcA==")}"
-        private val searchApi = base64Decode("aHR0cHM6Ly9maWxtaG90LmxpdmUvX25leHQvZGF0YS9NeXQzRm4tVHRXaHJ2a1RBaG45SGw=")
+        private val searchApi = base64Decode("aHR0cHM6Ly9sb2tsb2suY29t")
         private const val mainImageUrl = "https://images.weserv.nl"
+
+        private fun base64DecodeAPI(api: String): String {
+            return api.chunked(4).map { base64Decode(it) }.reversed().joinToString("")
+        }
+
     }
 
-    private fun encode(input: String): String = java.net.URLEncoder.encode(input, "utf-8").replace("+", "%20")
+    private fun encode(input: String): String =
+        java.net.URLEncoder.encode(input, "utf-8").replace("+", "%20")
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val home = ArrayList<HomePageList>()
-        for (i in 0..10) {
-            delay(500)
+        for (i in 0..6) {
+//            delay(500)
             app.get("$apiUrl/homePage/getHome?page=$i", headers = headers)
                 .parsedSafe<Home>()?.data?.recommendItems
                 ?.filterNot { it.homeSectionType == "BLOCK_GROUP" }
@@ -62,7 +71,7 @@ class LoklokVn : MainAPI() {
 
         return newMovieSearchResponse(
             title ?: name ?: return null,
-            UrlData(id, category).toJson(),
+            UrlData(id, category ?: domainType).toJson(),
             TvType.Movie,
         ) {
             this.posterUrl = (imageUrl ?: coverVerticalUrl)?.let {
@@ -71,28 +80,50 @@ class LoklokVn : MainAPI() {
         }
     }
 
+    override suspend fun quickSearch(query: String): List<SearchResponse>? {
+        val body = mapOf(
+            "searchKeyWord" to query,
+            "size" to "50",
+            "sort" to "",
+            "searchType" to "",
+        ).toJson().toRequestBody(RequestBodyTypes.JSON.toMediaTypeOrNull())
+
+        return app.post(
+            "$apiUrl/search/v1/searchWithKeyWord",
+            requestBody = body,
+            headers = headers
+        ).parsedSafe<QuickSearchRes>()?.data?.searchResults?.mapNotNull { media ->
+            media.toSearchResponse()
+        }
+    }
+
     override suspend fun search(query: String): List<SearchResponse> {
-//        val res = app.post(
-//            "$apiUrl/search/v1/searchWithKeyWord", data = mapOf(
-//                "searchKeyWord" to query,
-//                "size" to "50",
-//                "sort" to "",
-//                "searchType" to ""
-//            ), headers = headers
-//        )
         val res = app.get(
-            "$searchApi/search.json?q=$query",
-            headers = mapOf("x-nextjs-data" to "1")
-        )
-        return res.parsedSafe<Search>()?.pageProps?.result?.mapNotNull { media ->
+            "$searchApi/search?keyword=$query",
+        ).document
+
+        val script = res.select("script").find { it.data().contains("function(a,b,c,d,e") }?.data()
+            ?.substringAfter("searchResults:[")?.substringBefore("]}],fetch")
+
+        return res.select("div.search-list div.search-video-card").mapIndexed { num, block ->
+            val name = block.selectFirst("h2.title")?.text()
+            val data = block.selectFirst("a")?.attr("href")?.split("/")
+            val id = data?.last()
+            val type = data?.get(2)?.toInt()
+            val image = Regex("coverVerticalUrl:\"(.*?)\",").findAll(script.toString())
+                .map { it.groupValues[1] }.toList().getOrNull(num)?.replace("\\u002F", "/")
+
+
             newMovieSearchResponse(
-                media.name ?: return@mapNotNull null,
-                UrlData(media.id?.toIntOrNull(), media.domainType).toJson(),
+                "$name",
+                UrlData(id, type).toJson(),
                 TvType.Movie,
             ) {
-                this.posterUrl = media.coverVerticalUrl
+                this.posterUrl = image
             }
-        } ?: throw ErrorLoadingException("Invalid Json Reponse")
+
+        }
+
     }
 
     override suspend fun load(url: String): LoadResponse? {
@@ -131,17 +162,39 @@ class LoklokVn : MainAPI() {
             rec.toSearchResponse()
         }
 
+        val type = when {
+            res.areaList?.firstOrNull()?.id == 44 && res.tagNameList?.contains("Anime") == true -> {
+                TvType.Anime
+            }
+            data.category == 0 -> {
+                TvType.Movie
+            }
+            else -> {
+                TvType.TvSeries
+            }
+        }
+
+        val animeType = if(type == TvType.Anime && data.category == 0) "movie" else "tv"
+        val (malId, anilistId) = if (type == TvType.Anime) getTracker(
+            res.name,
+            animeType,
+            res.year
+        ) else Tracker()
+
         return newTvSeriesLoadResponse(
             res.name ?: return null,
             url,
-            if (data.category == 0) TvType.Movie else TvType.TvSeries,
+            if(data.category == 0) TvType.Movie else type,
             episodes
         ) {
             this.posterUrl = res.coverVerticalUrl
+            this.backgroundPosterUrl = res.coverHorizontalUrl
             this.year = res.year
             this.plot = res.introduction
             this.tags = res.tagNameList
             this.rating = res.score.toRatingInt()
+            addMalId(malId)
+            addAniListId(anilistId?.toIntOrNull())
             this.recommendations = recommendations
         }
 
@@ -150,6 +203,7 @@ class LoklokVn : MainAPI() {
     private fun getLanguage(str: String): String {
         return when (str) {
             "in_ID" -> "Indonesian"
+            "pt" -> "Portuguese"
             else -> str.split("_").first().let {
                 SubtitleHelper.fromTwoLettersToLanguage(it).toString()
             }
@@ -162,28 +216,26 @@ class LoklokVn : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-
         val res = parseJson<UrlEpisode>(data)
 
         res.definitionList?.apmap { video ->
-            safeApiCall {
-                app.get(
-                    "$apiUrl/media/previewInfo?category=${res.category}&contentId=${res.id}&episodeId=${res.epId}&definition=${video.code}",
-                    headers = headers
-                ).parsedSafe<Video>()?.data.let { link ->
-                    callback.invoke(
-                        ExtractorLink(
-                            this.name,
-                            this.name,
-                            link?.mediaUrl ?: return@let,
-                            "",
-                            getQualityFromName(video.description),
-                            isM3u8 = true,
-                            headers = headers
-                        )
-                    )
-                }
-            }
+            val body = """[{"category":${res.category},"contentId":"${res.id}","episodeId":${res.epId},"definition":"${video.code}"}]""".toRequestBody(RequestBodyTypes.JSON.toMediaTypeOrNull())
+            val response = app.post(
+                "$apiUrl/media/bathGetplayInfo",
+                requestBody = body,
+                headers = headers,
+            ).text
+            val json = tryParseJson<PreviewResponse>(response)?.data?.firstOrNull()
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    this.name,
+                    json?.mediaUrl ?: return@apmap null,
+                    "",
+                    getQuality(json.currentDefinition ?: ""),
+                    isM3u8 = true,
+                )
+            )
         }
 
         res.subtitlingList?.map { sub ->
@@ -197,6 +249,34 @@ class LoklokVn : MainAPI() {
 
         return true
     }
+
+    private fun getQuality(quality: String): Int {
+        return when (quality) {
+            "GROOT_FD" -> Qualities.P360.value
+            "GROOT_LD" -> Qualities.P480.value
+            "GROOT_SD" -> Qualities.P720.value
+            "GROOT_HD" -> Qualities.P1080.value
+            else -> Qualities.Unknown.value
+        }
+    }
+
+    private suspend fun getTracker(title: String?, type: String?, year: Int?): Tracker {
+        val res = app.get("https://api.consumet.org/meta/anilist/$title")
+            .parsedSafe<AniSearch>()?.results?.find { media ->
+                (media.title?.english.equals(title, true) || media.title?.romaji.equals(
+                    title,
+                    true
+                )) || (media.type.equals(type, true) && media.releaseDate == year)
+            }
+        return Tracker(res?.malId, res?.aniId, res?.image, res?.cover)
+    }
+
+    data class Tracker(
+        val malId: Int? = null,
+        val aniId: String? = null,
+        val image: String? = null,
+        val cover: String? = null,
+    )
 
     data class UrlData(
         val id: Any? = null,
@@ -222,12 +302,40 @@ class LoklokVn : MainAPI() {
         val subtitlingList: List<Subtitling>? = arrayListOf(),
     )
 
-    data class VideoData(
-        @JsonProperty("mediaUrl") val mediaUrl: String? = null,
+    data class Title(
+        @JsonProperty("romaji") val romaji: String? = null,
+        @JsonProperty("english") val english: String? = null,
     )
 
-    data class Video(
-        @JsonProperty("data") val data: VideoData? = null,
+    data class Results(
+        @JsonProperty("id") val aniId: String? = null,
+        @JsonProperty("malId") val malId: Int? = null,
+        @JsonProperty("title") val title: Title? = null,
+        @JsonProperty("releaseDate") val releaseDate: Int? = null,
+        @JsonProperty("type") val type: String? = null,
+        @JsonProperty("image") val image: String? = null,
+        @JsonProperty("cover") val cover: String? = null,
+    )
+
+    data class AniSearch(
+        @JsonProperty("results") val results: java.util.ArrayList<Results>? = arrayListOf(),
+    )
+
+    data class QuickSearchData(
+        @JsonProperty("searchResults") val searchResults: ArrayList<Media>? = arrayListOf(),
+    )
+
+    data class QuickSearchRes(
+        @JsonProperty("data") val data: QuickSearchData? = null,
+    )
+
+    data class PreviewResponse(
+        @JsonProperty("data") val data: ArrayList<PreviewVideos>? = arrayListOf(),
+    )
+
+    data class PreviewVideos(
+        @JsonProperty("mediaUrl") val mediaUrl: String? = null,
+        @JsonProperty("currentDefinition") val currentDefinition: String? = null,
     )
 
     data class SubtitlingList(
@@ -248,13 +356,20 @@ class LoklokVn : MainAPI() {
         @JsonProperty("subtitlingList") val subtitlingList: ArrayList<SubtitlingList>? = arrayListOf(),
     )
 
+    data class Region(
+        @JsonProperty("id") val id: Int? = null,
+        @JsonProperty("name") val name: String? = null,
+    )
+
     data class MediaDetail(
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("introduction") val introduction: String? = null,
         @JsonProperty("year") val year: Int? = null,
         @JsonProperty("category") val category: String? = null,
         @JsonProperty("coverVerticalUrl") val coverVerticalUrl: String? = null,
+        @JsonProperty("coverHorizontalUrl") val coverHorizontalUrl: String? = null,
         @JsonProperty("score") val score: String? = null,
+        @JsonProperty("areaList") val areaList: ArrayList<Region>? = arrayListOf(),
         @JsonProperty("episodeVo") val episodeVo: ArrayList<EpisodeVo>? = arrayListOf(),
         @JsonProperty("likeList") val likeList: ArrayList<Media>? = arrayListOf(),
         @JsonProperty("tagNameList") val tagNameList: ArrayList<String>? = arrayListOf(),
@@ -264,24 +379,10 @@ class LoklokVn : MainAPI() {
         @JsonProperty("data") val data: MediaDetail? = null,
     )
 
-    data class MediaSearch(
-        @JsonProperty("id") val id: String? = null,
-        @JsonProperty("domainType") val domainType: Int? = null,
-        @JsonProperty("name") val name: String? = null,
-        @JsonProperty("coverVerticalUrl") val coverVerticalUrl: String? = null,
-    )
-
-    data class Result(
-        @JsonProperty("result") val result: ArrayList<MediaSearch>? = arrayListOf(),
-    )
-
-    data class Search(
-        @JsonProperty("pageProps") val pageProps: Result? = null,
-    )
-
     data class Media(
         @JsonProperty("id") val id: Any? = null,
         @JsonProperty("category") val category: Int? = null,
+        @JsonProperty("domainType") val domainType: Int? = null,
         @JsonProperty("imageUrl") val imageUrl: String? = null,
         @JsonProperty("coverVerticalUrl") val coverVerticalUrl: String? = null,
         @JsonProperty("title") val title: String? = null,
