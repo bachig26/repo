@@ -182,7 +182,8 @@ object SoraExtractor : SoraStream() {
         val ref = getBaseUrl(iframeDbgo)
         decryptStreamUrl(source).split(",").map { links ->
             val quality =
-                Regex("\\[([0-9]*p.*?)]").find(links)?.groupValues?.getOrNull(1)?.trim() ?: return@map null
+                Regex("\\[([0-9]*p.*?)]").find(links)?.groupValues?.getOrNull(1)?.trim()
+                    ?: return@map null
             links.replace("[$quality]", "").split(" or ").map { it.trim() }.map { link ->
                 val name = if (link.contains(".m3u8")) "Dbgo (Main)" else "Dbgo (Backup)"
                 callback.invoke(
@@ -908,9 +909,9 @@ object SoraExtractor : SoraStream() {
         callback: (ExtractorLink) -> Unit
     ) {
         val fixTitle = title.fixTitle()
-        val doc = if(season == null) {
+        val doc = if (season == null) {
             val res = app.get("$xMovieAPI/movies/$fixTitle/watch")
-            if(res.url == "$xMovieAPI/") app.get("$xMovieAPI/movies/$fixTitle-$year/watch").document else res.document
+            if (res.url == "$xMovieAPI/") app.get("$xMovieAPI/movies/$fixTitle-$year/watch").document else res.document
         } else {
             app.get("$xMovieAPI/series/$fixTitle-season-$season-episode-$episode/watch").document
         }
@@ -2086,7 +2087,8 @@ object SoraExtractor : SoraStream() {
             "cf_cache_token" to "UKsVpQqBMxB56gBfhYKbfCVkRIXMh42pk6G4DdkXXoVh7j4BjV"
         )
 
-        val titleSlug = title.fixTitle()?.replace("-", ".") ?: return
+        val dotSlug = title.fixTitle()?.replace("-", ".") ?: return
+        val spaceSlug = title.fixTitle()?.replace("-", " ") ?: return
         val (episodeSlug, seasonSlug) = if (season == null) {
             listOf("", "")
         } else {
@@ -2099,7 +2101,7 @@ object SoraExtractor : SoraStream() {
         val query = if (season == null) {
             "$title $year"
         } else {
-            "$title S${episodeSlug}E${seasonSlug}"
+            "$title S${seasonSlug}E${episodeSlug}"
         }
 
         val media =
@@ -2108,14 +2110,14 @@ object SoraExtractor : SoraStream() {
                     (if (season == null) {
                         media.name?.contains("$year") == true
                     } else {
-                        media.name?.contains(Regex("(?i)S${episodeSlug}E${seasonSlug}")) == true
+                        media.name?.contains(Regex("(?i)S${seasonSlug}E${episodeSlug}")) == true
                     }) && media.name?.contains(
                         "720p",
                         true
                     ) == false && (media.mimeType == "video/x-matroska" || media.mimeType == "video/mp4") && (media.name.contains(
-                        titleSlug,
+                        dotSlug,
                         true
-                    ) || media.name.contains(title ?: return, true))
+                    ) || media.name.contains(spaceSlug, true))
                 }?.distinctBy { it.name } ?: return
 
         media.apmap { file ->
@@ -2127,7 +2129,8 @@ object SoraExtractor : SoraStream() {
             val encryptedExpiry = base64Encode(CryptoAES.encrypt(key, expiry).toByteArray())
             val worker = getConfig().workers.randomOrNull() ?: return@apmap null
 
-            val link = "https://api.$worker.workers.dev/download.aspx?file=$encryptedId&expiry=$encryptedExpiry&mac=$hmacSign"
+            val link =
+                "https://api.$worker.workers.dev/download.aspx?file=$encryptedId&expiry=$encryptedExpiry&mac=$hmacSign"
             val size = file.size?.toDouble() ?: return@apmap null
             val sizeFile = "%.2f GB".format(bytesToGigaBytes(size))
             val tags = Regex("\\d{3,4}[pP]\\.?(.*?)\\.(mkv|mp4)").find(
