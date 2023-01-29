@@ -13,7 +13,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class LoklokVn : MainAPI() {
-    override var name = "Loklok"
+    override var name = "LoklokVn"
     override val hasMainPage = true
     override val hasChromecastSupport = true
     override var lang = "vi"
