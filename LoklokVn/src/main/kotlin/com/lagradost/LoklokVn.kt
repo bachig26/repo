@@ -7,7 +7,6 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addMalId
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
-import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import com.lagradost.nicehttp.RequestBodyTypes
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -26,10 +25,10 @@ class LoklokVn : MainAPI() {
         TvType.AsianDrama,
     )
 
-    private val headers = mapOf(
+    private val headers = mutableMapOf(
         "lang" to "vi",
-        "versioncode" to "11",
-        "clienttype" to "ios_jike_default"
+        "versioncode" to "32",
+        "clienttype" to "android_tem3"
     )
 
     // no license found
@@ -133,6 +132,8 @@ class LoklokVn : MainAPI() {
             headers = headers
         ).parsedSafe<Load>()?.data ?: throw ErrorLoadingException("Invalid Json Reponse")
 
+        headers["deviceid"] = getDevideId(16)
+
         val episodes = res.episodeVo?.map { eps ->
             val definition = eps.definitionList?.map {
                 Definition(
@@ -219,13 +220,10 @@ class LoklokVn : MainAPI() {
         val res = parseJson<UrlEpisode>(data)
 
         res.definitionList?.apmap { video ->
-            val body = """[{"category":${res.category},"contentId":"${res.id}","episodeId":${res.epId},"definition":"${video.code}"}]""".toRequestBody(RequestBodyTypes.JSON.toMediaTypeOrNull())
-            val response = app.post(
-                "$apiUrl/media/bathGetplayInfo",
-                requestBody = body,
+            val json = app.get(
+                "$apiUrl/media/previewInfo?category=${res.category}&contentId=${res.id}&episodeId=${res.epId}&definition=${video.code}",
                 headers = headers,
-            ).text
-            val json = tryParseJson<PreviewResponse>(response)?.data?.firstOrNull()
+            ).parsedSafe<PreviewResponse>()?.data
             callback.invoke(
                 ExtractorLink(
                     this.name,
@@ -258,6 +256,13 @@ class LoklokVn : MainAPI() {
             "GROOT_HD" -> Qualities.P1080.value
             else -> Qualities.Unknown.value
         }
+    }
+
+    private fun getDevideId(length: Int): String {
+        val allowedChars = ('a'..'f') + ('0'..'9')
+        return (1..length)
+            .map { allowedChars.random() }
+            .joinToString("")
     }
 
     private suspend fun getTracker(title: String?, type: String?, year: Int?): Tracker {
@@ -330,7 +335,7 @@ class LoklokVn : MainAPI() {
     )
 
     data class PreviewResponse(
-        @JsonProperty("data") val data: ArrayList<PreviewVideos>? = arrayListOf(),
+        @JsonProperty("data") val data: PreviewVideos? = null,
     )
 
     data class PreviewVideos(
