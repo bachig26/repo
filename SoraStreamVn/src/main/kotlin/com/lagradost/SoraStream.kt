@@ -223,21 +223,22 @@ open class SoraStream : TmdbProvider() {
         val res = app.get(resUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
 
-        val enUrl = if (type == TvType.Movie) {
+        val viUrl = if (type == TvType.Movie) {
             "$tmdbAPI/movie/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=keywords,credits,external_ids,videos,recommendations"
         } else {
             "$tmdbAPI/tv/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=keywords,credits,external_ids,videos,recommendations"
         }
-        val en = app.get(enUrl).parsedSafe<MediaDetail>()
+        val vi = app.get(viUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
             
         val title = res.title ?: res.name ?: return null
-        val poster = getOriImageUrl(en.posterPath)
-        val bgPoster = getOriImageUrl(en.backdropPath)
-        val orgTitle = en.originalTitle ?: en.originalName ?: return null
+        val viTitle = vi.title ?: vi.name ?: return null
+        val poster = getOriImageUrl(vi.posterPath)
+        val bgPoster = getOriImageUrl(vi.backdropPath)
+        val orgTitle = res.originalTitle ?: res.originalName ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
-        val genres = en.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
+        val genres = vi.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
         val isAnime =
             genres?.contains("Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
         val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
@@ -253,9 +254,9 @@ open class SoraStream : TmdbProvider() {
             )
         } ?: return null
         val recommendations =
-            en.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
+            vi.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
 
-        val trailer = en.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }.orEmpty()
+        val trailer = vi.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }.orEmpty()
             .ifEmpty { res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" } }
 
         return if (type == TvType.TvSeries) {
@@ -290,7 +291,7 @@ open class SoraStream : TmdbProvider() {
                     }
             }?.flatten() ?: listOf()
             newTvSeriesLoadResponse(
-                orgTitle,
+                viTitle,
                 url,
                 if (isAnime) TvType.Anime else TvType.TvSeries,
                 episodes
@@ -298,7 +299,7 @@ open class SoraStream : TmdbProvider() {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
-                this.plot = en.overview
+                this.plot = vi.overview
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
@@ -308,7 +309,7 @@ open class SoraStream : TmdbProvider() {
             }
         } else {
             newMovieLoadResponse(
-                orgTitle,
+                viTitle,
                 url,
                 TvType.Movie,
                 LinkData(
@@ -324,7 +325,7 @@ open class SoraStream : TmdbProvider() {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
-                this.plot = en.overview
+                this.plot = vi.overview
                 this.duration = res.runtime
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
