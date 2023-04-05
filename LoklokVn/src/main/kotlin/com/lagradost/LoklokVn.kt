@@ -2,6 +2,7 @@ package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addAniListId
 import com.lagradost.cloudstream3.LoadResponse.Companion.addMalId
 import com.lagradost.cloudstream3.utils.*
@@ -25,20 +26,21 @@ class LoklokVn : MainAPI() {
         TvType.AsianDrama,
     )
 
-    private val headers = mutableMapOf(
-        "lang" to "vi",
-        "versioncode" to "32",
-        "clienttype" to "android_tem3"
-    )
-
     // no license found
     // thanks to https://github.com/napthedev/filmhot for providing API
     companion object {
+        private const val geoblockError = "Loklok is Geoblock, use vpn or give up"
         private val api = base64DecodeAPI("dg==LnQ=b2s=a2w=bG8=aS4=YXA=ZS0=aWw=b2I=LW0=Z2E=Ly8=czo=dHA=aHQ=")
         private val apiUrl = "$api/${base64Decode("Y21zL2FwcA==")}"
         private val searchApi = base64Decode("aHR0cHM6Ly9sb2tsb2suY29t")
         private const val mainImageUrl = "https://images.weserv.nl"
-
+        private val headers = mutableMapOf(
+            "lang" to "en",
+            "versioncode" to "33",
+            "clienttype" to "android_tem3",
+            "deviceid" to getDeviceId()
+        )
+        
         private fun base64DecodeAPI(api: String): String {
             return api.chunked(4).map { base64Decode(it) }.reversed().joinToString("")
         }
@@ -53,13 +55,13 @@ class LoklokVn : MainAPI() {
         for (i in 0..6) {
 //            delay(500)
             app.get("$apiUrl/homePage/getHome?page=$i", headers = headers)
-                .parsedSafe<Home>()?.data?.recommendItems
-                ?.filterNot { it.homeSectionType == "BLOCK_GROUP" }
-                ?.filterNot { it.homeSectionType == "BANNER" }
-                ?.mapNotNull { res ->
+                .parsedSafe<Home>()?.data?.recommendItems.orEmpty().ifEmpty { throw ErrorLoadingException(geoblockError) }
+                .filterNot { it.homeSectionType == "BLOCK_GROUP" }
+                .filterNot { it.homeSectionType == "BANNER" }
+                .mapNotNull { res ->
                     val header = res.homeSectionName ?: return@mapNotNull null
                     val media = res.media?.mapNotNull { media -> media.toSearchResponse() }
-                        ?: throw ErrorLoadingException("Invalid Json Reponse")
+                        .orEmpty().ifEmpty { throw ErrorLoadingException(geoblockError) }
                     home.add(HomePageList(header, media))
                 }
         }
@@ -96,43 +98,49 @@ class LoklokVn : MainAPI() {
         }
     }
 
-    override suspend fun search(query: String): List<SearchResponse> {
-        val res = app.get(
-            "$searchApi/search?keyword=$query",
-        ).document
+    override suspend fun search(query: String): List<SearchResponse>? = quickSearch(query)
 
-        val script = res.select("script").find { it.data().contains("function(a,b,c,d,e") }?.data()
-            ?.substringAfter("searchResults:[")?.substringBefore("]}],fetch")
-
-        return res.select("div.search-list div.search-video-card").mapIndexed { num, block ->
-            val name = block.selectFirst("h2.title")?.text()
-            val data = block.selectFirst("a")?.attr("href")?.split("/")
-            val id = data?.last()
-            val type = data?.get(2)?.toInt()
-            val image = Regex("coverVerticalUrl:\"(.*?)\",").findAll(script.toString())
-                .map { it.groupValues[1] }.toList().getOrNull(num)?.replace("\\u002F", "/")
-
-
-            newMovieSearchResponse(
-                "$name",
-                UrlData(id, type).toJson(),
-                TvType.Movie,
-            ) {
-                this.posterUrl = image
-            }
-
-        }
-
-    }
+//    override suspend fun search(query: String): List<SearchResponse> {
+//        val res = app.get(
+//            "$searchApi/search?keyword=$query",
+//        ).document
+//
+//        val script = res.select("script").find { it.data().contains("function(a,b,c,d,e") }?.data()
+//            ?.substringAfter("searchResults:[")?.substringBefore("]}],fetch")
+//
+//        return res.select("div.search-list div.search-video-card").mapIndexed { num, block ->
+//            val name = block.selectFirst("h2.title")?.text()
+//            val data = block.selectFirst("a")?.attr("href")?.split("/")
+//            val id = data?.last()
+//            val type = data?.get(2)?.toInt()
+//            val image = Regex("coverVerticalUrl:\"(.*?)\",").findAll(script.toString())
+//                .map { it.groupValues[1] }.toList().getOrNull(num)?.replace("\\u002F", "/")
+//
+//
+//            newMovieSearchResponse(
+//                "$name",
+//                UrlData(id, type).toJson(),
+//                TvType.Movie,
+//            ) {
+//                this.posterUrl = image
+//            }
+//
+//        }
+//
+//    }
 
     override suspend fun load(url: String): LoadResponse? {
         val data = parseJson<UrlData>(url)
         val res = app.get(
             "$apiUrl/movieDrama/get?id=${data.id}&category=${data.category}",
             headers = headers
-        ).parsedSafe<Load>()?.data ?: throw ErrorLoadingException("Invalid Json Reponse")
+        ).parsedSafe<Load>()?.data ?: throw ErrorLoadingException(geoblockError)
 
-        headers["deviceid"] = getDevideId(16)
+        val actors = res.starList?.mapNotNull {
+            Actor(
+                it.localName ?: return@mapNotNull null, it.image
+            )
+        }
 
         val episodes = res.episodeVo?.map { eps ->
             val definition = eps.definitionList?.map {
@@ -194,6 +202,7 @@ class LoklokVn : MainAPI() {
             this.plot = res.introduction
             this.tags = res.tagNameList
             this.rating = res.score.toRatingInt()
+            addActors(actors)
             addMalId(malId)
             addAniListId(anilistId?.toIntOrNull())
             this.recommendations = recommendations
@@ -220,6 +229,10 @@ class LoklokVn : MainAPI() {
         val res = parseJson<UrlEpisode>(data)
 
         res.definitionList?.apmap { video ->
+            val body =
+                """[{"category":${res.category},"contentId":"${res.id}","episodeId":${res.epId},"definition":"${video.code}"}]""".toRequestBody(
+                    RequestBodyTypes.JSON.toMediaTypeOrNull()
+                )
             val json = app.get(
                 "$apiUrl/media/previewInfo?category=${res.category}&contentId=${res.id}&episodeId=${res.epId}&definition=${video.code}",
                 headers = headers,
@@ -256,13 +269,6 @@ class LoklokVn : MainAPI() {
             "GROOT_HD" -> Qualities.P1080.value
             else -> Qualities.Unknown.value
         }
-    }
-
-    private fun getDevideId(length: Int): String {
-        val allowedChars = ('a'..'f') + ('0'..'9')
-        return (1..length)
-            .map { allowedChars.random() }
-            .joinToString("")
     }
 
     private suspend fun getTracker(title: String?, type: String?, year: Int?): Tracker {
@@ -366,6 +372,11 @@ class LoklokVn : MainAPI() {
         @JsonProperty("name") val name: String? = null,
     )
 
+    data class StarList(
+        @JsonProperty("image") val image: String? = null,
+        @JsonProperty("localName") val localName: String? = null,
+    )
+
     data class MediaDetail(
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("introduction") val introduction: String? = null,
@@ -374,6 +385,7 @@ class LoklokVn : MainAPI() {
         @JsonProperty("coverVerticalUrl") val coverVerticalUrl: String? = null,
         @JsonProperty("coverHorizontalUrl") val coverHorizontalUrl: String? = null,
         @JsonProperty("score") val score: String? = null,
+        @JsonProperty("starList") val starList: ArrayList<StarList>? = arrayListOf(),
         @JsonProperty("areaList") val areaList: ArrayList<Region>? = arrayListOf(),
         @JsonProperty("episodeVo") val episodeVo: ArrayList<EpisodeVo>? = arrayListOf(),
         @JsonProperty("likeList") val likeList: ArrayList<Media>? = arrayListOf(),
@@ -409,4 +421,11 @@ class LoklokVn : MainAPI() {
         @JsonProperty("data") val data: Data? = null,
     )
 
+}
+
+fun getDeviceId(length: Int = 16): String {
+    val allowedChars = ('a'..'f') + ('0'..'9')
+    return (1..length)
+        .map { allowedChars.random() }
+        .joinToString("")
 }
