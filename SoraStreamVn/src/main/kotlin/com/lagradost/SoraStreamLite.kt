@@ -2,12 +2,13 @@ package com.hexated
 
 import com.hexated.SoraExtractor.invoke123Movie
 import com.hexated.SoraExtractor.invokeAnimes
+import com.hexated.SoraExtractor.invokeAsk4Movies
 import com.hexated.SoraExtractor.invokeCrunchyroll
 import com.hexated.SoraExtractor.invokeDbgo
 import com.hexated.SoraExtractor.invokeFilmxy
-import com.hexated.SoraExtractor.invokeFlixhq
 import com.hexated.SoraExtractor.invokeFlixon
 import com.hexated.SoraExtractor.invokeFwatayako
+import com.hexated.SoraExtractor.invokeGomovies
 import com.hexated.SoraExtractor.invokeHDMovieBox
 import com.hexated.SoraExtractor.invokeIdlix
 import com.hexated.SoraExtractor.invokeKimcartoon
@@ -23,6 +24,7 @@ import com.hexated.SoraExtractor.invokeSoraStream
 import com.hexated.SoraExtractor.invokeTwoEmbed
 import com.hexated.SoraExtractor.invokeUniqueStream
 import com.hexated.SoraExtractor.invokeVidSrc
+import com.hexated.SoraExtractor.invokeWatchOnline
 import com.hexated.SoraExtractor.invokeWatchsomuch
 import com.hexated.SoraExtractor.invokeXmovies
 import com.lagradost.cloudstream3.SubtitleFile
@@ -136,18 +138,18 @@ class SoraStreamLite : SoraStream() {
                     callback
                 )
             },
+//            {
+//                invokeUniqueStream(
+//                    res.title,
+//                    res.year,
+//                    res.season,
+//                    res.episode,
+//                    subtitleCallback,
+//                    callback
+//                )
+//            },
             {
-                invokeUniqueStream(
-                    res.title,
-                    res.year,
-                    res.season,
-                    res.episode,
-                    subtitleCallback,
-                    callback
-                )
-            },
-            {
-                invokeFilmxy(res.imdbId, res.season, res.episode, subtitleCallback, callback)
+                if (!res.isAnime) invokeFilmxy(res.imdbId, res.season, res.episode, subtitleCallback, callback)
             },
             {
                 invokeKimcartoon(res.title, res.season, res.episode, subtitleCallback, callback)
@@ -165,16 +167,17 @@ class SoraStreamLite : SoraStream() {
                     callback
                 )
             },
-            {
-                invokeFlixhq(
-                    res.title,
-                    res.year,
-                    res.season,
-                    res.episode,
-                    subtitleCallback,
-                    callback
-                )
-            },
+//            {
+//                invokeFlixhq(
+//                    res.title,
+//                    res.year,
+//                    res.season,
+//                    res.episode,
+//                    res.lastSeason,
+//                    subtitleCallback,
+//                    callback
+//                )
+//            },
             {
                 invokeKisskh(res.title, res.season, res.episode, subtitleCallback, callback)
             },
@@ -206,6 +209,31 @@ class SoraStreamLite : SoraStream() {
             },
             {
                 invokeFlixon(res.id, res.imdbId, res.season, res.episode, callback)
+            },
+            {
+                invokeGomovies(res.title, res.year, res.season, res.episode, callback)
+            },
+            {
+                if (!res.isAnime) invokeAsk4Movies(
+                    res.title,
+                    res.year,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
+                )
+            },
+            {
+                invokeWatchOnline(
+                    res.imdbId,
+                    res.id,
+                    res.title,
+                    res.airedYear ?: res.year,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
+                )
             },
         )
 
