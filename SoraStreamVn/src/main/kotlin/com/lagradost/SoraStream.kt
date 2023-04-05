@@ -179,7 +179,7 @@ open class SoraStream : TmdbProvider() {
         "$tmdbAPI/movie/top_rated?api_key=$apiKey&language=vi-VN&region=US" to "Top Phim lẻ",
         "$tmdbAPI/tv/top_rated?api_key=$apiKey&language=vi-VN&region=US" to "Top Phim bộ",
         "$tmdbAPI/movie/upcoming?api_key=$apiKey&language=vi-VN&region=US" to "Phim sắp chiếu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_original_language=en" to "Phim Hàn Quốc",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_original_language=ko" to "Phim Hàn Quốc",
         "$tmdbAPI/tv/airing_today?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Anime hôm nay",
         "$tmdbAPI/tv/on_the_air?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Anime đang chiếu",
         "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243" to "Anime",
