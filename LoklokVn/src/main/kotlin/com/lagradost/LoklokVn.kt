@@ -35,7 +35,7 @@ class LoklokVn : MainAPI() {
         private val searchApi = base64Decode("aHR0cHM6Ly9sb2tsb2suY29t")
         private const val mainImageUrl = "https://images.weserv.nl"
         private val headers = mutableMapOf(
-            "lang" to "en",
+            "lang" to "vi",
             "versioncode" to "33",
             "clienttype" to "android_tem3",
             "deviceid" to getDeviceId()
