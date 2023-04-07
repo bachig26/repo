@@ -319,7 +319,7 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = vi.overview
-                this.duration = res.episode_run_time
+                this.duration = res.episode_run_time?.average()?.toInt()
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
@@ -941,6 +941,7 @@ open class SoraStream : TmdbProvider() {
         @JsonProperty("overview") val overview: String? = null,
         @JsonProperty("runtime") val runtime: Int? = null,
         @JsonProperty("episode_run_time") val episode_run_time: Int? = null,
+        @JsonProperty("average") val average: Any? = null,
         @JsonProperty("vote_average") val vote_average: Any? = null,
         @JsonProperty("original_language") val original_language: String? = null,
         @JsonProperty("status") val status: String? = null,
