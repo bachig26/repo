@@ -83,14 +83,13 @@ subprojects {
         // but you dont need to include any of them if you dont need them
         // https://github.com/recloudstream/cloudstream/blob/master/app/build.gradle
         implementation(kotlin("stdlib")) // adds standard kotlin features, like listOf, mapOf etc
-        implementation("com.github.Blatzar:NiceHttp:0.4.1") // http library
+        implementation("com.github.Blatzar:NiceHttp:0.4.2") // http library
         implementation("org.jsoup:jsoup:1.15.3") // html parser
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
         implementation("io.karn:khttp-android:0.1.2")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4") // html parser
         //run JS
         implementation("org.mozilla:rhino:1.7.14")
-        implementation("com.google.code.gson:gson:2.8.9")
 
     }
 }
