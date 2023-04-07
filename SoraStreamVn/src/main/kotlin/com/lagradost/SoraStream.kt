@@ -302,6 +302,7 @@ open class SoraStream : TmdbProvider() {
                             season = eps.seasonNumber,
                             episode = eps.episodeNumber,
                             posterUrl = getImageUrl(eps.stillPath),
+                            duration = eps.runtime?.average()?.toInt()
                             rating = eps.voteAverage?.times(10)?.roundToInt(),
                             description = eps.overview
                         ).apply {
@@ -319,7 +320,7 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = vi.overview
-                this.duration = episodes.runtime?.average()?.toInt()
+                this.duration = duration
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
