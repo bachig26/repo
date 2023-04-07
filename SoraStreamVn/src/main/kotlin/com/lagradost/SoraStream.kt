@@ -319,7 +319,7 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = vi.overview
-                this.duration = res.episode_run_time?.toInt()
+                this.duration = res.runtime
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
