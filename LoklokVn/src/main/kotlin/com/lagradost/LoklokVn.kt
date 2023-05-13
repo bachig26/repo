@@ -25,20 +25,18 @@ class LoklokVn : MainAPI() {
         TvType.Anime,
         TvType.AsianDrama,
     )
-
-    // no license found
-    // thanks to https://github.com/napthedev/filmhot for providing API
     companion object {
         private const val geoblockError = "Loklok is Geoblock, use vpn or give up"
         private val api = base64DecodeAPI("dg==LnQ=b2s=a2w=bG8=aS4=YXA=ZS0=aWw=b2I=LW0=Z2E=Ly8=czo=dHA=aHQ=")
         private val apiUrl = "$api/${base64Decode("Y21zL2FwcA==")}"
+        private val pcApiUrl = base64DecodeAPI("cGM=Yi8=d2U=cy8=Y20=di8=LnQ=b2s=a2w=bG8=aS4=YXA=ZS0=aWw=b2I=LW0=Z2E=Ly8=czo=dHA=aHQ=")
         private val searchApi = base64Decode("aHR0cHM6Ly9sb2tsb2suY29t")
         private const val mainImageUrl = "https://images.weserv.nl"
         private val headers = mutableMapOf(
             "lang" to "vi",
-            "versioncode" to "33",
-            "clienttype" to "android_tem3",
-            "deviceid" to getDeviceId()
+            "versioncode" to "999999999",
+            "clienttype" to "ios17",
+            "deviceid" to getDeviceId(),
         )
         
         private fun base64DecodeAPI(api: String): String {
@@ -53,7 +51,6 @@ class LoklokVn : MainAPI() {
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val home = ArrayList<HomePageList>()
         for (i in 0..6) {
-//            delay(500)
             app.get("$apiUrl/homePage/getHome?page=$i", headers = headers)
                 .parsedSafe<Home>()?.data?.recommendItems.orEmpty().ifEmpty { throw ErrorLoadingException(geoblockError) }
                 .filterNot { it.homeSectionType == "BLOCK_GROUP" }
