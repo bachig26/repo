@@ -1,13 +1,13 @@
 package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.hexated.SoraExtractor.invoke123Movie
 import com.hexated.SoraExtractor.invokeAnimes
 import com.hexated.SoraExtractor.invokeAsk4Movies
 import com.hexated.SoraExtractor.invokeBlackmovies
 import com.hexated.SoraExtractor.invokeBollyMaza
 import com.hexated.SoraExtractor.invokeCodexmovies
 import com.hexated.SoraExtractor.invokeCrunchyroll
+import com.hexated.SoraExtractor.invokeCryMovies
 import com.hexated.SoraExtractor.invokeDbgo
 import com.hexated.SoraExtractor.invokeFilmxy
 import com.hexated.SoraExtractor.invokeHDMovieBox
@@ -27,6 +27,7 @@ import com.hexated.SoraExtractor.invokeDahmerMovies
 import com.hexated.SoraExtractor.invokeEdithxmovies
 import com.hexated.SoraExtractor.invokeFDMovies
 import com.hexated.SoraExtractor.invokeFlixon
+import com.hexated.SoraExtractor.invokeFmovies
 import com.hexated.SoraExtractor.invokeFwatayako
 import com.hexated.SoraExtractor.invokeGMovies
 import com.hexated.SoraExtractor.invokeGdbotMovies
@@ -38,12 +39,15 @@ import com.hexated.SoraExtractor.invokeM4uhd
 import com.hexated.SoraExtractor.invokeMovie123Net
 import com.hexated.SoraExtractor.invokeMoviesbay
 import com.hexated.SoraExtractor.invokeMoviezAdd
+import com.hexated.SoraExtractor.invokeNinetv
 import com.hexated.SoraExtractor.invokePapaonMovies1
 import com.hexated.SoraExtractor.invokePapaonMovies2
+import com.hexated.SoraExtractor.invokePutlocker
 import com.hexated.SoraExtractor.invokeRStream
 import com.hexated.SoraExtractor.invokeRinzrymovies
 import com.hexated.SoraExtractor.invokeRubyMovies
 import com.hexated.SoraExtractor.invokeShinobiMovies
+import com.hexated.SoraExtractor.invokeShivamhw
 import com.hexated.SoraExtractor.invokeSmashyStream
 import com.hexated.SoraExtractor.invokeSoraStream
 import com.hexated.SoraExtractor.invokeTgarMovies
@@ -75,73 +79,77 @@ open class SoraStream : TmdbProvider() {
     companion object {
         /** TOOLS */
         private const val tmdbAPI = "https://api.themoviedb.org/3"
-        const val tmdb2mal = "https://tmdb2mal.slidemovies.org"
-        const val jikanAPI = "https://api.jikan.moe/v4"
+        const val tmdb2anilist = "https://tmdb2anilist.slidemovies.org"
         const val gdbot = "https://gdbot.xyz"
         const val consumetAnilistAPI = "https://api.consumet.org/meta/anilist"
 
-        private val apiKey = base64DecodeAPI("ZTM=NTg=MjM=MjM=ODc=MzI=OGQ=MmE=Nzk=Nzk=ZjI=NTA=NDY=NDA=MzA=YjA=") // PLEASE DON'T STEAL
-
+        private val apiKey =
+            base64DecodeAPI("ZTM=NTg=MjM=MjM=ODc=MzI=OGQ=MmE=Nzk=Nzk=ZjI=NTA=NDY=NDA=MzA=YjA=") // PLEASE DON'T STEAL
         /** ALL SOURCES */
         const val twoEmbedAPI = "https://www.2embed.to"
         const val vidSrcAPI = "https://v2.vidsrc.me"
         const val dbgoAPI = "https://dbgo.fun"
-        const val movie123API = "https://api.123movie.cc"
         const val movieHabAPI = "https://moviehab.com"
         const val databaseGdriveAPI = "https://databasegdriveplayer.co"
         const val hdMovieBoxAPI = "https://hdmoviebox.net"
-        const val series9API = "https://series9.la"
+        const val series9API = "https://series9.sh"
         const val idlixAPI = "https://idlixian.com"
         const val noverseAPI = "https://www.nollyverse.com"
-        const val olgplyAPI = "https://olgply.xyz" // dead
         const val uniqueStreamAPI = "https://uniquestream.net"
         const val filmxyAPI = "https://www.filmxy.vip"
         const val kimcartoonAPI = "https://kimcartoon.li"
         const val xMovieAPI = "https://xemovies.to"
-        const val haikeiFlixhqAPI = "https://api.haikei.xyz/movies/flixhq" // disabled due to rate limit
         const val consumetZoroAPI = "https://api.consumet.org/anime/zoro"
-        const val consumetCrunchyrollAPI = "https://cronchy.consumet.stream"
-        const val kickassanimeAPI = "https://www2.kickassanime.ro" // disabled due to consumet
-        const val kissKhAPI = "https://kisskh.me"
+        const val allanimeAPI = "https://api.allanime.to"
+        const val kissKhAPI = "https://kisskh.co"
         const val lingAPI = "https://ling-online.net"
-        const val uhdmoviesAPI = "https://uhdmovies.vip"
+        const val uhdmoviesAPI = "https://uhdmovies.one"
         const val fwatayakoAPI = "https://5100.svetacdn.in"
         const val gMoviesAPI = "https://gdrivemovies.xyz"
         const val fdMoviesAPI = "https://freedrivemovie.lol"
         const val m4uhdAPI = "https://m4uhd.tv"
         const val tvMoviesAPI = "https://www.tvseriesnmovies.com"
-        const val moviezAddAPI = "https://45.143.223.244"
-        const val bollyMazaAPI = "https://b.bloginguru.info"
+        const val moviezAddAPI = "https://ww1.moviezaddiction.click"
+        const val bollyMazaAPI = "https://ww1.bollymaza.click"
         const val moviesbayAPI = "https://moviesbay.live"
         const val rStreamAPI = "https://remotestre.am"
         const val flixonAPI = "https://flixon.ru"
         const val animeKaizokuAPI = "https://animekaizoku.com"
-        const val movie123NetAPI = "https://ww7.0123movie.net"
+        const val movie123NetAPI = "https://ww8.0123movie.net"
         const val smashyStreamAPI = "https://embed.smashystream.com"
         const val watchSomuchAPI = "https://watchsomuch.tv" // sub only
         val gomoviesAPI = base64DecodeAPI("bQ==Y28=ZS4=aW4=bmw=LW8=ZXM=dmk=bW8=Z28=Ly8=czo=dHA=aHQ=")
         const val ask4MoviesAPI = "https://ask4movie.mx"
         const val biliBiliAPI = "https://api-vn.kaguya.app/server"
         const val watchOnlineAPI = "https://watchonline.ag"
+        const val nineTvAPI = "https://api.9animetv.live"
+        const val putlockerAPI = "https://ww7.putlocker.vip"
+        const val fmoviesAPI = "https://fmovies.to"
+
         // INDEX SITE
-        const val baymoviesAPI = "https://opengatewayindex.pages.dev" // dead
+        const val blackMoviesAPI = "https://dl.blacklistedbois.workers.dev/0:"
+        const val rinzryMoviesAPI = "https://rinzry.stream/0:"
+        const val codexMoviesAPI = "https://packs.codexcloudx.tech/0:"
+        const val edithxMoviesAPI = "https://index.edithx.ga/0:"
+        const val dahmerMoviesAPI = "https://edytjedhgmdhm.abfhaqrhbnf.workers.dev"
+        const val jmdkhMovieAPI = "https://tg.jmdkh.eu.org/0:"
+        const val rubyMovieAPI = "https://upload.rubyshare111.workers.dev/0:"
+        const val shinobiMovieAPI = "https://home.shinobicloud.cf/0:"
+        const val vitoenMovieAPI = "https://openmatte.vitoencodes.workers.dev/0:"
+        const val shivamhwAPI = "https://foogle.shivamhw.me"
+        val cryMoviesAPI = base64DecodeAPI("ZXY=LmQ=cnM=a2U=b3I=Lnc=ZXI=ZGQ=bGE=cy0=b2I=YWM=Lmo=YWw=aW4=LWY=cm4=Ym8=cmU=Ly8=czo=dHA=aHQ=")
+
+        // DEAD SITE
+        const val consumetCrunchyrollAPI = "https://cronchy.consumet.stream" // dead
         const val chillmovies0API = "https://chill.aicirou.workers.dev/0:" // dead
         const val chillmovies1API = "https://chill.aicirou.workers.dev/1:" // dead
         const val gamMoviesAPI = "https://drive.gamick.workers.dev/0:" // dead
         const val jsMoviesAPI = "https://jsupload.jnsbot.workers.dev/0:" // dead
         const val xtremeMoviesAPI = "https://kartik19.xtrememirror0.workers.dev/0:" // dead
-        const val blackMoviesAPI = "https://dl.blacklistedbois.workers.dev/0:"
-        const val rinzryMoviesAPI = "https://rinzry.stream/0:"
-        const val codexMoviesAPI = "https://packs.codexcloudx.tech/0:"
-        const val edithxMoviesAPI = "https://index.edithx.ga/0:"
-        const val papaonMovies1API = "https://m.papaonwork.workers.dev/0:"
-        const val papaonMovies2API = "https://m.papaonwork.workers.dev/1:"
-        const val dahmerMoviesAPI = "https://edytjedhgmdhm.abfhaqrhbnf.workers.dev"
         const val tgarMovieAPI = "https://tgarchive.eu.org" // dead
-        const val jmdkhMovieAPI = "https://tg.jmdkh.eu.org/0:"
-        const val rubyMovieAPI = "https://upload.rubyshare111.workers.dev/0:"
-        const val shinobiMovieAPI = "https://home.shinobicloud.cf/0:"
-        const val vitoenMovieAPI = "https://openmatte.vitoencodes.workers.dev/0:"
+        const val baymoviesAPI = "https://opengatewayindex.pages.dev" // dead
+        const val papaonMovies1API = "https://m.papaonwork.workers.dev/0:" // dead
+        const val papaonMovies2API = "https://m.papaonwork.workers.dev/1:" // dead
 
         fun getType(t: String?): TvType {
             return when (t) {
@@ -234,18 +242,19 @@ open class SoraStream : TmdbProvider() {
     override suspend fun load(url: String): LoadResponse? {
         val data = parseJson<Data>(url)
         val type = getType(data.type)
+        val append = "alternative_titles,credits,external_ids,keywords,videos,recommendations"
         val resUrl = if (type == TvType.Movie) {
-            "$tmdbAPI/movie/${data.id}?api_key=$apiKey&append_to_response=keywords,credits,external_ids,videos,recommendations"
+            "$tmdbAPI/movie/${data.id}?api_key=$apiKey&append_to_response=$append"
         } else {
-            "$tmdbAPI/tv/${data.id}?api_key=$apiKey&append_to_response=keywords,credits,external_ids,videos,recommendations"
+            "$tmdbAPI/tv/${data.id}?api_key=$apiKey&append_to_response=$append"
         }
         val res = app.get(resUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
 
         val viUrl = if (type == TvType.Movie) {
-            "$tmdbAPI/movie/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=keywords,credits,external_ids,videos,recommendations"
+            "$tmdbAPI/movie/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=$append"
         } else {
-            "$tmdbAPI/tv/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=keywords,credits,external_ids,videos,recommendations"
+            "$tmdbAPI/tv/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=$append"
         }
         val vi = app.get(viUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
@@ -297,6 +306,7 @@ open class SoraStream : TmdbProvider() {
                                 airedYear = year,
                                 lastSeason = lastSeason,
                                 epsTitle = eps.name,
+                                jpTitle = res.alternative_titles?.results?.find { it.iso_3166_1 == "JP" }?.title
                             ).toJson(),
                             name = eps.name,
                             season = eps.seasonNumber,
@@ -339,6 +349,7 @@ open class SoraStream : TmdbProvider() {
                     year = year,
                     orgTitle = orgTitle,
                     isAnime = isAnime,
+                    jpTitle = res.alternative_titles?.results?.find { it.iso_3166_1 == "JP" }?.title
                 ).toJson(),
             ) {
                 this.posterUrl = poster
@@ -386,21 +397,8 @@ open class SoraStream : TmdbProvider() {
             {
                 invokeVidSrc(res.id, res.season, res.episode, subtitleCallback, callback)
             },
-//            {
-//                invokeOlgply(res.id, res.season, res.episode, callback)
-//            },
             {
                 invokeDbgo(res.imdbId, res.season, res.episode, subtitleCallback, callback)
-            },
-            {
-                invoke123Movie(
-                    res.id,
-                    res.imdbId,
-                    res.season,
-                    res.episode,
-                    subtitleCallback,
-                    callback
-                )
             },
             {
                 invokeMovieHab(res.imdbId, res.season, res.episode, subtitleCallback, callback)
@@ -418,24 +416,25 @@ open class SoraStream : TmdbProvider() {
                 if (res.isAnime) invokeAnimes(
                     res.id,
                     res.title,
+                    res.jpTitle,
                     res.epsTitle,
-                    res.year,
+                    res.airedYear ?: res.year,
                     res.season,
                     res.episode,
                     subtitleCallback,
                     callback
                 )
             },
-            {
-                if (res.season != null && res.isAnime) invokeCrunchyroll(
-                    res.title,
-                    res.epsTitle,
-                    res.season,
-                    res.episode,
-                    subtitleCallback,
-                    callback
-                )
-            },
+//            {
+//                if (res.season != null && res.isAnime) invokeCrunchyroll(
+//                    res.title,
+//                    res.epsTitle,
+//                    res.season,
+//                    res.episode,
+//                    subtitleCallback,
+//                    callback
+//                )
+//            },
             {
                 if (!res.isAnime) invokeHDMovieBox(
                     res.title,
@@ -446,7 +445,14 @@ open class SoraStream : TmdbProvider() {
                 )
             },
             {
-                invokeSeries9(res.title, res.season, res.episode, subtitleCallback, callback)
+                invokeSeries9(
+                    res.title,
+                    res.year,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
+                )
             },
             {
                 invokeIdlix(
@@ -472,7 +478,13 @@ open class SoraStream : TmdbProvider() {
 //                )
 //            },
             {
-                if (!res.isAnime) invokeFilmxy(res.imdbId, res.season, res.episode, subtitleCallback, callback)
+                if (!res.isAnime) invokeFilmxy(
+                    res.imdbId,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
+                )
             },
             {
                 invokeKimcartoon(res.title, res.season, res.episode, subtitleCallback, callback)
@@ -487,17 +499,16 @@ open class SoraStream : TmdbProvider() {
                     callback
                 )
             },
-//            {
-//                invokeFlixhq(
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    res.lastSeason,
-//                    subtitleCallback,
-//                    callback
-//                )
-//            },
+            {
+                invokeFmovies(
+                    res.title,
+                    res.airedYear ?: res.year,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
+                )
+            },
             {
                 invokeKisskh(res.title, res.season, res.episode, subtitleCallback, callback)
             },
@@ -552,6 +563,9 @@ open class SoraStream : TmdbProvider() {
                 )
             },
             {
+                invokePutlocker(res.title, res.year, res.season, res.episode, callback)
+            },
+            {
                 invokeTvMovies(res.title, res.season, res.episode, callback)
             },
             {
@@ -595,54 +609,21 @@ open class SoraStream : TmdbProvider() {
             {
                 invokeSmashyStream(res.imdbId, res.season, res.episode, callback)
             },
-//            {
-//                if (!res.isAnime) invokeBaymovies(
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    callback
-//                )
-//            },
-//            {
-//                invokeChillmovies0(
-//                    chillmovies0API,
-//                    "Chillmovies0",
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    callback
-//                )
-//            },
-//            {
-//                invokeChillmovies1(
-//                    chillmovies1API,
-//                    "Chillmovies1",
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    callback
-//                )
-//            },
-//            {
-//                if (!res.isAnime) invokeGammovies(
-//                    gamMoviesAPI,
-//                    "GamMovies",
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    callback
-//                )
-//            },
             {
                 invokeWatchsomuch(
                     res.imdbId,
                     res.season,
                     res.episode,
                     subtitleCallback
+                )
+            },
+            {
+                if (!res.isAnime) invokeNinetv(
+                    res.id,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
                 )
             },
             {
@@ -656,17 +637,6 @@ open class SoraStream : TmdbProvider() {
                     callback
                 )
             },
-//            {
-//                if (!res.isAnime) invokeJsmovies(
-//                    jsMoviesAPI,
-//                    "JSMovies",
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    callback
-//                )
-//            },
             {
                 invokeRinzrymovies(
                     rinzryMoviesAPI,
@@ -702,39 +672,6 @@ open class SoraStream : TmdbProvider() {
                     "Basic ZWRpdGg6amFydmlz"
                 )
             },
-//            {
-//                if (!res.isAnime) invokeXtrememovies(
-//                    xtremeMoviesAPI,
-//                    "XtremeMovies",
-//                    res.title,
-//                    res.year,
-//                    res.season,
-//                    res.episode,
-//                    callback
-//                )
-//            },
-            {
-                if (!res.isAnime) invokePapaonMovies1(
-                    papaonMovies1API,
-                    "PapaonMovies[1]",
-                    res.title,
-                    res.year,
-                    res.season,
-                    res.episode,
-                    callback
-                )
-            },
-            {
-                if (!res.isAnime) invokePapaonMovies2(
-                    papaonMovies2API,
-                    "PapaonMovies[2]",
-                    res.title,
-                    res.year,
-                    res.season,
-                    res.episode,
-                    callback
-                )
-            },
             {
                 invokeDahmerMovies(
                     res.title,
@@ -751,7 +688,13 @@ open class SoraStream : TmdbProvider() {
 //                if (!res.isAnime) invokeTgarMovies(res.title, res.year, res.season, res.episode, callback)
 //            },
             {
-                if (!res.isAnime) invokeGdbotMovies(res.title, res.year, res.season, res.episode, callback)
+                if (!res.isAnime) invokeGdbotMovies(
+                    res.title,
+                    res.year,
+                    res.season,
+                    res.episode,
+                    callback
+                )
             },
             {
                 if (!res.isAnime) invokeJmdkhMovies(
@@ -798,7 +741,14 @@ open class SoraStream : TmdbProvider() {
                 )
             },
             {
-                if (!res.isAnime) invokeAsk4Movies(res.title, res.year, res.season, res.episode, subtitleCallback, callback)
+                if (!res.isAnime) invokeAsk4Movies(
+                    res.title,
+                    res.year,
+                    res.season,
+                    res.episode,
+                    subtitleCallback,
+                    callback
+                )
             },
             {
                 invokeWatchOnline(
@@ -812,6 +762,25 @@ open class SoraStream : TmdbProvider() {
                     callback
                 )
             },
+            {
+                if (!res.isAnime) invokeShivamhw(
+                    res.title,
+                    res.year,
+                    res.season,
+                    res.episode,
+                    callback
+                )
+            },
+            {
+                if (!res.isAnime && res.season == null) invokeCryMovies(
+                    res.imdbId,
+                    res.title,
+                    res.year,
+                    res.season,
+                    res.episode,
+                    callback
+                )
+            }
         )
 
         return true
@@ -832,6 +801,7 @@ open class SoraStream : TmdbProvider() {
         val airedYear: Int? = null,
         val lastSeason: Int? = null,
         val epsTitle: String? = null,
+        val jpTitle: String? = null,
     )
 
     data class Data(
@@ -908,6 +878,16 @@ open class SoraStream : TmdbProvider() {
         @JsonProperty("results") val results: ArrayList<Trailers>? = arrayListOf(),
     )
 
+    data class AltTitles(
+        @JsonProperty("iso_3166_1") val iso_3166_1: String? = null,
+        @JsonProperty("title") val title: String? = null,
+        @JsonProperty("type") val type: String? = null,
+    )
+
+    data class ResultsAltTitles(
+        @JsonProperty("results") val results: ArrayList<AltTitles>? = arrayListOf(),
+    )
+
     data class ExternalIds(
         @JsonProperty("imdb_id") val imdb_id: String? = null,
         @JsonProperty("tvdb_id") val tvdb_id: String? = null,
@@ -950,6 +930,7 @@ open class SoraStream : TmdbProvider() {
         @JsonProperty("external_ids") val external_ids: ExternalIds? = null,
         @JsonProperty("credits") val credits: Credits? = null,
         @JsonProperty("recommendations") val recommendations: ResultsRecommendations? = null,
+        @JsonProperty("alternative_titles") val alternative_titles: ResultsAltTitles? = null,
     )
 
     data class EmbedJson(
