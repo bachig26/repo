@@ -15,5 +15,14 @@ class SoraStreamPlugin: Plugin() {
         registerExtractorAPI(Sblongvu())
         registerExtractorAPI(Keephealth())
         registerExtractorAPI(FileMoonIn())
+        registerExtractorAPI(Sbnet())
+        registerExtractorAPI(Chillx())
+        registerExtractorAPI(Watchx())
+        registerExtractorAPI(StreamhideCom())
+        registerExtractorAPI(Movhide())
+        registerExtractorAPI(Moviesm4u())
+        registerExtractorAPI(Fembed9hd())
+        registerExtractorAPI(Sbasian())
+        registerExtractorAPI(Bestx())
     }
 }
