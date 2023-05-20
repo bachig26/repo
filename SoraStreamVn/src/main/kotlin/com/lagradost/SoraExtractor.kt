@@ -1,13 +1,13 @@
 package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.hexated.GogoExtractor.extractVidstream
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import com.lagradost.nicehttp.Requests
 import com.lagradost.nicehttp.Session
 import com.hexated.RabbitStream.extractRabbitStream
+import com.lagradost.cloudstream3.extractors.helper.GogoHelper
 import com.lagradost.cloudstream3.network.CloudflareKiller
 import com.lagradost.nicehttp.RequestBodyTypes
 import kotlinx.coroutines.delay
@@ -328,7 +328,7 @@ object SoraExtractor : SoraStream() {
             val iv = "9225679083961858"
             val secretKey = "25742532592138496744665879883281"
             val secretDecryptKey = secretKey
-            extractVidstream(
+            GogoHelper.extractVidstream(
                 iframe.url,
                 "Vidstream",
                 callback,
@@ -1916,13 +1916,16 @@ object SoraExtractor : SoraStream() {
         }.apmap {
             when {
                 it.first.contains("/ffix") -> {
-                    invokeSmashyOne(it.second, it.first, callback)
+                    invokeSmashyFfix(it.second, it.first, callback)
                 }
                 it.first.contains("/gtop") -> {
-                    invokeSmashyTwo(it.second, it.first, callback)
+                    invokeSmashyGtop(it.second, it.first, callback)
                 }
                 it.first.contains("/dude_tv") -> {
-                    invokeSmashyThree(it.second, it.first, callback)
+                    invokeSmashyDude(it.second, it.first, callback)
+                }
+                it.first.contains("/nflim") -> {
+                    invokeSmashyNflim(it.second, it.first, callback)
                 }
                 else -> return@apmap
             }
@@ -2930,6 +2933,24 @@ object SoraExtractor : SoraStream() {
                 )
             }
 
+    }
+
+    suspend fun invokeNowTv(
+        tmdbId: Int? = null,
+        callback: (ExtractorLink) -> Unit
+    ) {
+        val referer = "https://2now.tv/"
+        val url = "$nowTvAPI/$tmdbId.mp4"
+        if(!app.get(url, referer = referer).isSuccessful) return
+        callback.invoke(
+            ExtractorLink(
+                "NowTv",
+                "NowTv",
+                url,
+                referer,
+                Qualities.P1080.value,
+            )
+        )
     }
 
 
