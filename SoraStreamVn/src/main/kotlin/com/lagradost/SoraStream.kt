@@ -40,6 +40,7 @@ import com.hexated.SoraExtractor.invokeMovie123Net
 import com.hexated.SoraExtractor.invokeMoviesbay
 import com.hexated.SoraExtractor.invokeMoviezAdd
 import com.hexated.SoraExtractor.invokeNinetv
+import com.hexated.SoraExtractor.invokeNowTv
 import com.hexated.SoraExtractor.invokePapaonMovies1
 import com.hexated.SoraExtractor.invokePapaonMovies2
 import com.hexated.SoraExtractor.invokePutlocker
@@ -66,7 +67,6 @@ open class SoraStream : TmdbProvider() {
     override var name = "SoraStream"
     override val hasMainPage = true
     override val instantLinkLoading = true
-    override var lang = "vi"
     override val useMetaLoadResponse = true
     override val hasQuickSearch = true
     override val supportedTypes = setOf(
@@ -80,11 +80,12 @@ open class SoraStream : TmdbProvider() {
         /** TOOLS */
         private const val tmdbAPI = "https://api.themoviedb.org/3"
         const val tmdb2anilist = "https://tmdb2anilist.slidemovies.org"
-        const val gdbot = "https://gdbot.xyz"
+        const val gdbot = "https://gdtot.pro"
         const val consumetAnilistAPI = "https://api.consumet.org/meta/anilist"
 
         private val apiKey =
             base64DecodeAPI("ZTM=NTg=MjM=MjM=ODc=MzI=OGQ=MmE=Nzk=Nzk=ZjI=NTA=NDY=NDA=MzA=YjA=") // PLEASE DON'T STEAL
+
         /** ALL SOURCES */
         const val twoEmbedAPI = "https://www.2embed.to"
         const val vidSrcAPI = "https://v2.vidsrc.me"
@@ -125,6 +126,7 @@ open class SoraStream : TmdbProvider() {
         const val nineTvAPI = "https://api.9animetv.live"
         const val putlockerAPI = "https://ww7.putlocker.vip"
         const val fmoviesAPI = "https://fmovies.to"
+        const val nowTvAPI = "https://myfilestorage.xyz"
 
         // INDEX SITE
         const val blackMoviesAPI = "https://dl.blacklistedbois.workers.dev/0:"
@@ -172,26 +174,26 @@ open class SoraStream : TmdbProvider() {
     }
 
     override val mainPage = mainPageOf(
-        "$tmdbAPI/trending/all/day?api_key=$apiKey&language=vi-VN&region=US" to "Thịnh hành",
-        "$tmdbAPI/movie/popular?api_key=$apiKey&language=vi-VN&region=US" to "Phim lẻ phổ biến",
-        "$tmdbAPI/tv/popular?api_key=$apiKey&language=vi-VN&region=US&with_original_language=en" to "Phim bộ phổ biến",
-        "$tmdbAPI/tv/airing_today?api_key=$apiKey&language=vi-VN&region=US&with_original_language=en" to "Phim bộ đang chiếu",
+        "$tmdbAPI/trending/all/day?api_key=$apiKey&region=US" to "Trending",
+        "$tmdbAPI/movie/popular?api_key=$apiKey&region=US" to "Popular Movies",
+        "$tmdbAPI/tv/popular?api_key=$apiKey&region=US&with_original_language=en" to "Popular TV Shows",
+        "$tmdbAPI/tv/airing_today?api_key=$apiKey&region=US&with_original_language=en" to "Airing Today TV Shows",
 //        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&region=US" to "On The Air TV Shows",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=213" to "Netflix",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=1024" to "Amazon",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=2739" to "Disney+",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=453" to "Hulu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=2552" to "Apple TV+",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=49" to "HBO",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_networks=4330" to "Paramount+",
-        "$tmdbAPI/movie/top_rated?api_key=$apiKey&language=vi-VN&region=US" to "Top Phim lẻ",
-        "$tmdbAPI/tv/top_rated?api_key=$apiKey&language=vi-VN&region=US" to "Top Phim bộ",
-        "$tmdbAPI/movie/upcoming?api_key=$apiKey&language=vi-VN&region=US" to "Phim sắp chiếu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_original_language=ko" to "Phim Hàn Quốc",
-        "$tmdbAPI/tv/airing_today?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Anime hôm nay",
-        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Anime đang chiếu",
-        "$tmdbAPI/discover/tv?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243" to "Anime",
-        "$tmdbAPI/discover/movie?api_key=$apiKey&language=vi-VN&with_keywords=210024|222243" to "Anime lẻ",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=213" to "Netflix",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=1024" to "Amazon",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=2739" to "Disney+",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=453" to "Hulu",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=2552" to "Apple TV+",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=49" to "HBO",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_networks=4330" to "Paramount+",
+        "$tmdbAPI/movie/top_rated?api_key=$apiKey&region=US" to "Top Rated Movies",
+        "$tmdbAPI/tv/top_rated?api_key=$apiKey&region=US" to "Top Rated TV Shows",
+        "$tmdbAPI/movie/upcoming?api_key=$apiKey&region=US" to "Upcoming Movies",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_original_language=ko" to "Korean Shows",
+        "$tmdbAPI/tv/airing_today?api_key=$apiKey&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Airing Today Anime",
+        "$tmdbAPI/tv/on_the_air?api_key=$apiKey&with_keywords=210024|222243&sort_by=primary_release_date.desc" to "Ongoing Anime",
+        "$tmdbAPI/discover/tv?api_key=$apiKey&with_keywords=210024|222243" to "Anime",
+        "$tmdbAPI/discover/movie?api_key=$apiKey&with_keywords=210024|222243" to "Anime Movies",
     )
 
     private fun getImageUrl(link: String?): String? {
@@ -233,7 +235,7 @@ open class SoraStream : TmdbProvider() {
 
     override suspend fun search(query: String): List<SearchResponse>? {
         return app.get(
-            "$tmdbAPI/search/multi?api_key=$apiKey&language=vi-VN&query=$query&page=1&include_adult=${settingsForProvider.enableAdult}"
+            "$tmdbAPI/search/multi?api_key=$apiKey&language=en-US&query=$query&page=1&include_adult=${settingsForProvider.enableAdult}"
         ).parsedSafe<Results>()?.results?.mapNotNull { media ->
             media.toSearchResponse()
         }
@@ -251,22 +253,13 @@ open class SoraStream : TmdbProvider() {
         val res = app.get(resUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
 
-        val viUrl = if (type == TvType.Movie) {
-            "$tmdbAPI/movie/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=$append"
-        } else {
-            "$tmdbAPI/tv/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=$append"
-        }
-        val vi = app.get(viUrl).parsedSafe<MediaDetail>()
-            ?: throw ErrorLoadingException("Invalid Json Response")
-            
         val title = res.title ?: res.name ?: return null
-        val viTitle = vi.title ?: vi.name ?: return null
-        val poster = getOriImageUrl(vi.posterPath)
-        val bgPoster = getOriImageUrl(vi.backdropPath)
+        val poster = getOriImageUrl(res.posterPath)
+        val bgPoster = getOriImageUrl(res.backdropPath)
         val orgTitle = res.originalTitle ?: res.originalName ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
-        val genres = vi.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
+        val genres = res.genres?.mapNotNull { it.name }
         val isAnime =
             genres?.contains("Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
         val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
@@ -282,15 +275,15 @@ open class SoraStream : TmdbProvider() {
             )
         } ?: return null
         val recommendations =
-            vi.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
+            res.recommendations?.results?.mapNotNull { media -> media.toSearchResponse() }
 
-        val trailer = vi.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }.orEmpty()
-            .ifEmpty { res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" } }
+        val trailer = res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" }
+            ?.randomOrNull()
 
         return if (type == TvType.TvSeries) {
-            val lastSeason = res.seasons?.lastOrNull()?.seasonNumber
+            val lastSeason = res.last_episode_to_air?.season_number
             val episodes = res.seasons?.mapNotNull { season ->
-                app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey&language=vi-VN")
+                app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey")
                     .parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
                         Episode(
                             LinkData(
@@ -320,7 +313,7 @@ open class SoraStream : TmdbProvider() {
                     }
             }?.flatten() ?: listOf()
             newTvSeriesLoadResponse(
-                viTitle,
+                title,
                 url,
                 if (isAnime) TvType.Anime else TvType.TvSeries,
                 episodes
@@ -328,7 +321,7 @@ open class SoraStream : TmdbProvider() {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
-                this.plot = vi.overview
+                this.plot = res.overview
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
@@ -338,7 +331,7 @@ open class SoraStream : TmdbProvider() {
             }
         } else {
             newMovieLoadResponse(
-                viTitle,
+                title,
                 url,
                 TvType.Movie,
                 LinkData(
@@ -355,7 +348,7 @@ open class SoraStream : TmdbProvider() {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
-                this.plot = vi.overview
+                this.plot = res.overview
                 this.duration = res.runtime
                 this.tags = if (isAnime) keywords else genres
                 this.rating = rating
@@ -780,6 +773,9 @@ open class SoraStream : TmdbProvider() {
                     res.episode,
                     callback
                 )
+            },
+            {
+                if (!res.isAnime && res.season == null) invokeNowTv(res.id, callback)
             }
         )
 
