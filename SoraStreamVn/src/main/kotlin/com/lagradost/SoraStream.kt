@@ -265,13 +265,13 @@ open class SoraStream : TmdbProvider() {
         val title = res.title ?: res.name ?: return null
         val viTitle = vi.title ?: vi.name ?: return null
         val poster = getOriImageUrl(vi.posterPath)
-        val bgPoster = getOriImageUrl(vi.backdropPath)
+        val bgPoster = getOriImageUrl(res.backdropPath)
         val orgTitle = res.originalTitle ?: res.originalName ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
         val genres = vi.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
         val isAnime =
-            genres?.contains("Phim Hoạt Hình") == true && (res.original_language == "zh" || res.original_language == "ja")
+            genres?.contains("Hoạt Hình") == true && (res.original_language == "zh" || res.original_language == "ja")
         val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
             .ifEmpty { res.keywords?.keywords?.mapNotNull { it.name } }
 
