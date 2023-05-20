@@ -40,6 +40,7 @@ import com.hexated.SoraExtractor.invokeMovie123Net
 import com.hexated.SoraExtractor.invokeMoviesbay
 import com.hexated.SoraExtractor.invokeMoviezAdd
 import com.hexated.SoraExtractor.invokeNinetv
+import com.hexated.SoraExtractor.invokeNowTv
 import com.hexated.SoraExtractor.invokePapaonMovies1
 import com.hexated.SoraExtractor.invokePapaonMovies2
 import com.hexated.SoraExtractor.invokePutlocker
@@ -63,7 +64,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import kotlin.math.roundToInt
 
 open class SoraStream : TmdbProvider() {
-    override var name = "SoraStream"
+    override var name = "SoraStreamVn"
     override val hasMainPage = true
     override val instantLinkLoading = true
     override var lang = "vi"
@@ -80,11 +81,12 @@ open class SoraStream : TmdbProvider() {
         /** TOOLS */
         private const val tmdbAPI = "https://api.themoviedb.org/3"
         const val tmdb2anilist = "https://tmdb2anilist.slidemovies.org"
-        const val gdbot = "https://gdbot.xyz"
+        const val gdbot = "https://gdtot.pro"
         const val consumetAnilistAPI = "https://api.consumet.org/meta/anilist"
 
         private val apiKey =
             base64DecodeAPI("ZTM=NTg=MjM=MjM=ODc=MzI=OGQ=MmE=Nzk=Nzk=ZjI=NTA=NDY=NDA=MzA=YjA=") // PLEASE DON'T STEAL
+
         /** ALL SOURCES */
         const val twoEmbedAPI = "https://www.2embed.to"
         const val vidSrcAPI = "https://v2.vidsrc.me"
@@ -125,6 +127,7 @@ open class SoraStream : TmdbProvider() {
         const val nineTvAPI = "https://api.9animetv.live"
         const val putlockerAPI = "https://ww7.putlocker.vip"
         const val fmoviesAPI = "https://fmovies.to"
+        const val nowTvAPI = "https://myfilestorage.xyz"
 
         // INDEX SITE
         const val blackMoviesAPI = "https://dl.blacklistedbois.workers.dev/0:"
@@ -250,7 +253,7 @@ open class SoraStream : TmdbProvider() {
         }
         val res = app.get(resUrl).parsedSafe<MediaDetail>()
             ?: throw ErrorLoadingException("Invalid Json Response")
-
+            
         val viUrl = if (type == TvType.Movie) {
             "$tmdbAPI/movie/${data.id}?api_key=$apiKey&language=vi-VN&append_to_response=$append"
         } else {
@@ -261,8 +264,8 @@ open class SoraStream : TmdbProvider() {
             
         val title = res.title ?: res.name ?: return null
         val viTitle = vi.title ?: vi.name ?: return null
-        val poster = getOriImageUrl(vi.posterPath)
-        val bgPoster = getOriImageUrl(vi.backdropPath)
+        val poster = getOriImageUrl(res.posterPath)
+        val bgPoster = getOriImageUrl(res.backdropPath)
         val orgTitle = res.originalTitle ?: res.originalName ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
@@ -288,7 +291,7 @@ open class SoraStream : TmdbProvider() {
             .ifEmpty { res.videos?.results?.map { "https://www.youtube.com/watch?v=${it.key}" } }
 
         return if (type == TvType.TvSeries) {
-            val lastSeason = res.seasons?.lastOrNull()?.seasonNumber
+            val lastSeason = res.last_episode_to_air?.season_number
             val episodes = res.seasons?.mapNotNull { season ->
                 app.get("$tmdbAPI/${data.type}/${data.id}/season/${season.seasonNumber}?api_key=$apiKey&language=vi-VN")
                     .parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
@@ -780,6 +783,9 @@ open class SoraStream : TmdbProvider() {
                     res.episode,
                     callback
                 )
+            },
+            {
+                if (!res.isAnime && res.season == null) invokeNowTv(res.id, callback)
             }
         )
 
