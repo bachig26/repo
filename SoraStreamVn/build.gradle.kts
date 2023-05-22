@@ -1,6 +1,23 @@
-// use an integer for version numbers
-version = 15
+import org.jetbrains.kotlin.konan.properties.Properties
 
+// use an integer for version numbers
+version = 16
+
+android {
+    defaultConfig {
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+
+        buildConfigField("String", "SORA_API", "\"${properties.getProperty("SORA_API")}\"")
+        buildConfigField("String", "SORAHE", "\"${properties.getProperty("SORAHE")}\"")
+        buildConfigField("String", "SORAXA", "\"${properties.getProperty("SORAXA")}\"")
+        buildConfigField("String", "SORATED", "\"${properties.getProperty("SORATED")}\"")
+        buildConfigField("String", "CRUNCHYROLL_BASIC_TOKEN", "\"${properties.getProperty("CRUNCHYROLL_BASIC_TOKEN")}\"")
+        buildConfigField("String", "CRUNCHYROLL_REFRESH_TOKEN", "\"${properties.getProperty("CRUNCHYROLL_REFRESH_TOKEN")}\"")
+
+
+    }
+}
 
 cloudstream {
     language = "vi"

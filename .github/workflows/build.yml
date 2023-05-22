@@ -40,6 +40,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
+      - name: Access Secrets
+        env:
+          SORA_API: ${{ secrets.SORA_API }}
+          SORAHE: ${{ secrets.SORAHE }}
+          SORAXA: ${{ secrets.SORAXA }}
+          SORATED: ${{ secrets.SORATED }}
+          CRUNCHYROLL_BASIC_TOKEN: ${{ secrets.CRUNCHYROLL_BASIC_TOKEN }}
+          CRUNCHYROLL_REFRESH_TOKEN: ${{ secrets.CRUNCHYROLL_REFRESH_TOKEN }}
+        run: |
+          cd $GITHUB_WORKSPACE/src
+          echo SORA_API=$SORA_API >> local.properties
+          echo SORAHE=$SORAHE >> local.properties
+          echo SORAXA=$SORAXA >> local.properties
+          echo SORATED=$SORATED >> local.properties
+          echo CRUNCHYROLL_BASIC_TOKEN=$CRUNCHYROLL_BASIC_TOKEN >> local.properties
+          echo CRUNCHYROLL_REFRESH_TOKEN=$CRUNCHYROLL_REFRESH_TOKEN >> local.properties
+
       - name: Build Plugins
         run: |
           cd $GITHUB_WORKSPACE/src
@@ -47,6 +64,11 @@ jobs:
           ./gradlew make makePluginsJson
           cp **/build/*.cs3 $GITHUB_WORKSPACE/builds
           cp build/plugins.json $GITHUB_WORKSPACE/builds
+
+      - name: Move Loklok
+        run: |
+          rm $GITHUB_WORKSPACE/builds/Loklok.cs3 || true
+          cp $GITHUB_WORKSPACE/builds/stored/Loklok.cs3 $GITHUB_WORKSPACE/builds
 
       - name: Push builds
         run: |
