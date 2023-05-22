@@ -21,23 +21,23 @@ class TocanimeProvider : MainAPI() {
         TvType.OVA
     )
 
-    companion object {
-        fun getType(t: String): TvType {
-            return when {
-                t.contains("OVA") || t.contains("Special") -> TvType.OVA
-                t.contains("Movie") -> TvType.AnimeMovie
-                else -> TvType.Anime
-            }
-        }
-
-        fun getStatus(t: String): ShowStatus {
-            return when (t) {
-                "Đã hoàn thành" -> ShowStatus.Completed
-                "Chưa hoàn thành" -> ShowStatus.Ongoing
-                else -> ShowStatus.Completed
-            }
-        }
-    }
+//    companion object {
+//        fun getType(t: String): TvType {
+//            return when {
+//                t.contains("OVA") || t.contains("Special") -> TvType.OVA
+//                t.contains("Movie") -> TvType.AnimeMovie
+//                else -> TvType.Anime
+//            }
+//        }
+//
+//        fun getStatus(t: String): ShowStatus {
+//            return when (t) {
+//                "Đã hoàn thành" -> ShowStatus.Completed
+//                "Chưa hoàn thành" -> ShowStatus.Ongoing
+//                else -> ShowStatus.Completed
+//            }
+//        }
+//    }
     
     override val mainPage = mainPageOf(
         "$mainUrl/bang-xep-hang" to "Bảng xếp hạng",
