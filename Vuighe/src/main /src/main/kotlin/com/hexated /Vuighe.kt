@@ -38,28 +38,36 @@ class TocanimeProvider : MainAPI() {
             }
         }
     }
-
-    override suspend fun getMainPage(page: Int, request : MainPageRequest): HomePageResponse {
-        val document = app.get(mainUrl).document
-
-        val homePageList = ArrayList<HomePageList>()
-
-        document.select("div#container > section").forEach { block ->
-            val header = block.selectFirst("h1")?.text()?.trim() ?: ""
-            val items = block.select("div.col-lg-3.col-md-4.col-6").map {
-                it.toSearchResult()
-            }
-            if (items.isNotEmpty()) homePageList.add(HomePageList(header, items))
+    
+    override val mainPage = mainPageOf(
+        "$mainUrl/bang-xep-hang" to "Bảng xếp hạng",
+        "$mainUrl/filter?status=ongoing&type=tv&page=" to "Anime đang chiếu",
+        "$mainUrl/filter?status=completed&type=movie&sort=views&page=" to "Anime lẻ hay nhất",
+    )
+    
+    override suspend fun getMainPage(
+        page: Int,
+        request: MainPageRequest
+    ): HomePageResponse {
+        val document = app.get(request.data + page).document
+        val home = document.select("div.grid.grid-cols-2.gap-2.s1024:gap-3.text-white.s768:grid-cols-4").mapNotNull {
+            it.toSearchResult()
         }
-
-        return HomePageResponse(homePageList)
+        return newHomePageResponse(
+            list = HomePageList(
+                name = request.name,
+                list = home,
+                isHorizontalImages = true
+            ),
+            hasNext = true
+        )
     }
 
     private fun Element.toSearchResult(): AnimeSearchResponse {
-        val title = this.selectFirst("h3 a")?.text()?.trim() ?: ""
-        val href = fixUrl(this.selectFirst("h3 a")!!.attr("href"))
-        val posterUrl = fixUrlNull(this.selectFirst("div.card-item-img")?.attr("data-original"))
-        val epNum = this.selectFirst("div.card-item-badget.rtl")?.text()?.let { eps ->
+        val title = this.selectFirst("div.line-clamp-1")?.text()?.trim() ?: ""
+        val href = fixUrl(this.selectFirst("a")!!.attr("href"))
+        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("data-src"))
+        val epNum = this.selectFirst("span")?.text()?.let { eps ->
             val num = eps.filter { it.isDigit() }.toIntOrNull()
             if(eps.contains("Preview")) {
                 num?.minus(1)
