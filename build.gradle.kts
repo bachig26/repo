@@ -37,8 +37,11 @@ subprojects {
     cloudstream {
         // when running through github workflow, GITHUB_REPOSITORY should contain current repository name
         // you can modify it to use other git hosting services, like gitlab
-        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/tuan041/repo")
-
+        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/duongnv1996/bongngo-cs3-extension")
+        setRepo("https://github.com/duongnv1996/bongngo-cs3-extension/releases/download/pre-release")
+        overrideUrlPrefix("https://github.com/duongnv1996/bongngo-cs3-extension/releases/download/pre-release")
+        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/hexated/cloudstream-extensions-hexated")
+        authors = listOf("Hexated")
     }
 
     android {
