@@ -25,7 +25,7 @@ import java.net.URI
 import java.util.concurrent.TimeUnit
 
 open class Loklok : MainAPI() {
-    override var name = "PhimHD"
+    override var name = "LoklokVn"
     override val hasMainPage = true
     override val hasChromecastSupport = true
     override val instantLinkLoading = true
