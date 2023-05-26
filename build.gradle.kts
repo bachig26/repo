@@ -40,8 +40,7 @@ subprojects {
         setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/duongnv1996/bongngo-cs3-extension")
         setRepo("https://github.com/duongnv1996/bongngo-cs3-extension/releases/download/pre-release")
         overrideUrlPrefix("https://github.com/duongnv1996/bongngo-cs3-extension/releases/download/pre-release")
-        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/hexated/cloudstream-extensions-hexated")
-        authors = listOf("Hexated")
+        setRepo("https://github.com/hexated/cloudstream-extensions-hexated")
     }
 
     android {
