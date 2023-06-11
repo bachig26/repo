@@ -50,6 +50,7 @@ import com.hexated.SoraExtractor.invokeSmashyStream
 import com.hexated.SoraExtractor.invokeSoraStream
 import com.hexated.SoraExtractor.invokeTvMovies
 import com.hexated.SoraExtractor.invokeUhdmovies
+import com.hexated.SoraExtractor.invokeUpcloud
 import com.hexated.SoraExtractor.invokeVitoenMovies
 import com.hexated.SoraExtractor.invokeWatchOnline
 import com.hexated.SoraExtractor.invokeWatchsomuch
@@ -102,7 +103,7 @@ open class SoraStream : TmdbProvider() {
         const val crunchyrollAPI = "https://beta-api.crunchyroll.com"
         const val kissKhAPI = "https://kisskh.co"
         const val lingAPI = "https://ling-online.net"
-        const val uhdmoviesAPI = "https://uhdmovies.bio"
+        const val uhdmoviesAPI = "https://uhdmovies.cc"
         const val fwatayakoAPI = "https://5100.svetacdn.in"
         const val gMoviesAPI = "https://gdrivemovies.xyz"
         const val fdMoviesAPI = "https://freedrivemovie.lol"
@@ -112,7 +113,7 @@ open class SoraStream : TmdbProvider() {
         const val bollyMazaAPI = "https://m.bollymaza.click"
         const val moviesbayAPI = "https://moviesbay.live"
         const val rStreamAPI = "https://remotestre.am"
-        const val flixonAPI = "https://flixon.ru"
+        const val flixonAPI = "https://flixon.lol"
         const val animeKaizokuAPI = "https://animekaizoku.com"
         const val movie123NetAPI = "https://ww8.0123movie.net"
         const val smashyStreamAPI = "https://embed.smashystream.com"
@@ -572,6 +573,14 @@ open class SoraStream : TmdbProvider() {
                     res.season,
                     res.episode,
                     subtitleCallback,
+                    callback
+                )
+            },
+            {
+                if (!res.isAnime) invokeUpcloud(
+                    res.imdbId,
+                    res.season,
+                    res.episode,
                     callback
                 )
             },
