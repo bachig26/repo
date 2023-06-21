@@ -266,11 +266,7 @@ open class SoraStream : TmdbProvider() {
         val orgTitle = res.originalTitle ?: res.originalName ?: return null
         val year = (res.releaseDate ?: res.firstAirDate)?.split("-")?.first()?.toIntOrNull()
         val rating = res.vote_average.toString().toRatingInt()
-        val genres = vi.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() 
-            if (name.contains("Action & Adventure")) {
-                val genres = name.replace("Action & Adventure", "Hành động & Phiêu lưu")
-            }
-        }
+        val genres = vi.genres?.mapNotNull { it.name!!.substringAfter("Phim").trim() }
         val isAnime =
             genres?.contains("Hoạt Hình") == true && (res.original_language == "zh" || res.original_language == "ja")
         val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
