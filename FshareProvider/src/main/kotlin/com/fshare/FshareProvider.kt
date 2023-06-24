@@ -1,9 +1,9 @@
 package com.fshare
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.google.gson.Gson
+//import com.google.gson.Gson
 //import com.google.gson.reflect.TypeToken
-//import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.Qualities
