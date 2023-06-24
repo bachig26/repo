@@ -49,8 +49,8 @@ class FshareProvider : MainAPI() {
         val list = html.select(".items .item").map { itemHtml ->
             MovieSearchResponse(
                 name = itemHtml.selectFirst("h3")?.text() ?: "",
-                href = itemHtml.selectFirst("a")?.attr("href"),
-                url = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
+                url = itemHtml.selectFirst("a")?.attr("href"),
+                href = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
                 apiName = name,
                 type = TvType.TvSeries,
                 posterUrl = itemHtml.selectFirst("img")?.attr("src")
@@ -58,7 +58,39 @@ class FshareProvider : MainAPI() {
         }
         return newHomePageResponse(request.name, list ,true)
     }
+    
+    private fun Element.toSearchResult(): SearchResponse {
+        val name = this.selectFirst("div.details div.title ")?.text()?.trim().toString()
+        val url = this.selectFirst("div.details a")!!.attr("href"))
+        val posterUrl = this.selectFirst("div.image img")!!.attr("src")
+        val temp = this.select("span.label").text()
+        return if (temp.contains(Regex("\\d"))) {
+            val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
+                num.replace(Regex("\\(|\\s"), "")
+            }?.distinct()?.firstOrNull()?.toIntOrNull()
+            newAnimeSearchResponse(title, href, TvType.TvSeries) {
+                this.posterUrl = posterUrl
+                addSub(episode)
+            }
+        } else {
+            val quality =
+                temp.replace(Regex("(-.*)|(\\|.*)|(?i)(VietSub.*)|(?i)(Thuyết.*)"), "").trim()
+            newMovieSearchResponse(title, href, TvType.Movie) {
+                this.posterUrl = posterUrl
+                addQuality(quality)
+            }
+        }
+    }
 
+    override suspend fun search(query: String): List<SearchResponse> {
+        val link = "$mainUrl/tim-kiem/$query"
+        val document = app.get(link).document
+
+        return document.select("ul.list-film li").map {
+            it.toSearchResult()
+        }
+    }
+    
     override suspend fun load(url: String): LoadResponse {
         val document = app.get(url).document
 
@@ -80,7 +112,7 @@ class FshareProvider : MainAPI() {
             }
         }
         
-        val movie = app.get(url).parsedSafe<DetailMovie>()
+        val movie = app.get(href).parsedSafe<DetailMovie>()
         val listLink = arrayListOf<Link>()
 
         val linkFileFshare = movie?.link?.filter { it -> !it.link.contains("/folder/") }
