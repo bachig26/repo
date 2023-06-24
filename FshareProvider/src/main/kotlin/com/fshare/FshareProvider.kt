@@ -57,3 +57,4 @@ class FshareProvider : MainAPI() {
         }
         return newHomePageResponse(request.name, list ,true)
     }
+}
