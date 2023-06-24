@@ -26,7 +26,6 @@ class FshareProvider : MainAPI() {
 
     companion object {
         const val DOMAIN = "https://thuvienhd.com"
-        const val POST_PER_PAGE = 6
         const val URL_DETAIL = "$DOMAIN/?feed=fsharejson&id="
         const val URL_DETAIL_FILE_FSHARE = "https://www.fshare.vn/file/"
         const val URL_DETAIL_FSHARE =
