@@ -83,6 +83,8 @@ subprojects {
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
         implementation("io.karn:khttp-android:0.1.2")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4") // html parser
+        implementation("com.squareup.retrofit2:converter-gson:2.3.0")
+        implementation("com.squareup.retrofit2:retrofit:2.5.0")
         //run JS
         implementation("org.mozilla:rhino:1.7.14")
 
