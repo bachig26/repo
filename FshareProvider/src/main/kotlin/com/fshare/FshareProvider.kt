@@ -111,43 +111,5 @@ class FshareProvider : MainAPI() {
                 this.posterUrl = decode(it.selectFirst("img")!!.attr("data-src").substringAfter("url="))
             }
         }
-        
-        val movie = app.get(href).parsedSafe<DetailMovie>()
-        val listLink = arrayListOf<Link>()
-
-        val linkFileFshare = movie?.link?.filter { it -> !it.link.contains("/folder/") }
-        linkFileFshare?.let {
-            listLink.addAll(it)
-        }
-
-        val linkFolderFshare = movie?.link?.filter { it -> it.link.contains("/folder/") }
-        val folders = linkFolderFshare?.apmap {
-            app.get(URL_DETAIL_FSHARE + it.link.split("/").last()).parsedSafe<FshareFolder>()
-        }
-        folders?.forEach { fshareFolder ->
-            fshareFolder?.items?.forEach { fshareItem ->
-                listLink.add(Link(fshareItem.name, URL_DETAIL_FILE_FSHARE + fshareItem.linkcode))
-            }
-        }
-        movie?.let { movie ->
-            return TvSeriesLoadResponse(
-                name = movie.title,
-                url = url,
-                apiName = name,
-                type = TvType.TvSeries,
-                episodes = listLink.map { link ->
-                    Episode(
-                        data = link.link,
-                        name = link.title,
-                        description = link.title
-                    )
-                },
-                posterUrl = movie.image,
-                plot = movie.description,
-                tags = movie.category.map { cate -> cate.name }
-            )
-        } ?: kotlin.run {
-            return null
-        }
     }
 }
