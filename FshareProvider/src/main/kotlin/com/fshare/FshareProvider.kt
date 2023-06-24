@@ -61,25 +61,8 @@ class FshareProvider : MainAPI() {
     
     private fun Element.toSearchResult(): SearchResponse {
         val name = this.selectFirst("div.details div.title ")?.text()?.trim().toString()
-        val url = this.selectFirst("div.details a")!!.attr("href"))
+        val url = this.selectFirst("div.details a")!!.attr("href")
         val posterUrl = this.selectFirst("div.image img")!!.attr("src")
-        val temp = this.select("span.label").text()
-        return if (temp.contains(Regex("\\d"))) {
-            val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
-                num.replace(Regex("\\(|\\s"), "")
-            }?.distinct()?.firstOrNull()?.toIntOrNull()
-            newAnimeSearchResponse(title, href, TvType.TvSeries) {
-                this.posterUrl = posterUrl
-                addSub(episode)
-            }
-        } else {
-            val quality =
-                temp.replace(Regex("(-.*)|(\\|.*)|(?i)(VietSub.*)|(?i)(Thuyết.*)"), "").trim()
-            newMovieSearchResponse(title, href, TvType.Movie) {
-                this.posterUrl = posterUrl
-                addQuality(quality)
-            }
-        }
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
@@ -108,8 +91,17 @@ class FshareProvider : MainAPI() {
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
         val recommendations = document.select("ul#list-film-realted li.item").map {
             it.toSearchResult().apply {
-                this.posterUrl = decode(it.selectFirst("img")!!.attr("data-src").substringAfter("url="))
+                this.posterUrl = it.selectFirst("img")!!.attr("data-src").substringAfter("url=")
             }
         }
+            return TvSeriesLoadResponse(
+                name = title,
+                url = url,
+                apiName = name,
+                type = TvType.TvSeries,
+                posterUrl = poster,
+                plot = description,
+                tags = tags
+            )        
     }
 }
