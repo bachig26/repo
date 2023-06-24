@@ -56,4 +56,20 @@ class FshareProvider : MainAPI() {
         }
         return newHomePageResponse(request.name, list ,true)
     }
+    
+    override suspend fun loadPage(url: String): PageResponse? {
+        val response = app.get(url).text
+//        val listType: Type = object : TypeToken<ArrayList<HomeItem>>() {}.getType()
+        val html = Jsoup.parse(response)
+        val list = html.select(".items .item").map { itemHtml ->
+            MovieSearchResponse(
+                name = itemHtml.selectFirst("h3")?.text() ?: "",
+                url = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
+                apiName = name,
+                type = TvType.TvSeries,
+                posterUrl = itemHtml.selectFirst("img")?.attr("src")
+            )
+        }
+        return PageResponse(list = list,getPagingResult(html))
+    }
 }
