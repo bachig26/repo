@@ -49,7 +49,7 @@ class FshareProvider : MainAPI() {
         val list = html.select(".items .item").map { itemHtml ->
             MovieSearchResponse(
                 name = itemHtml.selectFirst("h3")?.text() ?: "",
-                url = itemHtml.selectFirst("a")?.attr("href"),
+                url = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
                 apiName = name,
                 type = TvType.TvSeries,
                 posterUrl = itemHtml.selectFirst("img")?.attr("src")
