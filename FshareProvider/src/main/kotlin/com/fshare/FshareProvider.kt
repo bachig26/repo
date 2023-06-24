@@ -80,15 +80,15 @@ class FshareProvider : MainAPI() {
         return quickSearch(query)
     }
 
-//    override suspend fun quickSearch(query: String): List<SearchResponse>? {
-//        val response = app.get("https://thuvienhd.com/?feed=fsharejson&search=${query}").text
-//        val itemType = object : TypeToken<List<DetailMovie>>() {}.type
-//        var listRes = Gson().fromJson<List<DetailMovie>>(response, itemType)
-//        val list = listRes?.map { itemData ->
-//            itemData.toSearchResponse()
-//        }
-//        return list
-//    }
+    override suspend fun quickSearch(query: String): List<SearchResponse>? {
+        val response = app.get("https://thuvienhd.com/?feed=fsharejson&search=${query}").text
+        val itemType = object : TypeToken<List<DetailMovie>>() {}.type
+        var listRes = Gson().fromJson<List<DetailMovie>>(response, itemType)
+        val list = listRes?.map { itemData ->
+            itemData.toSearchResponse()
+        }
+        return list
+    }
     override suspend fun load(url: String): LoadResponse? {
         val movie = app.get(url).parsedSafe<DetailMovie>()
         val listLink = arrayListOf<Link>()
