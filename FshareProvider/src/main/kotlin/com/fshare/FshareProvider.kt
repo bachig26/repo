@@ -74,34 +74,44 @@ class FshareProvider : MainAPI() {
         }
     }
     
-    override suspend fun load(url: String): LoadResponse {
-        val document = app.get(url).document
+    override suspend fun load(url: String): LoadResponse? {
+        val movie = app.get(url).parsedSafe<DetailMovie>()
+        val listLink = arrayListOf<Link>()
 
-        val title = document.selectFirst("h1[itemprop=name]")?.text()?.trim().toString()
-        val poster = document.selectFirst("div.image img[itemprop=image]")?.attr("src")
-        val tags = document.select("ul.entry-meta.block-film li:nth-child(4) a").map { it.text() }
-        val year = document.select("ul.entry-meta.block-film li:nth-child(2) a").text().trim()
-            .toIntOrNull()
-        val description = document.select("div#film-content").text().trim()
-        val trailer =
-            document.select("div#trailer script").last()?.data()?.substringAfter("file: \"")
-                ?.substringBefore("\",")
-        val rating =
-            document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
-        val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
-        val recommendations = document.select("ul#list-film-realted li.item").map {
-            it.toSearchResult().apply {
-                this.posterUrl = it.selectFirst("img")!!.attr("data-src").substringAfter("url=")
+        val linkFileFshare = movie?.link?.filter { it -> !it.link.contains("/folder/") }
+        linkFileFshare?.let {
+            listLink.addAll(it)
+        }
+
+        val linkFolderFshare = movie?.link?.filter { it -> it.link.contains("/folder/") }
+        val folders = linkFolderFshare?.apmap {
+            app.get(URL_DETAIL_FSHARE + it.link.split("/").last()).parsedSafe<FshareFolder>()
+        }
+        folders?.forEach { fshareFolder ->
+            fshareFolder?.items?.forEach { fshareItem ->
+                listLink.add(Link(fshareItem.name, URL_DETAIL_FILE_FSHARE + fshareItem.linkcode))
             }
         }
+        movie?.let { movie ->
             return TvSeriesLoadResponse(
-                name = title,
+                name = movie.title,
                 url = url,
                 apiName = name,
                 type = TvType.TvSeries,
-                posterUrl = poster,
-                plot = description,
-                tags = tags
-            )        
+                episodes = listLink.map { link ->
+                    Episode(
+                        data = link.link,
+                        name = link.title,
+                        description = link.title
+                    )
+                },
+                posterUrl = movie.image,
+                plot = movie.description,
+                tags = movie.category.map { cate -> cate.name }
+            )
+        } ?: kotlin.run {
+            return null
+        }
+
     }
 }
