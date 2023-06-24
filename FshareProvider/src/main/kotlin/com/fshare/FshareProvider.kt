@@ -50,28 +50,12 @@ class FshareProvider : MainAPI() {
             MovieSearchResponse(
                 name = itemHtml.selectFirst("h3")?.text() ?: "",
                 url = itemHtml.selectFirst("a")?.attr("href"),
-                href = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
                 apiName = name,
                 type = TvType.TvSeries,
                 posterUrl = itemHtml.selectFirst("img")?.attr("src")
             )
         }
         return newHomePageResponse(request.name, list ,true)
-    }
-    
-    private fun Element.toSearchResult(): SearchResponse {
-        val name = this.selectFirst("div.details div.title ")?.text()?.trim().toString()
-        val url = this.selectFirst("div.details a")!!.attr("href")
-        val posterUrl = this.selectFirst("div.image img")!!.attr("src")
-    }
-
-    override suspend fun search(query: String): List<SearchResponse> {
-        val link = "$mainUrl/tim-kiem/$query"
-        val document = app.get(link).document
-
-        return document.select("ul.list-film li").map {
-            it.toSearchResult()
-        }
     }
     
     override suspend fun load(url: String): LoadResponse? {
@@ -112,6 +96,125 @@ class FshareProvider : MainAPI() {
         } ?: kotlin.run {
             return null
         }
+    }
 
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        val login = app.post(
+            "https://api2.fshare.vn/api/user/login/",
+            json = mapOf(
+                "user_email" to "boxphim705@gmail.com",
+                "password" to "asdfghjkl",
+                "app_key" to "tVDNf8QcQ5Sfasmm5ennLIjF5D11k21xCruVaAeJ",
+            ).toJson(),
+            headers = mapOf(
+                "user-agent" to "Dalvik/2.1.0 (Linux; U; Android 6.0.1; FPT Play Box Build/Normal-6.7.106-20190111)"
+            )
+        ).parsedSafe<FshareLoginInfo>()
+        login?.token?.let {
+            val download = app.post(
+                "https://api2.fshare.vn/api/Session/download",
+                json = mapOf("url" to data, "token" to login.token).toJson(),
+                headers = mapOf(
+                    "user-agent" to "Dalvik/2.1.0 (Linux; U; Android 6.0.1; FPT Play Box Build/Normal-6.7.106-20190111)",
+                    "cookie" to "session_id=${login.session_id}"
+                )
+//                cookies = mapOf("session_id" to login.session_id)
+            ).parsedSafe<FshareDownloadInfo>()
+            download?.let {
+                callback.invoke(
+                    ExtractorLink(
+                        source = it.location,
+                        name = data,
+                        url = it.location,
+                        referer = "",
+                        isM3u8 = false,
+                        headers = emptyMap(),
+                        quality = Qualities.Unknown.value
+                    )
+                )
+            }
+        }
+
+        return true
+    }
+
+
+    data class FshareDownloadInfo(
+        @JsonProperty("location") val location: String,
+    )
+
+    data class FshareLoginInfo(
+        @JsonProperty("token") val token: String,
+        @JsonProperty("session_id") val session_id: String,
+    )
+
+    data class FshareFolder(
+        @JsonProperty("current") val current: FshareItem,
+        @JsonProperty("items") val items: List<FshareItem>,
+
+        )
+
+    data class FshareItem(
+        @JsonProperty("id") val id: String,
+        @JsonProperty("linkcode") val linkcode: String,
+        @JsonProperty("name") val name: String,
+        @JsonProperty("type") val type: Int,
+        @JsonProperty("size") val size: Double,
+    )
+
+    data class Link(
+        @JsonProperty("title") val title: String,
+        @JsonProperty("link") val link: String,
+    )
+
+    data class MetaData(
+        @JsonProperty("name") val name: String,
+        @JsonProperty("tax") val tax: String,
+    )
+
+    data class DetailMovie(
+        @JsonProperty("id") val id: String,
+        @JsonProperty("title") val title: String,
+        @JsonProperty("year") val year: String,
+        @JsonProperty("pubDate") val pubDate: String,
+        @JsonProperty("description") val description: String,
+        @JsonProperty("image") val image: String,
+        @JsonProperty("total_part") val total_part: String,
+        @JsonProperty("current_part") val current_part: String,
+        @JsonProperty("view") val view: String,
+        @JsonProperty("link") val link: List<Link>,
+        @JsonProperty("category") val category: List<MetaData>,
+    )
+
+    data class HomeItem(
+        @JsonProperty("_id") val _id: String,
+        @JsonProperty("post_title") val post_title: String,
+        @JsonProperty("year") val year: String,
+        @JsonProperty("img") val img: String,
+        @JsonProperty("view") val view: String,
+    )
+
+    fun HomeItem.toSearchResponse(): MovieSearchResponse {
+        return MovieSearchResponse(
+            name = post_title,
+            url = "$URL_DETAIL${_id}",
+            apiName = name,
+            type = TvType.TvSeries,
+            posterUrl = img
+        )
+    }
+    fun DetailMovie.toSearchResponse(): MovieSearchResponse {
+        return MovieSearchResponse(
+            name = title,
+            url = "$URL_DETAIL${id}",
+            apiName = name,
+            type = TvType.TvSeries,
+            posterUrl = image
+        )
     }
 }
