@@ -2,12 +2,12 @@ package com.fshare
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.lagradost.cloudstream3.*
+//import com.google.gson.reflect.TypeToken
+//import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.Qualities
-import com.phimhd.*
+//import com.phimhd.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -44,21 +44,21 @@ class FshareProvider : MainAPI() {
             "${mainUrl}/genre/thuyet-minh-tieng-viet" to "Phim Thuyết Minh",
             )
 
-    override suspend fun loadPage(url: String): PageResponse? {
-        val response = app.get(url).text
-//        val listType: Type = object : TypeToken<ArrayList<HomeItem>>() {}.getType()
-        val html = Jsoup.parse(response)
-        val list = html.select(".items .item").map { itemHtml ->
-            MovieSearchResponse(
-                name = itemHtml.selectFirst("h3")?.text() ?: "",
-                url = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
-                apiName = name,
-                type = TvType.TvSeries,
-                posterUrl = itemHtml.selectFirst("img")?.attr("src")
-            )
-        }
-        return PageResponse(list = list,getPagingResult(html))
-    }
+//    override suspend fun loadPage(url: String): PageResponse? {
+//        val response = app.get(url).text
+////        val listType: Type = object : TypeToken<ArrayList<HomeItem>>() {}.getType()
+//        val html = Jsoup.parse(response)
+//        val list = html.select(".items .item").map { itemHtml ->
+//            MovieSearchResponse(
+//                name = itemHtml.selectFirst("h3")?.text() ?: "",
+//                url = "$URL_DETAIL${itemHtml.attr("id").replace("post-","")}",
+//                apiName = name,
+//                type = TvType.TvSeries,
+//                posterUrl = itemHtml.selectFirst("img")?.attr("src")
+//            )
+//        }
+//        return PageResponse(list = list,getPagingResult(html))
+//    }
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         val response = app.get("${request.data}/page/${page}").text
@@ -80,15 +80,15 @@ class FshareProvider : MainAPI() {
         return quickSearch(query)
     }
 
-    override suspend fun quickSearch(query: String): List<SearchResponse>? {
-        val response = app.get("https://thuvienhd.com/?feed=fsharejson&search=${query}").text
-        val itemType = object : TypeToken<List<DetailMovie>>() {}.type
-        var listRes = Gson().fromJson<List<DetailMovie>>(response, itemType)
-        val list = listRes?.map { itemData ->
-            itemData.toSearchResponse()
-        }
-        return list
-    }
+//    override suspend fun quickSearch(query: String): List<SearchResponse>? {
+//        val response = app.get("https://thuvienhd.com/?feed=fsharejson&search=${query}").text
+//        val itemType = object : TypeToken<List<DetailMovie>>() {}.type
+//        var listRes = Gson().fromJson<List<DetailMovie>>(response, itemType)
+//        val list = listRes?.map { itemData ->
+//            itemData.toSearchResponse()
+//        }
+//        return list
+//    }
     override suspend fun load(url: String): LoadResponse? {
         val movie = app.get(url).parsedSafe<DetailMovie>()
         val listLink = arrayListOf<Link>()
