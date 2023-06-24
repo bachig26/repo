@@ -38,41 +38,11 @@ class FshareProvider : MainAPI() {
     override val mainPage: List<MainPageData>
         get() = mainPageOf(
             "${mainUrl}/recent" to "Phim mới",
-            "${mainUrl}/trending" to "Trending",
             "${mainUrl}/genre/phim-le" to "Phim Lẻ",
             "${mainUrl}/genre/series" to "Phim Bộ",
             "${mainUrl}/genre/tvb" to "Phim TVB",
             "${mainUrl}/genre/thuyet-minh-tieng-viet" to "Phim Thuyết Minh",
-
             )
-
-    override suspend fun getMenus(): List<Pair<String, List<Page>>>? {
-        try {
-            val response = app.get(mainUrl).text
-            val html = Jsoup.parse(response)
-            val menuPhimLe = html.select("#menu-item-98416 li").map { li ->
-                Page(
-                    name = li.selectFirst("a")?.text() ?: "",
-                    url = li.selectFirst("a")?.attr("href") ?: "",
-                    nameApi = name
-                )
-            }
-            val menuPhimBo = html.select("#menu-item-98409 li").map { li ->
-                Page(
-                    name = li.selectFirst("a")?.text() ?: "",
-                    url = li.selectFirst("a")?.attr("href") ?: "",
-                    nameApi = name
-                )
-            }
-            val list = arrayListOf<Pair<String, List<Page>>>()
-            list.add(Pair("Phim lẻ" , menuPhimLe))
-            list.add(Pair("Phim bộ" , menuPhimBo))
-            return list
-        }catch (e :Exception){
-            e.printStackTrace()
-        }
-        return null
-    }
 
     override suspend fun loadPage(url: String): PageResponse? {
         val response = app.get(url).text
@@ -89,46 +59,7 @@ class FshareProvider : MainAPI() {
         }
         return PageResponse(list = list,getPagingResult(html))
     }
-    private fun getPagingResult( document: Document): String? {
-        val tagPageResult: Element? = document.selectFirst(".pagination a")
-        if (tagPageResult == null) { // only one page
 
-            //LogUtils.d("no more page")
-        } else {
-            val listLiPage = document.select(".pagination")?.first()?.children()
-            if (listLiPage != null && !listLiPage.isEmpty()) {
-                for (i in listLiPage.indices) {
-                    val li = listLiPage[i]
-                    if ((li).attr("class") != null && (li).attr("class").contains("current")) {
-
-                        if (i == listLiPage.size - 1) {
-                            //last page
-                            //LogUtils.d("no more page")
-                        } else {
-                            if ( listLiPage[i + 1] != null) {
-                                val nextLi = listLiPage[i + 1]
-                                val a = nextLi
-                                if (a != null ) {
-                                    var nextUrl =a.attr("href")
-                                    //LogUtils.d("has more page")
-                                    return nextUrl
-                                } else {
-                                    //LogUtils.d("no more page")
-
-                                }
-                            } else {
-                                //LogUtils.d("no more page")
-                            }
-                        }
-                        break
-                    }
-                }
-            } else {
-                //LogUtils.d("no more page")
-            }
-        }
-        return null
-    }
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         val response = app.get("${request.data}/page/${page}").text
 //        val listType: Type = object : TypeToken<ArrayList<HomeItem>>() {}.getType()
