@@ -172,7 +172,10 @@ class AnimeVietsubProvider : MainAPI() {
         @JsonProperty("link") val link: List<FileResponse>,
         @JsonProperty("success") val success: Int
     )
-
+    
+    data class load(
+        @JsonProperty("trailer") val trailer: string,
+    )
     /**
      * 1.  dùng idEp để lấy danh sách server
      * 2. dùng id server và mã hash của link để lấy link stream
@@ -279,7 +282,11 @@ class AnimeVietsubProvider : MainAPI() {
 //            }
 //        }
         val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
-//        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a").map { it.text() }
+        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a")?.mapNotNull {
+            Actor(
+                it.figcaption ?: return@mapNotNull null, it.image
+            )
+        }
         val rating =
             doc.select("div.post-ratings strong#average_score").text().toRatingInt()
         val trailer = fixUrl(doc.select("div.TPlayer").attr("src"))
@@ -292,7 +299,7 @@ class AnimeVietsubProvider : MainAPI() {
             name = realName,
             url = url,
             tags = tags,
-//            addActors(actors),
+            addActors(actors),
             rating = rating,
             addTrailer(trailer),
             apiName = this.name,
