@@ -19,6 +19,7 @@ import java.util.regex.Pattern
 class AnimeVietsubProvider : MainAPI() {
     override var mainUrl = "https://bit.ly/animevietsubtv"
     override var name = "AnimeVietsub"
+    override var lang = "vi"
 
     override val hasQuickSearch: Boolean
         get() = true
@@ -172,10 +173,7 @@ class AnimeVietsubProvider : MainAPI() {
         @JsonProperty("link") val link: List<FileResponse>,
         @JsonProperty("success") val success: Int
     )
-    
-    data class load(
-        @JsonProperty("trailer") val trailer: string,
-    )
+
     /**
      * 1.  dùng idEp để lấy danh sách server
      * 2. dùng id server và mã hash của link để lấy link stream
@@ -284,7 +282,7 @@ class AnimeVietsubProvider : MainAPI() {
         val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
         val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a")?.mapNotNull {
             Actor(
-                it.figcaption ?: return@mapNotNull null, it.image
+                it.text ?: return@mapNotNull null
             )
         }
         val rating =
@@ -299,9 +297,9 @@ class AnimeVietsubProvider : MainAPI() {
             name = realName,
             url = url,
             tags = tags,
-            addActors(actors),
+            addActors(actors): List<Actor>?,
             rating = rating,
-            addTrailer(trailer),
+            addTrailer(trailer): List<String>?,
             apiName = this.name,
             type = TvType.TvSeries,
             posterUrl = urlBackdoor,
