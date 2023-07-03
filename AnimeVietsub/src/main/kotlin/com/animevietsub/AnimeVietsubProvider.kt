@@ -5,6 +5,7 @@ import android.util.Patterns
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.gson.Gson
 import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.ui.search.SearchFragment
 import com.lagradost.cloudstream3.utils.ExtractorLink
@@ -259,7 +260,7 @@ class AnimeVietsubProvider : MainAPI() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        var duration = doc.selectFirst(".Info .Time")?.toIntOrNull()
+        var duration = ""
 //        for (index in listDataHtml.indices) {
 //            val data = (listDataHtml[index]).text().trim();
 //            if (data.contains("Thể loại: ")) {
