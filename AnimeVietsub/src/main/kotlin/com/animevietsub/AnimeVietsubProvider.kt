@@ -5,7 +5,7 @@ import android.util.Patterns
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.gson.Gson
 import com.lagradost.cloudstream3.*
-
+import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.ui.search.SearchFragment
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.getQualityFromName
@@ -16,7 +16,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class AnimeVietsubProvider : MainAPI() {
-    override var mainUrl = "https://animevietsub.moe"
+    override var mainUrl = "https://bit.ly/animevietsubtv"
     override var name = "AnimeVietsub"
 
     override val hasQuickSearch: Boolean
@@ -259,7 +259,7 @@ class AnimeVietsubProvider : MainAPI() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        var duration = ""
+        var duration = doc.selectFirst(".Info .Time")?.toIntOrNull()
 //        for (index in listDataHtml.indices) {
 //            val data = (listDataHtml[index]).text().trim();
 //            if (data.contains("Thể loại: ")) {
@@ -277,6 +277,11 @@ class AnimeVietsubProvider : MainAPI() {
 //                year = data.replace("Năm Phát Hành: ", "")
 //            }
 //        }
+        val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
+        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a").map { it.text() }
+        val rating =
+            doc.select("div.post-ratings strong#average_score").text().toRatingInt()
+        val trailer = doc.select("div.TPlayer").attr("src")
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
 //            movie.urlReview = movie.urlDetail
@@ -285,6 +290,10 @@ class AnimeVietsubProvider : MainAPI() {
         return TvSeriesLoadResponse(
             name = realName,
             url = url,
+            tags = tags,
+            addActors(actors),
+            rating = rating,
+            addTrailer(trailer),
             apiName = this.name,
             type = TvType.TvSeries,
             posterUrl = urlBackdoor,
