@@ -293,7 +293,7 @@ class AnimeVietsubProvider : MainAPI() {
 //            movie.urlReview = movie.urlDetail
         val urlWatch = doc.select(".watch_button_more").attr("href")
         val episodes = getDataEpisode(urlWatch)
-        val recommendations = doc.select("div.owl-wrapper-outer .TPostMv").map {
+        val recommendations = doc.select("div.owl-wrapper-outer div.TPostMv").map {
                 getItemMovie(it)
             }
     return TvSeriesLoadResponse(
