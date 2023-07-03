@@ -280,26 +280,29 @@ class AnimeVietsubProvider : MainAPI() {
 //            }
 //        }
         val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
-        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a")?.mapNotNull {
-            Actor(
-                it.text ?: return@mapNotNull null
+//        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a")?.mapNotNull {
+//            Actor(
+//                it.text ?: return@mapNotNull null
             )
         }
         val rating =
             doc.select("div.post-ratings strong#average_score").text().toRatingInt()
-        val trailer = fixUrl(doc.select("div.TPlayer").attr("src"))
+//        val trailer = fixUrl(doc.select("div.TPlayer").attr("src"))
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
 //            movie.urlReview = movie.urlDetail
         val urlWatch = doc.select(".watch_button_more").attr("href")
         val episodes = getDataEpisode(urlWatch)
-        return TvSeriesLoadResponse(
+        val recommendations = doc.select("div.owl-wrapper-outer .TPostMv").map {
+                getItemMovie(it)
+            }
+    return TvSeriesLoadResponse(
             name = realName,
             url = url,
             tags = tags,
-            addActors(actors): List<Actor>?,
+//            addActors(actors),
             rating = rating,
-            addTrailer(trailer): List<String>?,
+//            addTrailer(trailer),
             apiName = this.name,
             type = TvType.TvSeries,
             posterUrl = urlBackdoor,
@@ -308,6 +311,7 @@ class AnimeVietsubProvider : MainAPI() {
             showStatus = null,
             episodes = episodes,
             comingSoon = episodes.isEmpty(),
+            recommendations = recommendations,
             posterHeaders = mapOf("referer" to mainUrl)
         )
     }
