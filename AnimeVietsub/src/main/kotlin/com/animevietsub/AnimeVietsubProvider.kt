@@ -279,7 +279,8 @@ class AnimeVietsubProvider : MainAPI() {
 //                year = data.replace("Năm Phát Hành: ", "")
 //            }
 //        }
-        val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
+        val tags = if (episodes.isEmpty()) doc.select("ul.InfoList li:nth-child(2) a").map { it.text() }
+            else doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
         val rating = doc.select("div.post-ratings strong#average_score").text().toRatingInt()
 //        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 li").map { it.text() }
 //        val trailer = doc.select("div.TPlayer").attr("src")
@@ -288,8 +289,20 @@ class AnimeVietsubProvider : MainAPI() {
         val urlWatch = doc.select(".watch_button_more").attr("href")
         val episodes = getDataEpisode(urlWatch)
         val recommendations = doc.select("div.MovieListRelated.owl-carousel.owl-theme div.owl-item").map {
-                getItemMovie(it)
-            }
+            val title = it.selectFirst("a .Title")!!.text()
+            val href = fixUrl(it.selectFirst("a")!!.attr("href"))
+            val year = 0
+            val image = it.selectFirst("img")!!.attr("src")
+            return MovieSearchResponse(
+                title,
+                href,
+                this.name,
+                TvType.Movie,
+                image,
+                year,
+                posterHeaders = mapOf("referer" to mainUrl)
+            )
+        }
     return TvSeriesLoadResponse(
             name = realName,
             url = url,
