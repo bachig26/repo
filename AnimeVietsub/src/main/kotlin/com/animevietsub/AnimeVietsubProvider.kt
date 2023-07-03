@@ -280,27 +280,22 @@ class AnimeVietsubProvider : MainAPI() {
 //            }
 //        }
         val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
-//        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a")?.mapNotNull {
-//            Actor(
-//                it.text ?: return@mapNotNull null
-//            )
-//        }
-        val rating =
-            doc.select("div.post-ratings strong#average_score").text().toRatingInt()
-//        val trailer = fixUrl(doc.select("div.TPlayer").attr("src"))
+        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 li").map { it.text() }
+        val rating = doc.select("div.post-ratings strong#average_score").text().toRatingInt()
+//        val trailer = doc.select("div.TPlayer").attr("src")
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
 //            movie.urlReview = movie.urlDetail
         val urlWatch = doc.select(".watch_button_more").attr("href")
         val episodes = getDataEpisode(urlWatch)
         val recommendations = doc.select("div.MovieListRelated.owl-carousel.owl-theme div.owl-item").map {
-                it.getItemMovie()
+                getItemMovie(it)
             }
     return TvSeriesLoadResponse(
             name = realName,
             url = url,
             tags = tags,
-//            addActors(actors),
+            addActors(actors),
             rating = rating,
 //            addTrailer(trailer),
             apiName = this.name,
