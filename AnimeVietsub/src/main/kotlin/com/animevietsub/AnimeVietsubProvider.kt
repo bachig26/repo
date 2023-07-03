@@ -283,8 +283,8 @@ class AnimeVietsubProvider : MainAPI() {
 //        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 a")?.mapNotNull {
 //            Actor(
 //                it.text ?: return@mapNotNull null
-            )
-        }
+//            )
+//        }
         val rating =
             doc.select("div.post-ratings strong#average_score").text().toRatingInt()
 //        val trailer = fixUrl(doc.select("div.TPlayer").attr("src"))
