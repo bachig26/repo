@@ -279,7 +279,7 @@ class AnimeVietsubProvider : MainAPI() {
 //                year = data.replace("Năm Phát Hành: ", "")
 //            }
 //        }
-        val tags = doc.select("ul.InfoList li").contains("Thể loại:").map { it.text() }
+        val tags = doc.select("ul.InfoList li:nth-child(3) a").map { it.text() }
         val rating = doc.select("div.post-ratings strong#average_score").text().toRatingInt()
 //        val actors = doc.select("ul.ListCast.Rows.AF.A06.B03.C02.D20.E02 li").map { it.text() }
 //        val trailer = doc.select("div.TPlayer").attr("src")
