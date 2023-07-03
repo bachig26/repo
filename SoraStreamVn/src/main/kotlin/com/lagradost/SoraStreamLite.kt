@@ -18,13 +18,15 @@ import com.hexated.SoraExtractor.invokeLing
 import com.hexated.SoraExtractor.invokeM4uhd
 import com.hexated.SoraExtractor.invokeMovie123Net
 import com.hexated.SoraExtractor.invokeMovieHab
+import com.hexated.SoraExtractor.invokeNavy
 import com.hexated.SoraExtractor.invokeNinetv
 import com.hexated.SoraExtractor.invokeNowTv
 import com.hexated.SoraExtractor.invokePutlocker
 import com.hexated.SoraExtractor.invokeRStream
+import com.hexated.SoraExtractor.invokeRidomovies
 import com.hexated.SoraExtractor.invokeSeries9
 import com.hexated.SoraExtractor.invokeSmashyStream
-import com.hexated.SoraExtractor.invokeSoraStream
+import com.hexated.SoraExtractor.invokeDumpStream
 import com.hexated.SoraExtractor.invokeVidSrc
 import com.hexated.SoraExtractor.invokeWatchOnline
 import com.hexated.SoraExtractor.invokeWatchsomuch
@@ -35,7 +37,7 @@ import com.lagradost.cloudstream3.utils.AppUtils
 import com.lagradost.cloudstream3.utils.ExtractorLink
 
 class SoraStreamLite : SoraStream() {
-    override var name = "SoraStream-Lite"
+    override var name = "SoraStreamVn-Lite"
 
     override suspend fun loadLinks(
         data: String,
@@ -65,7 +67,7 @@ class SoraStreamLite : SoraStream() {
                 )
             },
             {
-                invokeSoraStream(
+                invokeDumpStream(
                     res.title,
                     res.year,
                     res.season,
@@ -274,7 +276,17 @@ class SoraStreamLite : SoraStream() {
                 )
             },
             {
-                if (!res.isAnime && res.season == null) invokeNowTv(res.id, callback)
+                if (!res.isAnime) invokeNowTv(res.id, res.season, res.episode, callback)
+            },
+            {
+                invokeNavy(res.imdbId, res.season, res.episode, callback)
+            },
+            {
+                if (res.season == null) invokeRidomovies(
+                    res.title,
+                    res.year,
+                    callback
+                )
             }
         )
 

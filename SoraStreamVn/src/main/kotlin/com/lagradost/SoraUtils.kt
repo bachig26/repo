@@ -2,6 +2,8 @@ package com.hexated
 
 import android.util.Base64
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.hexated.DumpUtils.createHeaders
+import com.hexated.DumpUtils.queryApi
 import com.hexated.SoraStream.Companion.anilistAPI
 import com.hexated.SoraStream.Companion.base64DecodeAPI
 import com.hexated.SoraStream.Companion.baymoviesAPI
@@ -17,6 +19,7 @@ import com.hexated.SoraStream.Companion.tvMoviesAPI
 import com.hexated.SoraStream.Companion.watchOnlineAPI
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.APIHolder.getCaptchaToken
+import com.lagradost.cloudstream3.APIHolder.unixTimeMS
 import com.lagradost.cloudstream3.mvvm.suspendSafeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
@@ -32,10 +35,13 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.jsoup.nodes.Document
+import java.math.BigInteger
 import java.net.*
 import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
-import java.security.SecureRandom
+import java.security.*
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -43,8 +49,6 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.collections.ArrayList
 import kotlin.math.min
 
-val soraAPI =
-    base64DecodeAPI("cA==YXA=cy8=Y20=di8=LnQ=b2s=a2w=bG8=aS4=YXA=ZS0=aWw=b2I=LW0=Z2E=Ly8=czo=dHA=aHQ=")
 val bflixChipperKey = base64DecodeAPI("Yjc=ejM=TzA=YTk=WHE=WnU=bXU=RFo=")
 const val bflixKey = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 const val kaguyaBaseUrl = "https://kaguya.app/"
@@ -439,7 +443,7 @@ suspend fun invokeSmashyFfix(
             ?: return
 
     val source =
-        Regex("file:\\s['\"](\\S+?)['|\"]").find(script)?.groupValues?.get(
+        Regex("['\"]?file['\"]?:\\s*\"([^\"]+)").find(script)?.groupValues?.get(
             1
         ) ?: return
 
@@ -514,47 +518,6 @@ suspend fun invokeSmashyDude(
 
 }
 
-suspend fun invokeSmashyNflim(
-    name: String,
-    url: String,
-    subtitleCallback: (SubtitleFile) -> Unit,
-    callback: (ExtractorLink) -> Unit,
-) {
-    val script =
-        app.get(url).document.selectFirst("script:containsData(player =)")?.data() ?: return
-
-    val sources = Regex("file:\\s*\"([^\"]+)").find(script)?.groupValues?.get(1) ?: return
-    val subtitles = Regex("subtitle:\\s*\"([^\"]+)").find(script)?.groupValues?.get(1) ?: return
-
-    sources.split(",").map { links ->
-        val quality = Regex("\\[(\\d+)]").find(links)?.groupValues?.getOrNull(1)?.trim()
-        val trimmedLink = links.removePrefix("[$quality]").trim()
-        callback.invoke(
-            ExtractorLink(
-                "Smashy [$name]",
-                "Smashy [$name]",
-                trimmedLink,
-                "",
-                quality?.toIntOrNull() ?: return@map,
-                isM3u8 = true,
-            )
-        )
-    }
-
-    subtitles.split(",").map { sub ->
-        val lang = Regex("\\[(.*?)]").find(sub)?.groupValues?.getOrNull(1)?.trim()
-        val trimmedSubLink = sub.removePrefix("[$lang]").trim()
-
-        subtitleCallback.invoke(
-            SubtitleFile(
-                lang ?: return@map,
-                trimmedSubLink
-            )
-        )
-    }
-
-}
-
 suspend fun invokeSmashyRip(
     name: String,
     url: String,
@@ -596,55 +559,57 @@ suspend fun invokeSmashyRip(
 
 }
 
-suspend fun getSoraIdAndType(title: String?, year: Int?, season: Int?): Pair<String, String>? {
-    val doc =
-        app.get("${base64DecodeAPI("b20=LmM=b2s=a2w=bG8=Ly8=czo=dHA=aHQ=")}/search?keyword=$title").document
-    val scriptData = doc.select("div.search-list div.search-video-card").map {
-        Triple(
-            it.selectFirst("h2.title")?.text().toString(),
-            it.selectFirst("div.desc")?.text()
-                ?.substringBefore(".")?.toIntOrNull(),
-            it.selectFirst("a")?.attr("href")?.split("/")
+suspend fun getDumpIdAndType(title: String?, year: Int?, season: Int?): Pair<String?, Int?> {
+    val res = tryParseJson<DumpQuickSearchData>(
+        queryApi(
+            "POST",
+            "${BuildConfig.DUMP_API}/search/searchWithKeyWord",
+            mapOf(
+                "searchKeyWord" to "$title",
+                "size" to "50",
+            )
         )
-    }
+    )?.searchResults
 
-    val script = if (scriptData.size == 1) {
-        scriptData.firstOrNull()
+    val media = if (res?.size == 1) {
+        res.firstOrNull()
     } else {
-        scriptData.find {
+        res?.find {
             when (season) {
                 null -> {
-                    it.first.equals(
+                    it.name.equals(
                         title,
                         true
-                    ) && it.second == year
+                    ) && it.releaseTime == "$year" && it.domainType == 0
                 }
                 1 -> {
-                    it.first.contains(
+                    it.name?.contains(
                         "$title",
                         true
-                    ) && (it.second == year || it.first.contains("Season $season", true))
+                    ) == true && (it.releaseTime == "$year" || it.name.contains("Season $season", true)) && it.domainType == 1
                 }
                 else -> {
-                    it.first.contains(Regex("(?i)$title\\s?($season|${season.toRomanNumeral()}|Season\\s$season)")) && it.second == year
+                    it.name?.contains(Regex("(?i)$title\\s?($season|${season.toRomanNumeral()}|Season\\s$season)")) == true && it.releaseTime == "$year" && it.domainType == 1
                 }
             }
         }
     }
 
-    val id = script?.third?.last()?.substringBefore("-") ?: return null
-    val type = script.third?.get(2)?.let {
-        if (it == "drama") "1" else "0"
-    } ?: return null
+    return media?.id to media?.domainType
 
-    return id to type
 }
 
-suspend fun fetchSoraEpisodes(id: String, type: String, episode: Int?): EpisodeVo? {
-    return app.get(
-        "$soraAPI/movieDrama/get?id=${id}&category=${type}",
-        headers = soraHeaders
-    ).parsedSafe<Load>()?.data?.episodeVo?.find {
+suspend fun fetchDumpEpisodes(id: String, type: String, episode: Int?): EpisodeVo? {
+    return tryParseJson<DumpMediaDetail>(
+        queryApi(
+            "GET",
+            "${BuildConfig.DUMP_API}/movieDrama/get",
+            mapOf(
+                "category" to type,
+                "id" to id,
+            )
+        )
+    )?.episodeVo?.find {
         it.seriesNo == (episode ?: 0)
     }
 }
@@ -1401,12 +1366,12 @@ fun getDeviceId(length: Int = 16): String {
 }
 
 suspend fun comsumetEncodeVrf(query: String): String? {
-    return app.get("$consumetHelper?query=$query&action=fmovies-vrf")
+    return app.get("$consumetHelper?query=$query&action=fmovies-vrf", timeout = 30L)
         .parsedSafe<Map<String, String>>()?.get("url")
 }
 
 suspend fun comsumetDecodeVrf(query: String): String? {
-    val res = app.get("$consumetHelper?query=$query&action=fmovies-decrypt")
+    val res = app.get("$consumetHelper?query=$query&action=fmovies-decrypt", timeout = 30L)
     return tryParseJson<Map<String, String>>(res.text)?.get("url")
 }
 
@@ -1521,6 +1486,12 @@ fun getBaseUrl(url: String): String {
     }
 }
 
+fun isUpcoming(dateString: String?) : Boolean {
+    if(dateString == null) return false
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val dateTime = format.parse(dateString)?.time ?: return false
+    return unixTimeMS < dateTime
+}
 fun decode(input: String): String = URLDecoder.decode(input, "utf-8")
 
 fun encode(input: String): String = URLEncoder.encode(input, "utf-8").replace("+", "%20")
@@ -2040,4 +2011,120 @@ object RabbitStream {
         @JsonProperty("tracks") val tracks: List<Tracks?>?
     )
 
+}
+
+object DumpUtils {
+
+    private val deviceId = getDeviceId()
+
+    suspend fun queryApi(method: String, url: String, params: Map<String, String>): String {
+        return app.custom(
+            method,
+            url,
+            requestBody = if(method == "POST") params.toJson().toRequestBody(RequestBodyTypes.JSON.toMediaTypeOrNull()) else null,
+            params = if(method == "GET") params else emptyMap(),
+            headers = createHeaders(params)
+        ).parsedSafe<HashMap<String, String>>()?.get("data").let {
+            cryptoHandler(
+                it.toString(),
+                deviceId,
+                false
+            )
+        }
+    }
+
+    private fun createHeaders(
+        params: Map<String, String>,
+        currentTime: String = System.currentTimeMillis().toString(),
+    ): Map<String, String> {
+        return mapOf(
+            "lang" to "en",
+            "currentTime" to currentTime,
+            "sign" to getSign(currentTime, params).toString(),
+            "aesKey" to getAesKey().toString(),
+        )
+    }
+
+    private fun cryptoHandler(
+        string: String,
+        secretKeyString: String,
+        encrypt: Boolean = true
+    ): String {
+        val secretKey = SecretKeySpec(secretKeyString.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING")
+        return if (!encrypt) {
+            cipher.init(Cipher.DECRYPT_MODE, secretKey)
+            String(cipher.doFinal(base64DecodeArray(string)))
+        } else {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+            base64Encode(cipher.doFinal(string.toByteArray()))
+        }
+    }
+
+    private fun getAesKey(): String? {
+        val publicKey = RSAEncryptionHelper.getPublicKeyFromString(BuildConfig.DUMP_KEY) ?: return null
+        return RSAEncryptionHelper.encryptText(deviceId, publicKey)
+    }
+
+    private fun getSign(currentTime: String, params: Map<String, String>): String? {
+        val chipper = listOf(
+            currentTime,
+            params.map { it.value }.reversed().joinToString("")
+                .let { base64Encode(it.toByteArray()) }).joinToString("")
+        val enc = cryptoHandler(chipper, deviceId)
+        return md5(enc)
+    }
+
+    private fun md5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
+    }
+
+}
+
+object RSAEncryptionHelper {
+
+    private const val RSA_ALGORITHM = "RSA"
+    private const val CIPHER_TYPE_FOR_RSA = "RSA/ECB/PKCS1Padding"
+
+    private val keyFactory = KeyFactory.getInstance(RSA_ALGORITHM)
+    private val cipher = Cipher.getInstance(CIPHER_TYPE_FOR_RSA)
+
+    fun getPublicKeyFromString(publicKeyString: String): PublicKey? =
+        try {
+            val keySpec =
+                X509EncodedKeySpec(Base64.decode(publicKeyString.toByteArray(), Base64.NO_WRAP))
+            keyFactory.generatePublic(keySpec)
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            null
+        }
+
+    fun getPrivateKeyFromString(privateKeyString: String): PrivateKey? =
+        try {
+            val keySpec =
+                PKCS8EncodedKeySpec(Base64.decode(privateKeyString.toByteArray(), Base64.DEFAULT))
+            keyFactory.generatePrivate(keySpec)
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            null
+        }
+
+    fun encryptText(plainText: String, publicKey: PublicKey): String? =
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey)
+            Base64.encodeToString(cipher.doFinal(plainText.toByteArray()), Base64.NO_WRAP)
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            null
+        }
+
+    fun decryptText(encryptedText: String, privateKey: PrivateKey): String? =
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, privateKey)
+            String(cipher.doFinal(Base64.decode(encryptedText, Base64.DEFAULT)))
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            null
+        }
 }
