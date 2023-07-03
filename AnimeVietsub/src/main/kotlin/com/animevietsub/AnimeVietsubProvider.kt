@@ -74,37 +74,6 @@ class AnimeVietsubProvider : MainAPI() {
         return HomePageResponse(listHomePageList)
     }
 
-    override suspend fun getMenus(): List<Pair<String, List<Page>>>? {
-        val html = app.get(mainUrl).text
-        val doc = Jsoup.parse(html)
-        val listGenre = arrayListOf<Page>()
-        doc.select(".menu-item .sub-menu")[2]!!.select("li").forEach {
-            val url = fixUrl(it.selectFirst("a")!!.attr("href"))
-            val name = it.selectFirst("a")!!.text().trim()
-            listGenre.add(Page(name, url, nameApi = this.name))
-        }
-        val listCountry = arrayListOf<Page>()
-        doc.select(".menu-item .sub-menu")[3].select("li").forEach {
-            val url = fixUrl(it.selectFirst("a")!!.attr("href"))
-            val name = it.selectFirst("a")!!.text().trim()
-            listCountry.add(Page(name, url, nameApi = this.name))
-        }
-        val list = arrayListOf<Pair<String, List<Page>>>()
-        list.add(Pair("Thể loại", listGenre))
-        list.add(Pair("Season", listCountry))
-        return list
-    }
-
-    override suspend fun loadPage(url: String): PageResponse {
-        val html = app.get(url).text
-        val document = Jsoup.parse(html)
-
-        val list = document.select("section .TPostMv").map {
-            getItemMovie(it)
-        }
-        return PageResponse(list, getPagingResult(document))
-    }
-
     private fun getPagingResult(document: Document): String? {
         val tagPageResult: Element? = document.selectFirst(".wp-pagenavi a")
         if (tagPageResult == null) { // only one page
@@ -141,8 +110,7 @@ class AnimeVietsubProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse>? {
-        val url =
-            if (query == SearchFragment.DEFAULT_QUERY_SEARCH) "" else "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
+        val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
         val html = app.get(url).text
         val document = Jsoup.parse(html)
 
