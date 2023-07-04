@@ -321,7 +321,7 @@ open class SoraStream : TmdbProvider() {
                                 date = season.airDate,
                                 airedDate = res.releaseDate ?: res.firstAirDate
                             ).toJson(),
-                            name = eps.name.replace("Episode", "Tập") + if(isUpcoming(eps.airDate)) " - [SẮP CHIẾU]" else "",
+                            name = eps.name?.replace("Episode", "Tập") + if(isUpcoming(eps.airDate)) " - [SẮP CHIẾU]" else "",
                             season = eps.seasonNumber,
                             posterUrl = getImageUrl(eps.stillPath),
                             rating = eps.voteAverage?.times(10)?.roundToInt(),
