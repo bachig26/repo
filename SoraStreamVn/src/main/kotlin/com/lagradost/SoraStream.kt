@@ -277,6 +277,12 @@ open class SoraStream : TmdbProvider() {
         val genres = vi.genres?.mapNotNull { it.name!!.substringAfter("Phim")
                 .replace("Sci-Fi & Fantasy", "Khoa Học & Viễn Tưởng")
                 .replace("Action & Adventure", "Hành Động & Phiêu Lưu")
+                .replace("Kids", "Trẻ Em")
+                .replace("News", "Tin Tức")
+                .replace("Reality", "Thực Tế")
+                .replace("Soap", "Truyền Hình Dài Tập")
+                .replace("Talk", "Trò Chuyện")
+                .replace("War & Politics", "Chiến Tranh & Hình Sự")
                 .trim() }
         val isAnime =
             genres?.contains("Hoạt Hình, Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
@@ -323,6 +329,7 @@ open class SoraStream : TmdbProvider() {
                             ).toJson(),
                             name = eps.name?.replace("Episode", "Tập") + if(isUpcoming(eps.airDate)) " - [SẮP CHIẾU]" else "",
                             season = eps.seasonNumber,
+                            episode = eps.episodeNumber,
                             posterUrl = getImageUrl(eps.stillPath),
                             rating = eps.voteAverage?.times(10)?.roundToInt(),
                             description = eps.overview
