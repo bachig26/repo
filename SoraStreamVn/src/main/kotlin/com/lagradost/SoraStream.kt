@@ -285,7 +285,7 @@ open class SoraStream : TmdbProvider() {
                 .replace("War & Politics", "Chiến Tranh & Hình Sự")
                 .trim() }
         val isAnime =
-            genres?.contains("Hoạt Hình, Animation") == true && (res.original_language == "zh" || res.original_language == "ja")
+            genres?.contains("Hoạt Hình") == true && (res.original_language == "zh" || res.original_language == "ja")
         val keywords = res.keywords?.results?.mapNotNull { it.name }.orEmpty()
             .ifEmpty { res.keywords?.keywords?.mapNotNull { it.name } }
 
@@ -348,7 +348,8 @@ open class SoraStream : TmdbProvider() {
                 this.backgroundPosterUrl = bgPoster
                 this.year = year
                 this.plot = vi.overview
-                this.tags = if (isAnime) keywords else genres
+//                this.tags = if (isAnime) keywords else genres
+                this.tags = genres
                 this.rating = rating
                 this.showStatus = getStatus(res.status)
                 this.recommendations = recommendations
@@ -378,7 +379,8 @@ open class SoraStream : TmdbProvider() {
                 this.year = year
                 this.plot = vi.overview
                 this.duration = res.runtime
-                this.tags = if (isAnime) keywords else genres
+//                this.tags = if (isAnime) keywords else genres
+                this.tags = genres
                 this.rating = rating
                 this.recommendations = recommendations
                 this.actors = actors
