@@ -831,12 +831,19 @@ object SoraExtractor : SoraStream() {
         title: String? = null,
         season: Int? = null,
         episode: Int? = null,
+        isAnime: Boolean = false,
+        lastSeason: Int? = null,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ) {
-        val fixTitle = title?.replace("–", "-")
+        val slug = title.createSlug() ?: return
+        val type = when {
+            isAnime -> "3"
+            season == null -> "2"
+            else -> "1"
+        }
         val res = app.get(
-            "$kissKhAPI/api/DramaList/Search?q=$title&type=0", referer = "$kissKhAPI/"
+            "$kissKhAPI/api/DramaList/Search?q=$title&type=$type", referer = "$kissKhAPI/"
         ).text.let {
             tryParseJson<ArrayList<KisskhResults>>(it)
         } ?: return
@@ -844,17 +851,15 @@ object SoraExtractor : SoraStream() {
         val (id, contentTitle) = if (res.size == 1) {
             res.first().id to res.first().title
         } else {
-            if (season == null) {
-                val data = res.find { it.title.equals(fixTitle, true) }
-                data?.id to data?.title
-            } else {
-                val data = res.find {
-                    it.title?.contains(
-                        "$fixTitle", true
-                    ) == true && it.title.contains("Season $season", true)
+            val data = res.find {
+                val slugTitle = it.title.createSlug()
+                when {
+                    season == null -> slugTitle?.equals(slug) == true
+                    lastSeason == 1 -> slugTitle?.contains(slug) == true
+                    else -> slugTitle?.contains(slug) == true && it.title?.contains("Season $season", true) == true
                 }
-                data?.id to data?.title
             }
+            data?.id to data?.title
         }
 
         val resDetail = app.get(
@@ -1008,16 +1013,18 @@ object SoraExtractor : SoraStream() {
         val animeId =
             app.get("https://raw.githubusercontent.com/MALSync/MAL-Sync-Backup/master/data/anilist/anime/${aniId ?: return}.json")
                 .parsedSafe<MALSyncResponses>()?.pages?.zoro?.keys?.map { it }
-
+        val headers = mapOf(
+            "X-Requested-With" to "XMLHttpRequest",
+        )
         animeId?.apmap { id ->
-            val episodeId = app.get("$zoroAPI/ajax/v2/episode/list/${id ?: return@apmap}")
+            val episodeId = app.get("$zoroAPI/ajax/v2/episode/list/${id ?: return@apmap}", headers = headers)
                 .parsedSafe<ZoroResponses>()?.html?.let {
                     Jsoup.parse(it)
                 }?.select("div.ss-list a")?.find { it.attr("data-number") == "${episode ?: 1}" }
                 ?.attr("data-id")
 
             val servers =
-                app.get("$zoroAPI/ajax/v2/episode/servers?episodeId=${episodeId ?: return@apmap}")
+                app.get("$zoroAPI/ajax/v2/episode/servers?episodeId=${episodeId ?: return@apmap}", headers = headers)
                     .parsedSafe<ZoroResponses>()?.html?.let { Jsoup.parse(it) }
                     ?.select("div.item.server-item")?.map {
                         Triple(
@@ -1029,10 +1036,10 @@ object SoraExtractor : SoraStream() {
 
             servers?.apmap servers@{ server ->
                 val iframe =
-                    app.get("$zoroAPI/ajax/v2/episode/sources?id=${server.second ?: return@servers}")
+                    app.get("$zoroAPI/ajax/v2/episode/sources?id=${server.second ?: return@servers}", headers = headers)
                         .parsedSafe<ZoroResponses>()?.link ?: return@servers
                 val audio = if (server.third == "sub") "Raw" else "English Dub"
-                if (server.first == "Vidstreaming" || server.first == "Vidcloud") {
+                if (server.first == "Vidstreaming" || server.first == "MegaCloud") {
                     extractRabbitStream(
                         "${server.first} [$audio]",
                         iframe,
@@ -1255,20 +1262,13 @@ object SoraExtractor : SoraStream() {
                 extractMirrorUHD(bitLink, base)
             }
 
-            val tags =
-                Regex("\\d{3,4}[Pp]\\.?(.*?)\\[").find(quality)?.groupValues?.getOrNull(1)
-                    ?.replace(".", " ")?.trim()
-                    ?: ""
-            val qualities =
-                Regex("(\\d{3,4})[Pp]").find(quality)?.groupValues?.getOrNull(1)?.toIntOrNull()
-                    ?: Qualities.Unknown.value
-            val size =
-                Regex("(?i)\\[(\\S+\\s?(gb|mb))[]/]").find(quality)?.groupValues?.getOrNull(1)
-                    ?.let { "[$it]" } ?: quality
+            val tags = getUhdTags(quality)
+            val qualities = getIndexQuality(quality)
+            val size = getIndexSize(quality)
             callback.invoke(
                 ExtractorLink(
                     "UHDMovies",
-                    "UHDMovies $tags $size",
+                    "UHDMovies $tags [$size]",
                     downloadLink ?: return@apmap,
                     "",
                     qualities
@@ -1277,6 +1277,72 @@ object SoraExtractor : SoraStream() {
 
         }
 
+
+    }
+
+    suspend fun invokePobmovies(
+        title: String? = null,
+        year: Int? = null,
+        callback: (ExtractorLink) -> Unit
+    ) {
+        val detailDoc = app.get("$pobmoviesAPI/${title.createSlug()}-$year").document
+        val iframeList = detailDoc.select("div.entry-content p").map { it }
+            .filter { it.text().filterIframe(year = year, title = title) }.mapNotNull {
+                it.text() to it.nextElementSibling()?.select("a")?.attr("href")
+            }.filter { it.second?.contains(Regex("(https:)|(http:)")) == true }
+
+        val sources = mutableListOf<Pair<String, String?>>()
+        if (iframeList.any {
+                it.first.contains(
+                    "2160p",
+                    true
+                )
+            }) {
+            sources.addAll(iframeList.filter {
+                it.first.contains(
+                    "2160p",
+                    true
+                )
+            })
+            sources.add(iframeList.first {
+                it.first.contains(
+                    "1080p",
+                    true
+                )
+            })
+        } else {
+            sources.addAll(iframeList.filter { it.first.contains("1080p", true) })
+        }
+
+        sources.apmap { (name, link) ->
+            if (link.isNullOrEmpty()) return@apmap
+            val videoLink = when {
+                link.contains("gdtot") -> {
+                    val gdBotLink = extractGdbot(link)
+                    extractGdflix(gdBotLink ?: return@apmap)
+                }
+                link.contains("gdflix") -> {
+                    extractGdflix(link)
+                }
+                else -> {
+                    return@apmap
+                }
+            }
+
+            val tags = getUhdTags(name)
+            val qualities = getIndexQuality(name)
+            val size = getIndexSize(name)
+            callback.invoke(
+                ExtractorLink(
+                    "Pobmovies",
+                    "Pobmovies $tags [${size}]",
+                    videoLink ?: return@apmap,
+                    "",
+                    qualities
+                )
+            )
+
+        }
 
     }
 
@@ -3030,6 +3096,70 @@ object SoraExtractor : SoraStream() {
             path,
             "${navyAPI}/"
         ).forEach(callback)
+
+    }
+
+    suspend fun invokeEmovies(
+        title: String? = null,
+        year: Int? = null,
+        season: Int? = null,
+        episode: Int? = null,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit,
+    ) {
+        val slug = title.createSlug()
+        val url = if (season == null) {
+            "$emoviesAPI/watch-$slug-$year-1080p-hd-online-free/watching.html"
+        } else {
+            val first = "$emoviesAPI/watch-$slug-season-$season-$year-1080p-hd-online-free.html"
+            val second = "$emoviesAPI/watch-$slug-$year-1080p-hd-online-free.html"
+            if (app.get(first).isSuccessful) first else second
+        }
+
+        val res = app.get(url).document
+        val id = (if (season == null) {
+            res.selectFirst("select#selectServer option[sv=oserver]")?.attr("value")
+        } else {
+            res.select("div.le-server a").find {
+                val num =
+                    Regex("Episode (\\d+)").find(it.text())?.groupValues?.get(1)?.toIntOrNull()
+                num == episode
+            }?.attr("href")
+        })?.substringAfter("id=")?.substringBefore("&")
+
+        val server =
+            app.get(
+                "$emoviesAPI/ajax/v4_get_sources?s=oserver&id=${id ?: return}&_=${APIHolder.unixTimeMS}",
+                headers = mapOf(
+                    "X-Requested-With" to "XMLHttpRequest"
+                )
+            ).parsedSafe<EMovieServer>()?.value
+
+        val script = app.get(server ?: return, referer = "$emoviesAPI/").document.selectFirst("script:containsData(sources:)")?.data() ?: return
+        val sources = Regex("sources:\\s*\\[(.*)],").find(script)?.groupValues?.get(1)?.let {
+            tryParseJson<List<EMovieSources>>("[$it]")
+        }
+        val tracks = Regex("tracks:\\s*\\[(.*)],").find(script)?.groupValues?.get(1)?.let {
+            tryParseJson<List<EMovieTraks>>("[$it]")
+        }
+
+        sources?.map { source ->
+            M3u8Helper.generateM3u8(
+                "Emovies",
+                source.file ?: return@map,
+                "https://embed.vodstream.xyz/"
+            ).forEach(callback)
+        }
+
+        tracks?.map { track ->
+            subtitleCallback.invoke(
+                SubtitleFile(
+                    track.label ?: "",
+                    track.file ?: return@map,
+                )
+            )
+        }
+
 
     }
 
