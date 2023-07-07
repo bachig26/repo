@@ -32,11 +32,10 @@ class AnimeVietsubProvider : MainAPI() {
     override val hasDownloadSupport: Boolean
         get() = true
 
-    override val supportedTypes: Set<TvType>
-        get() = setOf(
+    override val supportedTypes: setOf(
             TvType.Movie,
             TvType.TvSeries,
-            TvType.Anime,
+            TvType.Anime
         )
     override val vpnStatus: VPNStatus
         get() = VPNStatus.None
@@ -69,35 +68,17 @@ class AnimeVietsubProvider : MainAPI() {
             }
             if (listMovie.isNotEmpty())
                 listHomePageList.add(HomePageList(name, listMovie))
-
         }
-
         return HomePageResponse(listHomePageList)
     }
 
     override suspend fun search(query: String): List<SearchResponse>? {
-//        val url = if (query == SearchFragment.DEFAULT_QUERY_SEARCH) "" else "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
         val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
         val html = app.get(url).text
         val document = Jsoup.parse(html)
 
         return document.select("section .TPostMv").map {
             getItemMovie(it)
-        }
-    }
-
-    override suspend fun quickSearch(query: String): List<SearchResponse>? {
-        try {
-            val url =  "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
-            val html = app.get(url).text
-            val document = Jsoup.parse(html)
-
-            return document.select("section .TPostMv").map {
-                getItemMovie(it)
-            }
-        }catch (e : Exception){
-            e.printStackTrace()
-            return null
         }
     }
 
@@ -157,23 +138,43 @@ class AnimeVietsubProvider : MainAPI() {
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val urlWatch = doc.select(".watch_button_more").attr("href")
+        val tvType = if (doc.select("ul.InfoList li:nth-last-child(4) a").contain("Anime bộ")
+        ) TvType.TvSeries else TvType.Movie
         val episodes = getDataEpisode(urlWatch)
-        return TvSeriesLoadResponse(
-            name = realName,
-            url = url,
-            apiName = this.name,
-            type = TvType.TvSeries,
-            posterUrl = urlBackdoor,
-            year = year,
-            rating = rating,
-            tags = tags,
-            plot = description,
-            showStatus = null,
-            episodes = episodes,
-            comingSoon = episodes.isEmpty(),
-            posterHeaders = mapOf("referer" to mainUrl)
-        )
-    }
+        
+        return if (tvType == TvType.TvSeries) {
+            newTvSeriesLoadResponse(
+                name = realName,
+                url = url,
+                apiName = this.name,
+                type = TvType.TvSeries,
+                posterUrl = urlBackdoor,
+                year = year,
+                rating = rating,
+                tags = tags,
+                plot = description,
+                showStatus = null,
+                episodes = episodes,
+                comingSoon = episodes.isEmpty(),
+                posterHeaders = mapOf("referer" to mainUrl)
+            )
+        } else {
+            newMovieLoadResponse(
+                name = realName,
+                url = url,
+                apiName = this.name,
+                type = TvType.Movie,
+                posterUrl = urlBackdoor,
+                year = year,
+                rating = rating,
+                tags = tags,
+                plot = description,
+                showStatus = null,
+                episodes = episodes,
+                comingSoon = episodes.isEmpty(),
+                posterHeaders = mapOf("referer" to mainUrl)
+            )
+        }
 
     fun getDataEpisode(
         url: String,
