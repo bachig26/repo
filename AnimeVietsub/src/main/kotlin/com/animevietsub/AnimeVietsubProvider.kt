@@ -18,6 +18,7 @@ import java.util.regex.Pattern
 class AnimeVietsubProvider : MainAPI() {
     override var mainUrl = "https://animevietsub.moe"
     override var name = "AnimeVietsub"
+    override var lang = "vi"
 
     override val hasQuickSearch: Boolean
         get() = true
@@ -73,69 +74,6 @@ class AnimeVietsubProvider : MainAPI() {
 
         return HomePageResponse(listHomePageList)
     }
-
-//    override suspend fun getMenus(): List<Pair<String, List<Page>>>? {
-//        val html = app.get(mainUrl).text
-//        val doc = Jsoup.parse(html)
-//        val listGenre = arrayListOf<Page>()
-//        doc.select(".menu-item .sub-menu")[2]!!.select("li").forEach {
-//            val url = fixUrl(it.selectFirst("a")!!.attr("href"))
-//            val name = it.selectFirst("a")!!.text().trim()
-//            listGenre.add(Page(name, url, nameApi = this.name))
-//        }
-//        val listCountry = arrayListOf<Page>()
-//        doc.select(".menu-item .sub-menu")[3].select("li").forEach {
-//            val url = fixUrl(it.selectFirst("a")!!.attr("href"))
-//            val name = it.selectFirst("a")!!.text().trim()
-//            listCountry.add(Page(name, url, nameApi = this.name))
-//        }
-//        val list = arrayListOf<Pair<String, List<Page>>>()
-//        list.add(Pair("Thể loại", listGenre))
-//        list.add(Pair("Season", listCountry))
-//        return list
-//    }
-
-//    override suspend fun loadPage(url: String): PageResponse {
-//        val html = app.get(url).text
-//        val document = Jsoup.parse(html)
-//
-//        val list = document.select("section .TPostMv").map {
-//            getItemMovie(it)
-//        }
-//        return PageResponse(list, getPagingResult(document))
-//    }
-
-//    private fun getPagingResult(document: Document): String? {
-//        val tagPageResult: Element? = document.selectFirst(".wp-pagenavi a")
-//        if (tagPageResult == null) { // only one page
-//        } else {
-//            val listLiPage = document.select(".wp-pagenavi")?.first()?.children()
-//            if (listLiPage != null && !listLiPage.isEmpty()) {
-//                for (i in listLiPage.indices) {
-//                    val li = listLiPage[i]
-//                    if ((li).attr("class") != null && (li).attr("class").contains("current")) {
-//                        if (i == listLiPage.size - 1) {
-//                            //last page
-//                        } else {
-//                            if (listLiPage[i + 1] != null) {
-//                                val nextLi = listLiPage[i + 1]
-//                                val a = nextLi
-//                                if (a != null) {
-//                                    var nextUrl = fixUrl(a.attr("href"))
-//                                    return nextUrl
-//                                } else {
-//                                }
-//                            } else {
-//                            }
-//                        }
-//                        break
-//                   }
-//                }
-//            } else {
-//            }
-//        }
-//        return null
-//    }
 
     override suspend fun search(query: String): List<SearchResponse>? {
 //        val url = if (query == SearchFragment.DEFAULT_QUERY_SEARCH) "" else "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
@@ -200,6 +138,86 @@ class AnimeVietsubProvider : MainAPI() {
         @JsonProperty("link") val link: List<FileResponse>,
         @JsonProperty("success") val success: Int
     )
+
+    override suspend fun load(url: String): LoadResponse? {
+        val html = app.get(url).text
+        val doc: Document = Jsoup.parse(html)
+        val realName = doc.select(".Title").first()!!.text()
+        var year = 0
+        try {
+            val rawYear = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")
+            rawYear?.let {
+                year = it.toInt()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        val rating = doc.select("div.VotesCn span").text().toRatingInt()
+        val description = doc.select(".Description").text()
+        val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
+        val urlWatch = doc.select(".watch_button_more").attr("href")
+        val episodes = getDataEpisode(urlWatch)
+        return TvSeriesLoadResponse(
+            name = realName,
+            url = url,
+            apiName = this.name,
+            type = TvType.TvSeries,
+            posterUrl = urlBackdoor,
+            year = year,
+            plot = description,
+            showStatus = null,
+            episodes = episodes,
+            comingSoon = episodes.isEmpty(),
+            posterHeaders = mapOf("referer" to mainUrl)
+        )
+    }
+
+    fun getDataEpisode(
+        url: String,
+    ): List<Episode> {
+        if(!url.contains("http")){
+            return emptyList()
+        }
+        val doc: Document = Jsoup.connect(url).timeout(60 * 1000).get()
+        val listEpHtml = doc.select(".list-episode li")
+        val list = arrayListOf<Episode>();
+        listEpHtml.forEach {
+            val url = it.selectFirst("a")!!.attr("href")
+            val name = it.selectFirst("a")!!.text()
+            val id = it.selectFirst("a")!!.attr("data-id")
+            val hash = it.selectFirst("a")!!.attr("data-hash")
+            val episode = Episode(id, name, 0, null, null, null,id);
+            list.add(episode);
+        }
+        return list
+    }
+
+    private fun extractUrl(input: String) =
+        input
+            .split(" ")
+            .firstOrNull { Patterns.WEB_URL.matcher(it).find() }
+            ?.replace("url(", "")
+            ?.replace(")", "")
+
+    /**
+     * Returns a list with all links contained in the input
+     */
+    fun extractUrls(text: String): List<String>? {
+        val containedUrls: MutableList<String> = ArrayList()
+        val urlRegex =
+            "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"
+        val pattern: Pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE)
+        val urlMatcher: Matcher = pattern.matcher(text)
+        while (urlMatcher.find()) {
+            containedUrls.add(
+                text.substring(
+                    urlMatcher.start(0),
+                    urlMatcher.end(0)
+                )
+            )
+        }
+        return containedUrls
+    }
 
     /**
      * 1.  dùng idEp để lấy danh sách server
@@ -273,103 +291,5 @@ class AnimeVietsubProvider : MainAPI() {
             error.printStackTrace()
         }
         return true
-    }
-
-    override suspend fun load(url: String): LoadResponse? {
-        val html = app.get(url).text
-        val doc: Document = Jsoup.parse(html)
-        val realName = doc.select(".Title").first()!!.text()
-        var year = 0
-        try {
-            val rawYear = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")
-            rawYear?.let {
-                year = it.toInt()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        var duration = ""
-//        for (index in listDataHtml.indices) {
-//            val data = (listDataHtml[index]).text().trim();
-//            if (data.contains("Thể loại: ")) {
-//                val genre = data.replace("Thể loại: ", "")
-////                    movie.category = genre
-//            } else if (data.contains("Quốc gia:")) {
-////                    movie. = data.replace("Quốc gia:", "")
-//            } else if (data.contains("Diễn viên: ")) {
-////                    movie.actor = data.replace("Diễn viên:", "").trim()
-//            } else if (data.contains("Đạo diễn:")) {
-////                    director = data.replace("Đạo diễn:", "").trim()
-//            } else if (data.contains("Thời lượng:")) {
-//                duration = data.replace("Thời lượng:", "")
-//            } else if (data.contains("Năm Phát Hành: ")) {
-//                year = data.replace("Năm Phát Hành: ", "")
-//            }
-//        }
-        val description = doc.select(".Description").text()
-        val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
-//            movie.urlReview = movie.urlDetail
-        val urlWatch = doc.select(".watch_button_more").attr("href")
-        val episodes = getDataEpisode(urlWatch)
-        return TvSeriesLoadResponse(
-            name = realName,
-            url = url,
-            apiName = this.name,
-            type = TvType.TvSeries,
-            posterUrl = urlBackdoor,
-            year = year,
-            plot = description,
-            showStatus = null,
-            episodes = episodes,
-            comingSoon = episodes.isEmpty(),
-            posterHeaders = mapOf("referer" to mainUrl)
-        )
-    }
-
-    fun getDataEpisode(
-        url: String,
-    ): List<Episode> {
-        if(!url.contains("http")){
-            return emptyList()
-        }
-        val doc: Document = Jsoup.connect(url).timeout(60 * 1000).get()
-        val listEpHtml = doc.select(".list-episode li")
-        val list = arrayListOf<Episode>();
-        listEpHtml.forEach {
-            val url = it.selectFirst("a")!!.attr("href")
-            val name = it.selectFirst("a")!!.text()
-            val id = it.selectFirst("a")!!.attr("data-id")
-            val hash = it.selectFirst("a")!!.attr("data-hash")
-            val episode = Episode(id, name, 0, null, null, null,id);
-            list.add(episode);
-        }
-        return list
-    }
-
-    private fun extractUrl(input: String) =
-        input
-            .split(" ")
-            .firstOrNull { Patterns.WEB_URL.matcher(it).find() }
-            ?.replace("url(", "")
-            ?.replace(")", "")
-
-    /**
-     * Returns a list with all links contained in the input
-     */
-    fun extractUrls(text: String): List<String>? {
-        val containedUrls: MutableList<String> = ArrayList()
-        val urlRegex =
-            "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"
-        val pattern: Pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE)
-        val urlMatcher: Matcher = pattern.matcher(text)
-        while (urlMatcher.find()) {
-            containedUrls.add(
-                text.substring(
-                    urlMatcher.start(0),
-                    urlMatcher.end(0)
-                )
-            )
-        }
-        return containedUrls
     }
 }
