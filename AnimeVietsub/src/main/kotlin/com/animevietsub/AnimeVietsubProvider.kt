@@ -153,6 +153,7 @@ class AnimeVietsubProvider : MainAPI() {
             e.printStackTrace()
         }
         val rating = doc.select("div.VotesCn span").text().toRatingInt()
+        val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val urlWatch = doc.select(".watch_button_more").attr("href")
@@ -164,6 +165,8 @@ class AnimeVietsubProvider : MainAPI() {
             type = TvType.TvSeries,
             posterUrl = urlBackdoor,
             year = year,
+            rating = rating,
+            tags = tags,
             plot = description,
             showStatus = null,
             episodes = episodes,
