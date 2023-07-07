@@ -40,7 +40,6 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 
 class SoraStreamLite : SoraStream() {
     override var name = "SoraStreamVn-Lite"
-
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
