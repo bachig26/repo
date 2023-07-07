@@ -138,8 +138,8 @@ class AnimeVietsubProvider : MainAPI() {
 //    }
 
     override suspend fun search(query: String): List<SearchResponse>? {
-        val url =
-            if (query == SearchFragment.DEFAULT_QUERY_SEARCH) "" else "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
+//        val url = if (query == SearchFragment.DEFAULT_QUERY_SEARCH) "" else "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
+        val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
         val html = app.get(url).text
         val document = Jsoup.parse(html)
 
