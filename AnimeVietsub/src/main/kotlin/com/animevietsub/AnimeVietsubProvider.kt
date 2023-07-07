@@ -32,7 +32,7 @@ class AnimeVietsubProvider : MainAPI() {
     override val hasDownloadSupport: Boolean
         get() = true
 
-    override val supportedTypes: setOf(
+    override val supportedTypes = setOf(
             TvType.Movie,
             TvType.TvSeries,
             TvType.Anime
@@ -133,7 +133,7 @@ class AnimeVietsubProvider : MainAPI() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        val rating = doc.select("div.VotesCn span").text().toRatingInt()
+        val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
@@ -170,8 +170,6 @@ class AnimeVietsubProvider : MainAPI() {
                 tags = tags,
                 plot = description,
                 showStatus = null,
-                episodes = episodes,
-                comingSoon = episodes.isEmpty(),
                 posterHeaders = mapOf("referer" to mainUrl)
             )
         }
@@ -296,4 +294,5 @@ class AnimeVietsubProvider : MainAPI() {
         }
         return true
     }
+}
 }
