@@ -95,9 +95,9 @@ class PhimmoichillProvider : MainAPI() {
         val tvType = if (document.select("div.latest-episode").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div#film-content").text()?.substringAfter("Full HD Vietsub Thuyết Minh")
-                ?.substringBefore("@phimmoi").trim()
+                !!.substringBefore("@phimmoi").trim()
         val trailer =
-            document.select("div#trailer script").last()?.data()?.substringAfter("file: "")
+            document.select("div#trailer script").last()?.data()?.substringAfter("file: \"")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
