@@ -94,9 +94,10 @@ class PhimmoichillProvider : MainAPI() {
             .toIntOrNull()
         val tvType = if (document.select("div.latest-episode").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
-        val description = document.select("div#film-content").text().trim()
+        val description = document.select("div#film-content").text()?.substringAfter("Full HD Vietsub Thuyết Minh")
+                ?.substringBefore("@phimmoi").trim()
         val trailer =
-            document.select("div#trailer script").last()?.data()?.substringAfter("file: \"")
+            document.select("div#trailer script").last()?.data()?.substringAfter("file: "")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
@@ -171,6 +172,7 @@ class PhimmoichillProvider : MainAPI() {
         listOf(
             Pair("https://so-trym.topphimmoi.org/raw/$key/index.m3u8", "PMFAST"),
             Pair("https://dash.megacdn.xyz/raw/$key/index.m3u8", "PMHLS"),
+            Pair("https://so-trym.phimchill.net/dash/$key/index.m3u8", "PMPRO"),
             Pair("https://dash.megacdn.xyz/dast/$key/index.m3u8", "PMBK")
         ).apmap { (link, source) ->
             safeApiCall {
