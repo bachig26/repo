@@ -67,10 +67,8 @@ class PhimmoichillProvider : MainAPI() {
                 addSub(episode)
             }
         } else if (temp.contains(Regex("Trailer"))) {
-//            val quality = temp.replace("HD-Trailer", "").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
-//                addQuality(quality)
             }
         } else {
             val quality =
@@ -104,7 +102,7 @@ class PhimmoichillProvider : MainAPI() {
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div#film-content").text().trim()
         val trailer =
-            document.select("body script:nth-child(2)")?.data()?.substringAfter("file: \"")
+            document.select("body script:nth-child(2)").text()?.substringAfter("file: \"")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
