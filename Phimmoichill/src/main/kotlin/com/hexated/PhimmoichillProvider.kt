@@ -89,15 +89,15 @@ class PhimmoichillProvider : MainAPI() {
         val title = document.selectFirst("h1[itemprop=name]")?.text()?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.image img[itemprop=image]")?.attr("src")
-        val tags = document.select("ul.entry-meta.block-film li:nth-child(4) a").map { it.text() }!!.substringAfter("Phim").trim()
+        val tags = document.select("ul.entry-meta.block-film li:nth-child(4) a").map { it.text() }
         val year = document.select("ul.entry-meta.block-film li:nth-child(2) a").text().trim()
             .toIntOrNull()
         val tvType = if (document.select("div.latest-episode").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
-        val description = document.select("div#film-content")!!.substringBefore("@phimmoi").text().trim()
+        val description = document.select("div#film-content")?.substringBefore("@phimmoi").text().trim()
         val trailer =
-            document.select("div#trailer script").last()?.data()?.substringAfter("file: \"")
-                ?.substringBefore("\",")
+            document.select("div#trailer script:last-child")?.data()?.substringAfter("file: \"")
+                ?.substringBefore("\",image")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
