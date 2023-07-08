@@ -62,18 +62,18 @@ class PhimmoichillProvider : MainAPI() {
             val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("\\(|\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
-            newAnimeSearchResponse(title, href, TvType.TvSeries, isHorizontalImages = true) {
+            newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
         } else if (temp.contains(Regex("Trailer"))) {
-            newMovieSearchResponse(title, href, TvType.Movie, isHorizontalImages = true) {
+            newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
             }
         } else {
             val quality =
                 temp.replace(Regex("(-.*)|(\\|.*)|(?i)(VietSub.*)|(?i)(Thuyết.*)"), "").trim()
-            newMovieSearchResponse(title, href, TvType.Movie, isHorizontalImages = true) {
+            newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
             }
@@ -89,7 +89,10 @@ class PhimmoichillProvider : MainAPI() {
         }
     }
 
-    override suspend fun load(url: String): LoadResponse {
+    override suspend fun load(
+        url: String,
+        data: String
+    ): LoadResponse {
         val document = app.get(url).document
 
         val title = document.selectFirst("h1[itemprop=name]")?.text()?.trim().toString()
