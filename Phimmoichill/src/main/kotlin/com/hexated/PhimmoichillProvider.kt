@@ -104,7 +104,7 @@ class PhimmoichillProvider : MainAPI() {
 //        val trailer =
 //            document.select("body script:nth-child(2)")?.data().substringAfter("file: \"").substringBefore("\",")
         val trailer = document.select("body script")
-            .find { it.data().contains("youtube.com") }?.data().substringAfterLast("file: \"").substringBefore("\",")
+            .find { it.data().contains("youtube.com") }?.data()?.substringAfterLast("file: \"")?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
