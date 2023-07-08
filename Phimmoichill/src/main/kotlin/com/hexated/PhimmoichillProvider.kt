@@ -66,6 +66,12 @@ class PhimmoichillProvider : MainAPI() {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
+        } else if (temp.contains(Regex("Trailer"))) {
+//            val quality = temp.replace("HD-Trailer", "").trim()
+            newMovieSearchResponse(title, href, TvType.Movie) {
+                this.posterUrl = posterUrl
+//                addQuality(quality)
+            }
         } else {
             val quality =
                 temp.replace(Regex("(-.*)|(\\|.*)|(?i)(VietSub.*)|(?i)(Thuyết.*)"), "").trim()
