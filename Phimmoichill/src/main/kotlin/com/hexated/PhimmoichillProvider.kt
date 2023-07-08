@@ -89,10 +89,7 @@ class PhimmoichillProvider : MainAPI() {
         }
     }
 
-    override suspend fun load(
-        url: String,
-        data: String
-    ): LoadResponse {
+    override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
         val title = document.selectFirst("h1[itemprop=name]")?.text()?.trim().toString()
@@ -105,7 +102,7 @@ class PhimmoichillProvider : MainAPI() {
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div#film-content").text().substringAfter("Full HD Vietsub Thuyết Minh").substringBefore("@phimmoi").trim()
         val trailer =
-            document.select("body script:nth-child(2)")?.data()?.substringAfter("file: \"")
+            document.select("body script").eq(2)?.data()?.substringAfter("file: \"")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
