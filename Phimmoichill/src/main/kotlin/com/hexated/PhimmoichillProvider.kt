@@ -97,14 +97,14 @@ class PhimmoichillProvider : MainAPI() {
         val title = document.selectFirst("h1[itemprop=name]")?.text()?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.image img[itemprop=image]")?.attr("src")
-        val tags = document.select("ul.entry-meta.block-film li:nth-child(4) a").map { it.text() }
+        val tags = document.select("ul.entry-meta.block-film li:nth-child(4) a").map { it.text()!!.substringAfter("Phim") }
         val year = document.select("ul.entry-meta.block-film li:nth-child(2) a").text().trim()
             .toIntOrNull()
         val tvType = if (document.select("div.latest-episode").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div#film-content").text().trim()
         val trailer =
-            document.select("script:nth-child(2)").last()?.data()?.substringAfter("file: \"")
+            document.select("body script:nth-child(2)")?.data()?.substringAfter("file: \"")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
