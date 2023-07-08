@@ -101,8 +101,10 @@ class PhimmoichillProvider : MainAPI() {
         val tvType = if (document.select("div.latest-episode").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div#film-content").text().substringAfter("Full HD Vietsub Thuyết Minh").substringBefore("@phimmoi").trim()
-        val trailer =
-            document.select("body script:nth-child(2)")?.data().substringAfter("file: \"").substringBefore("\",")
+//        val trailer =
+//            document.select("body script:nth-child(2)")?.data().substringAfter("file: \"").substringBefore("\",")
+        val trailer = document.select("body script")
+            .find { it.data().contains("youtube.com") }?.data().substringAfterLast("file: \"").substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
