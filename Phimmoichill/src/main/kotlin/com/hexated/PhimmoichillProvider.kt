@@ -104,7 +104,7 @@ class PhimmoichillProvider : MainAPI() {
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div#film-content").text().trim()
         val trailer =
-            document.select("script:nth-child(2)").last()?.data()?.substringAfter("file: \"")
+            document.select("body script:nth-child(2)")?.data()?.substringAfter("file: \"")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
