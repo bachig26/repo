@@ -64,17 +64,20 @@ class PhimmoichillProvider : MainAPI() {
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
+                isHorizontalImages = true
                 addSub(episode)
             }
         } else if (temp.contains(Regex("Trailer"))) {
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
+                isHorizontalImages = true
             }
         } else {
             val quality =
                 temp.replace(Regex("(-.*)|(\\|.*)|(?i)(VietSub.*)|(?i)(Thuyết.*)"), "").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
+                isHorizontalImages = true
                 addQuality(quality)
             }
         }
@@ -100,9 +103,9 @@ class PhimmoichillProvider : MainAPI() {
             .toIntOrNull()
         val tvType = if (document.select("div.latest-episode").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
-        val description = document.select("div#film-content").text().trim()
+        val description = document.select("div#film-content").text.substringAfter("Full HD Vietsub Thuyết Minh").substringBefore("@phimmoi").trim()
         val trailer =
-            document.select("body script:nth-child(2)").text()?.substringAfter("file: \"")
+            document.select("body script:nth-child(2)").data?.substringAfter("file: \"")
                 ?.substringBefore("\",")
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
