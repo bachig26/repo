@@ -26,9 +26,11 @@ class PhimmoichillProvider : MainAPI() {
         "$mainUrl/list/phim-le/page-" to "Phim Lẻ",
         "$mainUrl/list/phim-bo/page-" to "Phim Bộ",
         "$mainUrl/genre/phim-hoat-hinh/page-" to "Phim Hoạt Hình",
+        "$mainUrl/genre/phim-anime/page-" to "Phim Anime",
         "$mainUrl/country/phim-han-quoc/page-" to "Phim Hàn Quốc",
         "$mainUrl/country/phim-trung-quoc/page-" to "Phim Trung Quốc",
         "$mainUrl/country/phim-thai-lan/page-" to "Phim Thái Lan",
+        "$mainUrl/genre/phim-sap-chieu/page-" to "Phim Sắp Chiếu",
     )
 
     override suspend fun getMainPage(
