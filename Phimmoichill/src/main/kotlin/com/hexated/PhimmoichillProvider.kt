@@ -143,89 +143,48 @@ class PhimmoichillProvider : MainAPI() {
             }
         }
     }
-    
-    fun getDataEpisode(
-        url: String,
-    ): List<Episode> {
-        val doc: Document = Jsoup.connect(url).timeout(60 * 1000).get()
-        var idEpisode = ""
-        var idMovie = ""
-        var token = ""
-        val listEpHtml = doc.select("#list_episodes li")
-        val list = arrayListOf<Episode>();
-        listEpHtml.forEach {
-            val url = it.selectFirst("a")!!.attr("href")
-            val name = it.selectFirst("a")!!.text()
-            val id = it.selectFirst("a")!!.attr("data-id")
-            val episode = Episode(url,name, 0, null, null, null, id);
-            list.add(episode);
-        }
-        return list
-    }
-
+ 
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("DuongKK", "data LoadLinks ---> $data ")
-        val listEp = getDataEpisode(data)
-        val idEp = listEp.find { data.contains(it.description!!) }?.description ?: data.substring(data.indexOf("-pm")+3)
-        Log.d("DuongKK", "data LoadLinks ---> $data  --> $idEp")
-        try {
-            val urlRequest =
-                "${this.mainUrl}/chillsplayer.php" //'https://subnhanh.net/frontend/default/ajax-player'
-            val response = app.post(urlRequest, mapOf(), data = mapOf("qcao" to idEp)).okhttpResponse
-            if (!response.isSuccessful || response.body == null) {
-//                Log.e("DuongKK ${response.message}")
-                return false
+        val document = app.get(data).document
+
+        val key = document.select("div#content script")
+            .find { it.data().contains("filmInfo.episodeID =") }?.data()?.let { script ->
+                val id = script.substringAfter("filmInfo.episodeID = parseInt('")
+                app.post(
+                    // Not mainUrl
+                    url = "${this.mainUrl}/chillsplayer.php",
+                    data = mapOf("qcao" to id, "sv" to "0"),
+                    referer = data,
+                    headers = mapOf(
+                        "X-Requested-With" to "XMLHttpRequest",
+                        "Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8"
+                    )
+                ).text.substringAfterLast("iniPlayers(\"")
+                    .substringBefore("\",")
             }
-            val doc: Document = Jsoup.parse(response.body?.string())
-            val jsHtml = doc.html()
-            if (doc.selectFirst("iframe") != null) {
-                // link embed
-                val linkIframe =
-                    "http://ophimx.app/player.html?src=${doc.selectFirst("iframe")!!.attr("src")}"
-                return false
-            } else {
-                // get url stream
-                var keyStart = "iniPlayers(\""
-                var keyEnd = "\""
-                if (!jsHtml.contains(keyStart)) {
-                    keyStart = "initPlayer(\""
-                }
-                var tempStart = jsHtml.substring(jsHtml.indexOf(keyStart) + keyStart.length)
-                var tempEnd = tempStart.substring(0, tempStart.indexOf(keyEnd))
-                val urlPlaylist = if (tempEnd.contains("https://")) {
-                    tempEnd
-                } else {
-                    "https://${HOST_STREAM}/raw/${tempEnd}/index.m3u8"
-                }
+
+        listOf(
+            Pair("https://so-trym.topphimmoi.org/raw/$key/index.m3u8", "PMFAST"),
+            Pair("https://dash.megacdn.xyz/raw/$key/index.m3u8", "PMHLS"),
+            Pair("https://dash.megacdn.xyz/dast/$key/index.m3u8", "PMBK")
+        ).apmap { (link, source) ->
+            safeApiCall {
                 callback.invoke(
                     ExtractorLink(
-                        urlPlaylist,
-                        this.name,
-                        urlPlaylist,
-                        mainUrl,
-                        getQualityFromName("720"),
-                        true
+                        source,
+                        source,
+                        link,
+                        referer = "$mainUrl/",
+                        quality = Qualities.P1080.value,
+                        isM3u8 = true,
                     )
                 )
-
-                //get url subtitle
-                keyStart = "tracks:"
-                if (jsHtml.contains(keyStart)) {
-                    keyEnd = "]"
-                }
-                tempStart = jsHtml.substring(jsHtml.indexOf(keyStart) + keyStart.length)
-                tempEnd = tempStart.substring(0, tempStart.indexOf(keyEnd))
-                val urls = extractUrls(tempEnd)
-                urls?.forEach {
-                    subtitleCallback.invoke(SubtitleFile("vi", it))
-                }
             }
-        } catch (error: Exception) {
         }
         return true
     }
