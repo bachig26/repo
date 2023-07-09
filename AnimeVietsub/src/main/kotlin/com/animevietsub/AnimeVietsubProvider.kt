@@ -76,7 +76,6 @@ class AnimeVietsubProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse>? {
-//        val url = if (query == SearchFragment.DEFAULT_QUERY_SEARCH) "" else "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
         val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
         val html = app.get(url).text
         val document = Jsoup.parse(html)
@@ -108,19 +107,14 @@ class AnimeVietsubProvider : MainAPI() {
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
-            val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
-                num.replace(Regex("\\(|\\s"), "")
-            }?.distinct()?.firstOrNull()?.toIntOrNull()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addSub(episode)
+                addSub(temp)
             }
         } else {
-            val quality =
-                temp.replace("FHD", "HD").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
-                addQuality(quality)
+                addQuality("HD")
             }
         }
     }
