@@ -45,34 +45,28 @@ class AnimeVietsubProvider : MainAPI() {
     companion object {
         const val HOST_STREAM = "so-trym.topphimmoi.org";
     }
+    
+    override val mainPage = mainPageOf(
+        "$mainUrl/anime-bo/trang-" to "Anime Bộ",
+        "$mainUrl/anime-le/trang-" to "Anime Lẻ",
+        "$mainUrl/anime-sap-chieu/trang-" to "Anime Sắp Chiếu",
+    )
 
-    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-        val html = app.get(mainUrl).text
-        val doc = Jsoup.parse(html)
-        val listHomePageList = arrayListOf<HomePageList>()
-        doc.select("section").forEach {
-            val name = it.select("h1").text()
-            val listMovie = it.select(".TPostMv").map {
-                val title = it.selectFirst("a .Title")!!.text()
-                val href = fixUrl(it.selectFirst("a")!!.attr("href"))
-                val year = 0
-                val image = it.selectFirst("img")!!.attr("src")
-                MovieSearchResponse(
-                    title,
-                    href,
-                    this.name,
-                    TvType.Movie,
-                    image,
-                    year,
-                    posterHeaders = mapOf("referer" to mainUrl)
-                )
-            }
-            if (listMovie.isNotEmpty())
-                listHomePageList.add(HomePageList(name, listMovie))
-
+    override suspend fun getMainPage(
+        page: Int,
+        request: MainPageRequest
+    ): HomePageResponse {
+        val document = app.get(request.data + page).document
+        val home = document.select(".TPostMv").mapNotNull {
+            getItemMovie(it)
         }
-
-        return HomePageResponse(listHomePageList)
+        return newHomePageResponse(
+            list = HomePageList(
+                name = request.name,
+                list = home,
+            ),
+            hasNext = true
+        )
     }
 
     override suspend fun search(query: String): List<SearchResponse>? {
@@ -106,10 +100,10 @@ class AnimeVietsubProvider : MainAPI() {
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
-            val episode = temp.substringAfter("TẬP").trim().toInt()
+//            val episode = temp.substringAfter("TẬP").trim().toInt()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addSub(episode)
+//                addSub(episode)
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
@@ -160,7 +154,7 @@ class AnimeVietsubProvider : MainAPI() {
         }
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-        val trailer = fixUrl(doc.select("div#MvTb-Trailer").attr("src"))
+//        val trailer = fixUrl(doc.select("div#MvTb-Trailer").attr("src"))
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
@@ -177,7 +171,7 @@ class AnimeVietsubProvider : MainAPI() {
             year = year,
             rating = rating,
             tags = tags,
-            addTrailer(trailer)
+//            addTrailer(trailer),
             plot = description,
             recommendations = recommendations,
             showStatus = null,
