@@ -106,13 +106,13 @@ class AnimeVietsubProvider : MainAPI() {
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
 //        val year = 0
         val image = it.selectFirst("img")!!.attr("src")
-        val temp = it.select("div.Image span i").text()
-        return if (temp.contains(Regex("\\d"))) {
+        val temp = it.select("div.Image span").text()
+        return if (temp.select("i").contains(Regex("\\d"))) {
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addSub(temp)
+                addSub(temp)?.toIntOrNull()
             }
-        } else if (temp.contains("HD"){
+        } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
                 addQuality("HD")
@@ -270,9 +270,9 @@ class AnimeVietsubProvider : MainAPI() {
                 val nameSv = it.text()
                 val idSv = it.attr("data-id")
                 val play = it.attr("data-play")
-//                if(play == "embed"){
-//                    return@amap
-//                }
+                if(play == "embed"){
+                    return@amap
+                }
                 val responseLink = app.post(
                     urlRequest,
                     mapOf(),
