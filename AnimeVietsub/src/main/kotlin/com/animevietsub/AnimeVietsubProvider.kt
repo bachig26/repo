@@ -108,7 +108,7 @@ class AnimeVietsubProvider : MainAPI() {
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
-            val episode = it.select("i").text().trim().toIntOrNull()
+            val episode = temp.substringAfter("TẬP").trim().toIntOrNull()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
                 addSub(episode)
