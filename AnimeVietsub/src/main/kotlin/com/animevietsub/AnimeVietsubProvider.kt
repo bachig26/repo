@@ -106,18 +106,18 @@ class AnimeVietsubProvider : MainAPI() {
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
         val year = 0
         val image = it.selectFirst("img")!!.attr("src")
-        val temp = it.selectFirst("span").text()
+        val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
             val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("\\(|\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
-            newAnimeSearchResponse(title, href, this.name, TvType.TvSeries, image, year, posterHeaders = mapOf("referer" to mainUrl)) {
+            MovieSearchResponse(title, href, this.name, TvType.Movie, image, year, posterHeaders = mapOf("referer" to mainUrl)) {
                 addSub(episode)
             }
         } else {
             val quality =
                 temp.replace("FHD", "HD").trim()
-            newMovieSearchResponse(title, href, this.name, TvType.TvSeries, image, year, posterHeaders = mapOf("referer" to mainUrl)) {
+            MovieSearchResponse(title, href, this.name, TvType.Movie, image, year, posterHeaders = mapOf("referer" to mainUrl)) {
                 addQuality(quality)
             }
         }
