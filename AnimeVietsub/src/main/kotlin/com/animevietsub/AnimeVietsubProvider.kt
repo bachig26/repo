@@ -52,7 +52,6 @@ class AnimeVietsubProvider : MainAPI() {
         val listHomePageList = arrayListOf<HomePageList>()
         doc.select("section").forEach {
             val name = it.select("h1").text()
-//            val urlMore = fixUrl(it.select(".viewall").attr("href"))
             val listMovie = it.select(".TPostMv").map {
                 val title = it.selectFirst("a .Title")!!.text()
                 val href = fixUrl(it.selectFirst("a")!!.attr("href"))
@@ -107,10 +106,10 @@ class AnimeVietsubProvider : MainAPI() {
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
-//            val episode = temp.substringAfter("TẬP").trim().toIntOrNull()
+            val episode = temp.substringAfter("TẬP").trim().toInt()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-//                addSub(episode)
+                addSub(episode)
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
@@ -161,7 +160,7 @@ class AnimeVietsubProvider : MainAPI() {
         }
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-        val trailer = doc.select("div#MvTb-Trailer").attr("src")
+        val trailer = fixUrl(doc.select("div#MvTb-Trailer").attr("src"))
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
