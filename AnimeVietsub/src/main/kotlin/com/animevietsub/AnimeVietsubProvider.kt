@@ -109,7 +109,7 @@ class AnimeVietsubProvider : MainAPI() {
         return if (temp.contains(Regex("\\d"))) {
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addSub(temp)
+                addQuality(temp)
             }
         } else {
             newMovieSearchResponse(title, href, TvType.Movie) {
