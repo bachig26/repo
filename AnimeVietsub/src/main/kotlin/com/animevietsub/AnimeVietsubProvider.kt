@@ -100,10 +100,10 @@ class AnimeVietsubProvider : MainAPI() {
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
-            val episode = temp.substringAfter("TẬP").trim().toInt()
+//            val episode = temp.substringAfter("TẬP").trim().toInt()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addQuality("Tập $episode")
+                addQuality(temp)
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
@@ -113,6 +113,7 @@ class AnimeVietsubProvider : MainAPI() {
         } else {
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
+                addQuality(temp)
             }
         }
     }
