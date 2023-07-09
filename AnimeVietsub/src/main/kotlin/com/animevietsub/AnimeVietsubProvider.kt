@@ -104,14 +104,13 @@ class AnimeVietsubProvider : MainAPI() {
     private fun getItemMovie(it: Element): MovieSearchResponse {
         val title = it.selectFirst("a .Title")!!.text()
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
-//        val year = 0
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
         return if (temp.contains(Regex("\\d"))) {
-            val episode = temp.substringAfter("TẬP").trim().toIntOrNull()
+//            val episode = temp.substringAfter("TẬP").trim().toIntOrNull()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addSub(episode)
+//                addSub(episode)
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
@@ -179,6 +178,7 @@ class AnimeVietsubProvider : MainAPI() {
             year = year,
             rating = rating,
             tags = tags,
+            addTrailer(trailer)
             plot = description,
             recommendations = recommendations,
             showStatus = null,
