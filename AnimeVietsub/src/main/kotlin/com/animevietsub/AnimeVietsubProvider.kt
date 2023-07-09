@@ -114,6 +114,7 @@ class AnimeVietsubProvider : MainAPI() {
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
                 addSub(episode)
+            }
         } else {
             val quality =
                 temp.replace("FHD", "HD").trim()
