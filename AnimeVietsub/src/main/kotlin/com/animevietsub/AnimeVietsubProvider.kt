@@ -111,13 +111,14 @@ class AnimeVietsubProvider : MainAPI() {
             val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("\\(|\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
-            MovieSearchResponse(title, href, this.name, TvType.Movie, image, year, posterHeaders = mapOf("referer" to mainUrl)) {
+            newMovieSearchResponse(title, href, TvType.TvSeries) {
+                this.posterUrl = image
                 addSub(episode)
-            }
         } else {
             val quality =
                 temp.replace("FHD", "HD").trim()
-            MovieSearchResponse(title, href, this.name, TvType.Movie, image, year, posterHeaders = mapOf("referer" to mainUrl)) {
+            newMovieSearchResponse(title, href, TvType.Movie) {
+                this.posterUrl = image
                 addQuality(quality)
             }
         }
@@ -290,7 +291,7 @@ class AnimeVietsubProvider : MainAPI() {
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            this.name + " - "+ nameSv ,
+                            nameSv,
                             link,
                             mainUrl,
                             getQualityFromName(it.label),
