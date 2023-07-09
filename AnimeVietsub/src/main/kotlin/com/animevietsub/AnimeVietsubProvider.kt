@@ -103,7 +103,7 @@ class AnimeVietsubProvider : MainAPI() {
             val episode = temp.substringAfter("TẬP").trim().toInt()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addEpisodes(episode)
+                add("Tập $episode")
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
@@ -154,7 +154,7 @@ class AnimeVietsubProvider : MainAPI() {
         }
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-        val trailer = doc.select("div#MvTb-Trailer").attr("src")
+//        val trailer = doc.select("div#MvTb-Trailer").attr("src")
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
@@ -171,7 +171,7 @@ class AnimeVietsubProvider : MainAPI() {
             year = year,
             rating = rating,
             tags = tags,
-            trailer = trailer,
+//            trailer = trailer,
             plot = description,
             recommendations = recommendations,
             showStatus = null,
@@ -191,10 +191,8 @@ class AnimeVietsubProvider : MainAPI() {
         val listEpHtml = doc.select(".list-episode li")
         val list = arrayListOf<Episode>();
         listEpHtml.forEach {
-//            val url = it.selectFirst("a")!!.attr("href")
             val name = it.selectFirst("a")!!.text()
             val id = it.selectFirst("a")!!.attr("data-id")
-//            val hash = it.selectFirst("a")!!.attr("data-hash")
             val episode = Episode(id, name, 0, null, null, null,id);
             list.add(episode);
         }
