@@ -107,10 +107,11 @@ class AnimeVietsubProvider : MainAPI() {
 //        val year = 0
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
-        return if (temp.select("i").contains(Regex("\\d"))) {
+        return if (temp.contains(Regex("\\d"))) {
+            val episode = it.select("i").text().trim().toIntOrNull()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                addSub(temp)?.toIntOrNull()
+                addSub(episode)
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
@@ -161,7 +162,7 @@ class AnimeVietsubProvider : MainAPI() {
         }
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-        val trailer = document.select("div#MvTb-Trailer").attr("src")
+        val trailer = doc.select("div#MvTb-Trailer").attr("src")
         val description = doc.select(".Description").text()
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
