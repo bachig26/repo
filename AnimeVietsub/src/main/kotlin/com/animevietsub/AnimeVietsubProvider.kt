@@ -103,7 +103,7 @@ class AnimeVietsubProvider : MainAPI() {
             val episode = temp.substringAfter("TẬP").trim().toInt()
             newMovieSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = image
-                add("Tập $episode")
+                addQuality("Tập $episode")
             }
         } else if (temp.contains("HD")){
             newMovieSearchResponse(title, href, TvType.Movie) {
