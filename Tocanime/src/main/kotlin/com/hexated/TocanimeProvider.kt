@@ -100,11 +100,7 @@ class TocanimeProvider : MainAPI() {
 //                    .toString()
 //            )
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
-                ?.substringBefore("Số tập :")
-                ?.trim()
-                ?.split("/")
-                ?.last()
-                ?.toIntOrNull()
+            ?.substringBefore("Số tập :")?.trim()?.split("/")?.last()?.toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
         val episodes = document.select("div.me-list.scroller a").mapNotNull {
             Episode(fixUrl(it.attr("href")), it.text())
