@@ -93,14 +93,14 @@ class TocanimeProvider : MainAPI() {
                 ?.substringBefore("\"")
         val description = document.select("div.box-content > p").text()
         val type =
-            if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie
-            else if (document.select("div.me-list.scroller a").text().contains("Trailer")) TvType.AnimeMovie
-            else TvType.Anime
+            if (document.select("div.me-list.scroller a:first-child").text().contains(Regex("\\d"))) TvType.Anime
+            else TvType.AnimeMovie
         val status = getStatus(
                 document.select("dl.movie-des dd.text-danger").text()
                     .toString()
             )
-        val year = document.select("dl.movie-des dd:nth-child(3)").text().split("/").last().toIntOrNull()
+        val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
+                ?.substringBefore("Số tập :").trim().split("/").last().toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
         val episodes = document.select("div.me-list.scroller a").mapNotNull {
             Episode(fixUrl(it.attr("href")), it.text())
