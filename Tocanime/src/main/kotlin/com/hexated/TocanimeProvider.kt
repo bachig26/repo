@@ -87,27 +87,33 @@ class TocanimeProvider : MainAPI() {
         val document = app.get(url).document
 
         val title = document.selectFirst("h1.title")?.text() ?: return null
-        val type =
-            if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie else TvType.Anime
-        val episodes = document.select("div.me-list.scroller a").mapNotNull {
-            Episode(fixUrl(it.attr("href")), it.text())
-        }.reversed()
+        val posterUrl = fixUrlNull(document.selectFirst("img.mb20")?.attr("data-original"))
         val trailer =
             document.selectFirst("div#trailer script")?.data()?.substringAfter("<iframe src=\"")
                 ?.substringBefore("\"")
+        val description = document.select("div.box-content > p").text()
+        val type =
+            if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie
+            else if (document.select("div.me-list.scroller a").text().contains("Trailer")) TvType.AnimeMovie
+            else TvType.Anime
+        val status = getStatus(
+                document.select("dl.movie-des dd.text-danger").text()
+                    .toString()
+            )
+        val year = document.select("dl.movie-des dd:nth-child(3)").text().split("/").last().toIntOrNull()
+        val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
+        val episodes = document.select("div.me-list.scroller a").mapNotNull {
+            Episode(fixUrl(it.attr("href")), it.text())
+        }.reversed()
+//        val recommendations = document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
 
         return newAnimeLoadResponse(title, url, type) {
-            posterUrl = fixUrlNull(document.selectFirst("img.img")?.attr("data-original"))
-            year = document.select("dl.movie-des dd:nth-child(3)").text().split("/").last().toIntOrNull()
-//            showStatus = getStatus(
-//                document.select("dl.movie-des dd:nth-child(2)").text()
-//                    .toString()
-//            )
-            plot = document.select("div.box-content > p").text()
-            tags = document.select("dl.movie-des dd:nth-child(6)").select("li")
-                .map { it.select("a").text().removeSuffix(",").trim() }
-            recommendations =
-                document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
+            posterUrl = posterUrl
+            year = year
+            showStatus = status
+            plot = description
+            tags = tags
+//            recommendations = recommendations
             addEpisodes(DubStatus.Subbed, episodes)
             addTrailer(trailer)
         }
