@@ -98,13 +98,13 @@ class TocanimeProvider : MainAPI() {
 
         return newAnimeLoadResponse(title, url, type) {
             posterUrl = fixUrlNull(document.selectFirst("img.img")?.attr("data-original"))
-            year = document.select("dl.movie-des dd")[1].text().split("/").last().toIntOrNull()
+            year = document.select("dl.movie-des dd:nth-child(3)").text().split("/").last().toIntOrNull()
             showStatus = getStatus(
-                document.select("dl.movie-des dd")[2].text()
+                document.select("dl.movie-des dd:nth-child(2)").text()
                     .toString()
             )
             plot = document.select("div.box-content > p").text()
-            tags = document.select("dl.movie-des dd")[5].select("li")
+            tags = document.select("dl.movie-des dd:nth-child(6)").select("li")
                 .map { it.select("a").text().removeSuffix(",").trim() }
             recommendations =
                 document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
