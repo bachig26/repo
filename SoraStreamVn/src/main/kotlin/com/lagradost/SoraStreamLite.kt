@@ -40,6 +40,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 
 class SoraStreamLite : SoraStream() {
     override var name = "SoraStreamVn-Lite"
+
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -199,16 +200,16 @@ class SoraStreamLite : SoraStream() {
                     callback
                 )
             },
-            {
-                invokeXmovies(
-                    res.title,
-                    res.year,
-                    res.season,
-                    res.episode,
-                    subtitleCallback,
-                    callback
-                )
-            },
+//            {
+//                invokeXmovies(
+//                    res.title,
+//                    res.year,
+//                    res.season,
+//                    res.episode,
+//                    subtitleCallback,
+//                    callback
+//                )
+//            },
             {
                 if (!res.isAnime) invokeFmovies(
                     res.title,
