@@ -99,10 +99,10 @@ class TocanimeProvider : MainAPI() {
         return newAnimeLoadResponse(title, url, type) {
             posterUrl = fixUrlNull(document.selectFirst("img.img")?.attr("data-original"))
             year = document.select("dl.movie-des dd:nth-child(3)").text().split("/").last().toIntOrNull()
-            showStatus = getStatus(
-                document.select("dl.movie-des dd:nth-child(2)").text()
-                    .toString()
-            )
+//            showStatus = getStatus(
+//                document.select("dl.movie-des dd:nth-child(2)").text()
+//                    .toString()
+//            )
             plot = document.select("div.box-content > p").text()
             tags = document.select("dl.movie-des dd:nth-child(6)").select("li")
                 .map { it.select("a").text().removeSuffix(",").trim() }
@@ -128,21 +128,14 @@ class TocanimeProvider : MainAPI() {
         ).document
 
         document.select("script").apmap { script ->
-            if (script.data().contains("var PnPlayer=")) {
+            if (script.data().contains("var PnPlayer")) {
                 val key = script.data().substringAfter("\"btsurl\":[[").substringBefore("]}]")
                     .replace("]", "").replace("\"", "").split(",")
+                val keyEncode = encode(key.first())
                 val id = data.split("_").last().substringBefore(".html")
 
                 app.get(
-                    url = "$mainUrl/content/parseUrl?v=2&len=0&prefer=&ts=${Date().time}&item_id=$id&username=$id&sv=btsurl&${
-                        encode(
-                            "bts_url[]"
-                        )
-                    }=${
-                        encode(
-                            key.first()
-                        )
-                    }&sig=${key.last()}",
+                    url = "$mainUrl/content/parseUrl?v=2&len=0&prefer=&ts=${Date().time}&item_id=$id&username=$id&sv=btsurl&bts_url%5B%5D=$keyEncode&sig=${key.last()}",
                     referer = data,
                     headers = mapOf(
                         "Accept" to "application/json, text/javascript, */*; q=0.01",
