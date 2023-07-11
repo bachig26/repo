@@ -87,7 +87,7 @@ class TocanimeProvider : MainAPI() {
         val document = app.get(url).document
 
         val title = document.selectFirst("h1.title")?.text() ?: return null
-        val posterUrl = fixUrlNull(document.selectFirst("img.mb20")?.attr("data-original"))
+        val poster = fixUrlNull(document.selectFirst("img.mb20")?.attr("data-original"))
         val trailer =
             document.selectFirst("div#trailer script")?.data()?.substringAfter("<iframe src=\"")
                 ?.substringBefore("\"")
@@ -108,12 +108,12 @@ class TocanimeProvider : MainAPI() {
 //        val recommendations = document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
 
         return newAnimeLoadResponse(title, url, type) {
-            posterUrl = posterUrl
-            year = year
-            showStatus = status
-            plot = description
-            tags = tags
-//            recommendations = recommendations
+            this.posterUrl = poster
+            this.year = year
+            this.showStatus = status
+            this.plot = description
+            this.tags = tags
+//            this.recommendations = recommendations
             addEpisodes(DubStatus.Subbed, episodes)
             addTrailer(trailer)
         }
