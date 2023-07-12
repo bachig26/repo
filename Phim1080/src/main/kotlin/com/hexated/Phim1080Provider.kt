@@ -141,3 +141,5 @@ class Phim1080Provider : MainAPI() {
         }
     }
 } 
+// https://phim1080.in/api/v2/films/21975/episodes/303806
+// https://phim1080.in/api/v2/films/21975/episodes?sort=name
