@@ -29,7 +29,6 @@ class TocanimeProvider : MainAPI() {
                 else -> TvType.Anime
             }
         }
-
 //        fun getStatus(t: String): ShowStatus {
 //            return when (t) {
 //                "Đã hoàn thành" -> ShowStatus.Completed
@@ -37,7 +36,7 @@ class TocanimeProvider : MainAPI() {
 //                else -> ShowStatus.Completed
 //            }
 //        }
-//    }
+    }
 
     override suspend fun getMainPage(page: Int, request : MainPageRequest): HomePageResponse {
         val document = app.get(mainUrl).document
@@ -139,7 +138,7 @@ class TocanimeProvider : MainAPI() {
                 addTrailer(trailer)
             }
         } else {
-            newAnimeMovieLoadResponse(title, url, TvType.AnimeMovie, link) {
+            newAnimeLoadResponse(title, url, TvType.AnimeMovie, link) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
@@ -203,5 +202,5 @@ class TocanimeProvider : MainAPI() {
     data class Responses(
         @JsonProperty("formats") val formats: Formats?,
     )
-
+    }
 }
