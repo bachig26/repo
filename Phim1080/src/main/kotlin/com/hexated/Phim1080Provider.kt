@@ -102,7 +102,7 @@ class Phim1080Provider : MainAPI() {
             val title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
             val href = fixUrl(it.selectFirst("a")!!.attr("href"))
             val posterUrl = it.selectFirst("img")!!.attr("data-src")
-            return newMovieLoadResponse(title, href, TvType.Movie) {
+            return newMovieLoadResponse(title, url, TvType.Movie, href) {
                 this.posterUrl = posterUrl
             }
         }
