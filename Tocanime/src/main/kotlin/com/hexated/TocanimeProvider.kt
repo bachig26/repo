@@ -29,13 +29,13 @@ class TocanimeProvider : MainAPI() {
                 else -> TvType.Anime
             }
         }
-//        fun getStatus(t: String): ShowStatus {
-//            return when (t) {
-//                "Đã hoàn thành" -> ShowStatus.Completed
-//                "Chưa hoàn thành" -> ShowStatus.Ongoing
-//                else -> ShowStatus.Completed
-//            }
-//        }
+        fun getStatus(t: String): ShowStatus {
+            return when (t) {
+                "Đã hoàn thành" -> ShowStatus.Completed
+                "Chưa hoàn thành" -> ShowStatus.Ongoing
+                else -> ShowStatus.Completed
+            }
+        }
     }
 
     override suspend fun getMainPage(page: Int, request : MainPageRequest): HomePageResponse {
@@ -90,14 +90,13 @@ class TocanimeProvider : MainAPI() {
         val trailer =
             document.selectFirst("div#trailer script")?.data()?.substringAfter("<iframe src=\"")
                 ?.substringBefore("\"")
-        val link = document.select("div.movie-thumb a").attr("href")
         val description = document.select("div.box-content > p").text()
         val type =
             if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie else TvType.Anime
-//        val status = getStatus(
-//                document.select("dl.movie-des dd.text-danger").text()
-//                    .toString()
-//            )
+        val status = getStatus(
+                document.select("dl.movie-des dd.text-danger").text()
+                    .toString()
+            )
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
             ?.substringBefore("Số tập :")?.trim()?.split("/")?.last()?.toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
@@ -109,7 +108,7 @@ class TocanimeProvider : MainAPI() {
         return newAnimeLoadResponse(title, url, type) {
             this.posterUrl = poster
             this.year = year
-//            this.showStatus = status
+            this.showStatus = status
             this.plot = description
             this.tags = tags
 //            this.recommendations = recommendations
