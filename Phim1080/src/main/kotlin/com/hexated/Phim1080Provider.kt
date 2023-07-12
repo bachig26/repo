@@ -100,7 +100,7 @@ class Phim1080Provider : MainAPI() {
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult().apply {
-                this.title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
+                title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
             }
         }
 
