@@ -102,7 +102,7 @@ class Phim1080Provider : MainAPI() {
             val title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
             val href = fixUrl(it.selectFirst("a")!!.attr("href"))
             val posterUrl = it.selectFirst("img")!!.attr("data-src")
-            return newLoadResponse(title, href, TvType.Movie) {
+            return newMovieLoadResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
             }
         }
@@ -143,5 +143,6 @@ class Phim1080Provider : MainAPI() {
         }
     }
 }
-// https://phim1080.in/api/v2/films/21975/episodes/303806
-// https://phim1080.in/api/v2/films/21975/episodes?sort=name
+// https://phim1080.in/api/v2/films/21975/episodes/303806 - api link m3u8
+// https://phim1080.in/api/v2/films/21975/episodes?sort=name - api tập phim
+// https://s198.imacdn.com/ff/2023/07/11/28055bb4c0e59e7c_d7a07589b2d87354_2662141689057850316068.jpg - api ảnh
