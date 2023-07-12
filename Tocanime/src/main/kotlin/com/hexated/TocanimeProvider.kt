@@ -93,7 +93,7 @@ class TocanimeProvider : MainAPI() {
                 ?.substringBefore("\"")
         val link = document.select("div.movie-thumb a").attr("href")
         val description = document.select("div.box-content > p").text()
-        val type = if (document.select("a.me-item.active.last").text().contains("Full Vietsub") TvType.AnimeMovie else TvType.Anime
+        val type = if (document.select("a.me-item.active.last").text().contains("Full Vietsub")) TvType.AnimeMovie else TvType.Anime
 //        val status = getStatus(
 //                document.select("dl.movie-des dd.text-danger").text()
 //                    .toString()
