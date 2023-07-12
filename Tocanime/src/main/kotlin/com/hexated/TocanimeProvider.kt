@@ -100,51 +100,20 @@ class TocanimeProvider : MainAPI() {
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
             ?.substringBefore("Số tập :")?.trim()?.split("/")?.last()?.toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
-//        val episodes = document.select("div.me-list.scroller a").mapNotNull {
-//            Episode(fixUrl(it.attr("href")), it.text())
-//        }.reversed()
+        val episodes = link.select("div.me-list.scroller a").mapNotNull {
+            Episode(fixUrl(it.attr("href")), it.text())
+        }.reversed()
 //        val recommendations = document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
 
-//        return newAnimeLoadResponse(title, url, type) {
-//            this.posterUrl = poster
-//            this.year = year
+        return newAnimeLoadResponse(title, url, type) {
+            this.posterUrl = poster
+            this.year = year
 //            this.showStatus = status
-//            this.plot = description
-//            this.tags = tags
+            this.plot = description
+            this.tags = tags
 //            this.recommendations = recommendations
-//            addEpisodes(DubStatus.Subbed, episodes)
-//            addTrailer(trailer)
-//        }
-//    }
-
-        return if (type == TvType.Anime) {
-            val docEpisodes = app.get(link).document
-            val episodes = docEpisodes.select("ul#list_episodes > li").map {
-                val href = it.select("a").attr("href")
-                val episode =
-                    it.select("a").text().replace(Regex("[^0-9]"), "").trim().toIntOrNull()
-                val name = "Episode $episode"
-                Episode(
-                    data = href,
-                    name = name,
-                    episode = episode,
-                )
-            }
-            newAnimeLoadResponse(title, url, TvType.Anime, episodes) {
-                this.posterUrl = poster
-                this.year = year
-                this.plot = description
-                this.tags = tags
-                addTrailer(trailer)
-            }
-        } else {
-            newAnimeLoadResponse(title, url, TvType.AnimeMovie, link) {
-                this.posterUrl = poster
-                this.year = year
-                this.plot = description
-                this.tags = tags
-                addTrailer(trailer)
-            }
+            addEpisodes(DubStatus.Subbed, episodes)
+            addTrailer(trailer)
         }
     }
 
