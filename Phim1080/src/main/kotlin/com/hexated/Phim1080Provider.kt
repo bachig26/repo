@@ -22,10 +22,10 @@ class Phim1080Provider : MainAPI() {
     )
 
     override val mainPage = mainPageOf(
-        "$mainUrl/phim-de-cu" to "Phim Đề Cử",
+        "$mainUrl/phim-de-cu/" to "Phim Đề Cử",
         "$mainUrl/phim-le?page=" to "Phim Lẻ",
         "$mainUrl/phim-bo?page=" to "Phim Bộ",
-        "$mainUrl/bang-xep-hang" to "Bảng Xếp Hạng",
+        "$mainUrl/bang-xep-hang/" to "Bảng Xếp Hạng",
         "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
         "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
@@ -52,7 +52,7 @@ class Phim1080Provider : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
-        val posterUrl = this.selectFirst("img")!!.attr("src")
+        val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-item-quality").text()
         return if (temp.contains(Regex("\\d"))) {
             val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
@@ -61,10 +61,6 @@ class Phim1080Provider : MainAPI() {
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
-            }
-        } else if (temp.contains(Regex("Trailer"))) {
-            newMovieSearchResponse(title, href, TvType.Movie) {
-                this.posterUrl = posterUrl
             }
         } else {
             val quality =
@@ -80,7 +76,7 @@ class Phim1080Provider : MainAPI() {
         val link = "$mainUrl/tim-kiem/$query"
         val document = app.get(link).document
 
-        return document.select("ul.list-film li").map {
+        return document.select("div.tray-item").map {
             it.toSearchResult()
         }
     }
@@ -88,15 +84,15 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
-        val title = document.selectFirst("h1[itemprop=name]")?.text()?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title")?.text()?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.image img[itemprop=image]")?.attr("src")
-        val tags = document.select("ul.entry-meta.block-film li:nth-child(4) a").map { it.text()!!.substringAfter("Phim") }
-        val year = document.select("ul.entry-meta.block-film li:nth-child(2) a").text().trim()
-            .toIntOrNull()
-        val tvType = if (document.select("div.latest-episode").isNotEmpty()
+        val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
+        val year = document.select("div.film-content div.film-info-genre:nth-child(2)").text()
+            .substringAfter("Năm phát hành:").trim().toIntOrNull()
+        val tvType = if (document.select("div.episode-list").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
-        val description = document.select("div#film-content").text().substringAfter("Full HD Vietsub Thuyết Minh").substringBefore("@phimmoi").trim()
+        val description = document.select("div.film-info-description").text().trim()
         val trailer = document.select("body script")
             .find { it.data().contains("youtube.com") }?.data()?.substringAfterLast("file: \"")?.substringBefore("\",")
         val rating =
