@@ -29,13 +29,6 @@ class TocanimeProvider : MainAPI() {
                 else -> TvType.Anime
             }
         }
-        fun getStatus(t: String): ShowStatus {
-            return when (t) {
-                "Đã hoàn thành" -> ShowStatus.Completed
-                "Chưa hoàn thành" -> ShowStatus.Ongoing
-                else -> ShowStatus.Completed
-            }
-        }
     }
 
     override suspend fun getMainPage(page: Int, request : MainPageRequest): HomePageResponse {
@@ -50,7 +43,6 @@ class TocanimeProvider : MainAPI() {
             }
             if (items.isNotEmpty()) homePageList.add(HomePageList(header, items))
         }
-
         return HomePageResponse(homePageList)
     }
 
@@ -70,16 +62,13 @@ class TocanimeProvider : MainAPI() {
             this.posterUrl = posterUrl
             addSub(epNum)
         }
-
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
         val document = app.get("$mainUrl/content/search?t=kw&q=$query").document
-
         return document.select("div.col-lg-3.col-md-4.col-6").map {
             it.toSearchResult()
         }
-
     }
 
     override suspend fun load(url: String): LoadResponse? {
@@ -93,25 +82,18 @@ class TocanimeProvider : MainAPI() {
         val description = document.select("div.box-content > p").text()
         val type =
             if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie else TvType.Anime
-        val status = getStatus(
-                document.select("dl.movie-des dd.text-danger").text()
-                    .toString()
-            )
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
             ?.substringBefore("Số tập :")?.trim()?.split("/")?.last()?.toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
         val episodes = document.select("div.me-list.scroller a").mapNotNull {
             Episode(fixUrl(it.attr("href")), it.text())
         }.reversed()
-//        val recommendations = document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
 
         return newAnimeLoadResponse(title, url, type) {
             this.posterUrl = poster
             this.year = year
-            this.showStatus = status
             this.plot = description
             this.tags = tags
-//            this.recommendations = recommendations
             addEpisodes(DubStatus.Subbed, episodes)
             addTrailer(trailer)
         }
@@ -157,10 +139,8 @@ class TocanimeProvider : MainAPI() {
                         )
                     )
                 }
-
             }
         }
-
         return true
     }
 
