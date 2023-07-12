@@ -118,7 +118,7 @@ class TocanimeProvider : MainAPI() {
 //        }
 //    }
 
-        return if (tvType == TvType.TvSeries) {
+        return if (type == TvType.Anime) {
             val docEpisodes = app.get(link).document
             val episodes = docEpisodes.select("ul#list_episodes > li").map {
                 val href = it.select("a").attr("href")
@@ -131,7 +131,7 @@ class TocanimeProvider : MainAPI() {
                     episode = episode,
                 )
             }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+            newAnimeLoadResponse(title, url, TvType.Anime, episodes) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
@@ -139,7 +139,7 @@ class TocanimeProvider : MainAPI() {
                 addTrailer(trailer)
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, link) {
+            newAnimeMovieLoadResponse(title, url, TvType.AnimeMovie, link) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
