@@ -7,7 +7,7 @@ cloudstream {
     // All of these properties are optional, you can safely remove them
 
     // description = "TuaSan"
-    authors = listOf("Hexated")
+    authors = listOf("TuaSan")
 
     /**
      * Status int as the following:
