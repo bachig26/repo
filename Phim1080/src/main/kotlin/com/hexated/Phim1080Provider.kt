@@ -22,10 +22,10 @@ class Phim1080Provider : MainAPI() {
     )
 
     override val mainPage = mainPageOf(
-        "$mainUrl/phim-de-cu/" to "Phim Đề Cử",
+        "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
         "$mainUrl/phim-le?page=" to "Phim Lẻ",
         "$mainUrl/phim-bo?page=" to "Phim Bộ",
-        "$mainUrl/bang-xep-hang/" to "Bảng Xếp Hạng",
+        "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
         "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
         "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
@@ -98,10 +98,9 @@ class Phim1080Provider : MainAPI() {
         val rating =
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
-        val recommendations = document.select("ul#list-film-realted li.item").map {
+        val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult().apply {
-                this.posterUrl = decode(it.selectFirst("img")!!.attr("data-src").substringAfter("url="))
-            }
+                this.title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
         }
 
         return if (tvType == TvType.TvSeries) {
