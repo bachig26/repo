@@ -84,13 +84,13 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
-        val title = document.selectFirst("h1.film-info-title")?.text()?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("Tập")?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.image img[itemprop=image]")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)").text()
             .substringAfter("Năm phát hành:").trim().toIntOrNull()
-        val tvType = if (document.select("div.episode-list").isNotEmpty()
+        val tvType = if (document.select("div.episode-list-header").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
         val trailer = document.select("body script")
@@ -99,8 +99,12 @@ class Phim1080Provider : MainAPI() {
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
         val recommendations = document.select("div.related-block div.related-item").map {
-            it.toSearchResult().apply {
-                title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
+            val title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
+            val href = fixUrl(it.selectFirst("a")!!.attr("href"))
+            val posterUrl = it.selectFirst("img")!!.attr("data-src")
+            return newMovieSearchResponse(title, href, TvType.Movie) {
+                this.posterUrl = posterUrl
+                addQuality(quality)
             }
         }
 
