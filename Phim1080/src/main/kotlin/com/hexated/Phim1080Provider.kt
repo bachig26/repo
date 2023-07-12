@@ -105,8 +105,7 @@ class Phim1080Provider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-            val docEpisodes = app.get(link).document
-            val episodes = docEpisodes.select("ul#list_episodes > li").map {
+            val episodes = document.select("ul#list_episodes > li").map {
                 val href = it.select("a").attr("href")
                 val episode =
                     it.select("a").text().replace(Regex("[^0-9]"), "").trim().toIntOrNull()
@@ -141,3 +140,5 @@ class Phim1080Provider : MainAPI() {
         }
     }
 } 
+// https://phim1080.in/api/v2/films/21975/episodes/303806
+// https://phim1080.in/api/v2/films/21975/episodes?sort=name
