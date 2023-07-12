@@ -101,6 +101,7 @@ class Phim1080Provider : MainAPI() {
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult().apply {
                 this.title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
+            }
         }
 
         return if (tvType == TvType.TvSeries) {
@@ -138,6 +139,6 @@ class Phim1080Provider : MainAPI() {
             }
         }
     }
-} 
+}
 // https://phim1080.in/api/v2/films/21975/episodes/303806
 // https://phim1080.in/api/v2/films/21975/episodes?sort=name
