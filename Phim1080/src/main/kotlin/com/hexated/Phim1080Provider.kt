@@ -99,8 +99,12 @@ class Phim1080Provider : MainAPI() {
             document.select("ul.entry-meta.block-film li:nth-child(7) span").text().toRatingInt()
         val actors = document.select("ul.entry-meta.block-film li:last-child a").map { it.text() }
         val recommendations = document.select("div.related-block div.related-item").map {
-            it.toSearchResult().apply {
-                title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
+            val title = it.selectFirst("div.related-item-title")?.text()?.trim().toString()
+            val href = fixUrl(it.selectFirst("a")!!.attr("href"))
+            val posterUrl = it.selectFirst("img")!!.attr("data-src")
+            return newMovieSearchResponse(title, href, TvType.Movie) {
+                this.posterUrl = posterUrl
+                addQuality(quality)
             }
         }
 
