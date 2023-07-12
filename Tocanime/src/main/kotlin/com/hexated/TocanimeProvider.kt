@@ -30,14 +30,14 @@ class TocanimeProvider : MainAPI() {
             }
         }
 
-        fun getStatus(t: String): ShowStatus {
-            return when (t) {
-                "Đã hoàn thành" -> ShowStatus.Completed
-                "Chưa hoàn thành" -> ShowStatus.Ongoing
-                else -> ShowStatus.Completed
-            }
-        }
-    }
+//        fun getStatus(t: String): ShowStatus {
+//            return when (t) {
+//                "Đã hoàn thành" -> ShowStatus.Completed
+//                "Chưa hoàn thành" -> ShowStatus.Ongoing
+//                else -> ShowStatus.Completed
+//            }
+//        }
+//    }
 
     override suspend fun getMainPage(page: Int, request : MainPageRequest): HomePageResponse {
         val document = app.get(mainUrl).document
@@ -91,31 +91,61 @@ class TocanimeProvider : MainAPI() {
         val trailer =
             document.selectFirst("div#trailer script")?.data()?.substringAfter("<iframe src=\"")
                 ?.substringBefore("\"")
+        val link = document.select("div.movie-thumb a").attr("href")
         val description = document.select("div.box-content > p").text()
-        val epNumbers = document.select("dl.movie-des").text()?.substringAfter("Số tập :")
-            ?.substringBefore("Độ dài :")?.trim()
-        val type = if (epNumbers = ("1")) TvType.AnimeMovie else TvType.Anime
-        val status = getStatus(
-                document.select("dl.movie-des dd.text-danger").text()
-                    .toString()
-            )
+        val type = if (document.select("a.me-item.active.last").text().contains("Full Vietsub") TvType.AnimeMovie else TvType.Anime
+//        val status = getStatus(
+//                document.select("dl.movie-des dd.text-danger").text()
+//                    .toString()
+//            )
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
             ?.substringBefore("Số tập :")?.trim()?.split("/")?.last()?.toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
-        val episodes = document.select("div.me-list.scroller a").mapNotNull {
-            Episode(fixUrl(it.attr("href")), it.text())
-        }.reversed()
+//        val episodes = document.select("div.me-list.scroller a").mapNotNull {
+//            Episode(fixUrl(it.attr("href")), it.text())
+//        }.reversed()
 //        val recommendations = document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
 
-        return newAnimeLoadResponse(title, url, type) {
-            this.posterUrl = poster
-            this.year = year
-            this.showStatus = status
-            this.plot = description
-            this.tags = tags
+//        return newAnimeLoadResponse(title, url, type) {
+//            this.posterUrl = poster
+//            this.year = year
+//            this.showStatus = status
+//            this.plot = description
+//            this.tags = tags
 //            this.recommendations = recommendations
-            addEpisodes(DubStatus.Subbed, episodes)
-            addTrailer(trailer)
+//            addEpisodes(DubStatus.Subbed, episodes)
+//            addTrailer(trailer)
+//        }
+//    }
+
+        return if (tvType == TvType.TvSeries) {
+            val docEpisodes = app.get(link).document
+            val episodes = docEpisodes.select("ul#list_episodes > li").map {
+                val href = it.select("a").attr("href")
+                val episode =
+                    it.select("a").text().replace(Regex("[^0-9]"), "").trim().toIntOrNull()
+                val name = "Episode $episode"
+                Episode(
+                    data = href,
+                    name = name,
+                    episode = episode,
+                )
+            }
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+                this.posterUrl = poster
+                this.year = year
+                this.plot = description
+                this.tags = tags
+                addTrailer(trailer)
+            }
+        } else {
+            newMovieLoadResponse(title, url, TvType.Movie, link) {
+                this.posterUrl = poster
+                this.year = year
+                this.plot = description
+                this.tags = tags
+                addTrailer(trailer)
+            }
         }
     }
 
