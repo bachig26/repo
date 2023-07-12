@@ -92,7 +92,8 @@ class TocanimeProvider : MainAPI() {
                 ?.substringBefore("\"")
         val link = document.select("div.movie-thumb a").attr("href")
         val description = document.select("div.box-content > p").text()
-        val type = if (document.select("a.me-item.active.last").text().contains("Full Vietsub")) TvType.AnimeMovie else TvType.Anime
+        val type =
+            if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie else TvType.Anime
 //        val status = getStatus(
 //                document.select("dl.movie-des dd.text-danger").text()
 //                    .toString()
@@ -100,7 +101,7 @@ class TocanimeProvider : MainAPI() {
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
             ?.substringBefore("Số tập :")?.trim()?.split("/")?.last()?.toIntOrNull()
         val tags = document.select("ul.color-list li").map { it.select("a").text().removeSuffix(",").trim() }
-        val episodes = link.select("div.me-list.scroller a").mapNotNull {
+        val episodes = document.select("div.me-list.scroller a").mapNotNull {
             Episode(fixUrl(it.attr("href")), it.text())
         }.reversed()
 //        val recommendations = document.select("div.col-lg-3.col-md-4.col-6").map { it.toSearchResult() }
@@ -171,5 +172,4 @@ class TocanimeProvider : MainAPI() {
     data class Responses(
         @JsonProperty("formats") val formats: Formats?,
     )
-    }
 }
