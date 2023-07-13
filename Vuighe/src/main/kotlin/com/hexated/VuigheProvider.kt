@@ -82,12 +82,12 @@ class VuigheProvider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
-        val title = document.selectFirst("h1.film-info-title").text()!!.substringBefore("Tập")?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore(" Tập ")?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(2) a").map { it.text() }
         val year = document.selectFirst("div.film-thumbnail img")?.attr("src")
-            .substringAfter("ff/")?.trim()?.split("/")?.first()?.toIntOrNull()
+            ?.substringAfter("ff/")?.trim()?.split("/")?.first()?.toIntOrNull()
         val tvType = if (document.select("a.episode-item").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
