@@ -47,8 +47,10 @@ class VuigheProvider : MainAPI() {
     private fun decode(input: String): String? = URLDecoder.decode(input, "utf-8")
 
     private fun Element.toSearchResult(): SearchResponse {
-        val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString().orEmpty()
-            .ifEmpty { this.selectFirst("div.related-item-title")?.text()?.trim().toString() }
+        val title1 = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
+        val title2 = this.selectFirst("div.related-item-title")?.text()?.trim().toString()
+        val title = if (document.select("div.tray-item-title").isNotEmpty()
+            ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-item-quality").text()
@@ -82,7 +84,7 @@ class VuigheProvider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
-        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore(" Tập ")?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(2) a").map { it.text() }
@@ -100,10 +102,8 @@ class VuigheProvider : MainAPI() {
                 val href = it.select("a").attr("href")
                 val episode =
                     it.select("a").text().trim().toIntOrNull()
-//                val name = "Episode $episode"
                 Episode(
                     data = href,
-//                    name = name,
                     episode = episode,
                 )
             }
@@ -115,7 +115,7 @@ class VuigheProvider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, link) {
+            newMovieLoadResponse(title, url, TvType.Movie, url) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
