@@ -47,11 +47,8 @@ class VuigheProvider : MainAPI() {
     private fun decode(input: String): String? = URLDecoder.decode(input, "utf-8")
 
     private fun Element.toSearchResult(): SearchResponse {
-//        val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString().orEmpty()
-//            .ifEmpty { this.selectFirst("div.related-item-title")?.text()?.trim().toString() }
-        val title = if (this.selectFirst("div.tray-item-title").isNotEmpty())
-            this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
-            else this.selectFirst("div.related-item-title")?.text()?.trim().toString()
+        val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString().orEmpty()
+            .ifEmpty { this.selectFirst("div.related-item-title")?.text()?.trim().toString() }
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-item-quality").text()
@@ -85,12 +82,12 @@ class VuigheProvider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
-        val title = document.selectFirst("h1.film-info-title").text().substringBefore("Tập")?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title").text()!!.substringBefore("Tập")?.trim().toString()
         val link = document.select("ul.list-button li:last-child a").attr("href")
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(2) a").map { it.text() }
-        val year = document.selectFirst("div.film-thumbnail img")?.attr("src").text()
-            .substringAfter("ff/").substringBefore("/").trim().toIntOrNull()
+        val year = document.selectFirst("div.film-thumbnail img")?.attr("src")
+            .substringAfter("ff/")?.trim()?.split("/")?.first()?.toIntOrNull()
         val tvType = if (document.select("a.episode-item").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
