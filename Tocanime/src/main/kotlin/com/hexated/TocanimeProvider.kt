@@ -80,6 +80,7 @@ class TocanimeProvider : MainAPI() {
             document.selectFirst("div#trailer script")?.data()?.substringAfter("<iframe src=\"")
                 ?.substringBefore("\"")
         val description = document.select("div.box-content > p").text()
+        val link = document.select("div.movie-thumb a")?.attr("href")
         val type =
             if (document.select("div.me-list.scroller a").size == 1) TvType.AnimeMovie else TvType.Anime
         val year = document.select("dl.movie-des").text()?.substringAfter("Ngày công chiếu :")
@@ -88,6 +89,8 @@ class TocanimeProvider : MainAPI() {
         val episodes = document.select("div.me-list.scroller a").mapNotNull {
             Episode(fixUrl(it.attr("href")), it.text())
         }.reversed()
+        val recommendations =
+                link.select("div.flickity-slider div.card-item").map { it.toSearchResult() }
 
         return newAnimeLoadResponse(title, url, type) {
             this.posterUrl = poster
@@ -95,6 +98,7 @@ class TocanimeProvider : MainAPI() {
             this.plot = description
             this.tags = tags
             addEpisodes(DubStatus.Subbed, episodes)
+            this.recommendations = recommendations
             addTrailer(trailer)
         }
     }
