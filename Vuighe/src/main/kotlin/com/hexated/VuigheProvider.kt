@@ -49,7 +49,7 @@ class VuigheProvider : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse {
         val title1 = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
         val title2 = this.selectFirst("div.related-item-title")?.text()?.trim().toString()
-        val title = if (document.select("div.tray-item-title").isNotEmpty()
+        val title = if (this.select("div.tray-item-title").isNotEmpty()
             ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
