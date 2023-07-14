@@ -95,12 +95,14 @@ class VuigheProvider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-            val episodes = document.select("div.film-episode a").map {
+            val docEpisodes = app.get(link).document
+            val episodes = docEpisodes.select("div.film-episode a").map {
                 val href = it.select("a").attr("href")
-                val episode =
-                    it.select("a").text().trim().toIntOrNull()
+                val episode = it.select("a").text().trim().toIntOrNull()
+                val name = "Tập $episode"
                 Episode(
                     data = href,
+                    name = name,
                     episode = episode,
                 )
             }
@@ -164,6 +166,7 @@ class VuigheProvider : MainAPI() {
                         )
                     )
             }
+            return true
         }
         return true
 }
