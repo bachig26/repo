@@ -146,26 +146,21 @@ class VuigheProvider : MainAPI() {
         document.select("div.container").apmap { script ->
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
-        val response = app.get(
+        val sources = app.get(
                 url = "$mainUrl/api/pa/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
-            val serverRes  =
-                Gson().fromJson<ServerResponse>(response, ServerResponse::class.java)
-            val doc: Document = Jsoup.parse(serverRes.html)
-            val sources = doc.select("sources hls").text
-            var url = encodeString(sources as String, 69)
+            ).text.substringAfterLast("hls: \"")
+                    .substringBefore("\"")
+        var link = encodeString(sources as String, 69)
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            nameSv,
                             link,
                             mainUrl,
-                            getQualityFromName(it.label),
                             link.contains(".m3u8")
                         )
                     )
