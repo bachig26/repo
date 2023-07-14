@@ -4,7 +4,8 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
-import java.net.URLDecoder
+import com.google.gson.Gson
+import java.util.regex.Pattern
 
 class VuigheProvider : MainAPI() {
     override var mainUrl = "https://mehoathinh2.com"
@@ -43,8 +44,6 @@ class VuigheProvider : MainAPI() {
             hasNext = true
         )
     }
-
-    private fun decode(input: String): String? = URLDecoder.decode(input, "utf-8")
 
     private fun Element.toSearchResult(): SearchResponse {
         val title1 = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
@@ -124,7 +123,17 @@ class VuigheProvider : MainAPI() {
             }
         }
     }
-
+    
+    private fun encodeString(e: String, t: Int): String {
+        var a = ""
+        for (i in 0 until e.length) {
+            val r = e[i].toInt()
+            val o = r xor t
+            a += o.toChar()
+        }
+        return a
+    }
+    
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -137,37 +146,32 @@ class VuigheProvider : MainAPI() {
         document.select("div.container").apmap { script ->
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
-
-            app.get(
+        val response = app.get(
                 url = "$mainUrl/api/pa/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).parsedSafe<Responses>()?.let { res ->
-                callback.invoke(
-                    ExtractorLink(
-                        source = this.name,
-                        name = this.name,
-                        url = res.formats?.auto ?: return@let,
-                        referer = "$mainUrl/",
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true
+            ).text
+            val serverRes  =
+                Gson().fromJson<ServerResponse>(response, ServerResponse::class.java)
+            val doc: Document = Jsoup.parse(serverRes.html)
+            val sources = doc.select("sources hls").text
+            var url = encodeString(sources as String, 69)
+                    callback.invoke(
+                        ExtractorLink(
+                            link,
+                            nameSv,
+                            link,
+                            mainUrl,
+                            getQualityFromName(it.label),
+                            link.contains(".m3u8")
+                        )
                     )
-                )
-            }
         }
         return true
     }
-
-    data class Formats(
-        @JsonProperty("auto") val auto: String?,
-    )
-
-    data class Responses(
-        @JsonProperty("formats") val formats: Formats?,
-    )
 }
 // https://Vuighe.in/api/v2/films/21975/episodes/303806 - api link m3u8
 // https://Vuighe.in/api/v2/films/21975/episodes?sort=name - api tập phim
