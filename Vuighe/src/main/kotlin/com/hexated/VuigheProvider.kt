@@ -160,7 +160,7 @@ class VuigheProvider : MainAPI() {
                         ExtractorLink(
                             link,
                             link,
-                            mainUrl,
+                            referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
                         )
