@@ -164,6 +164,7 @@ class VuigheProvider : MainAPI() {
                         )
                     )
             }
+            return true
         }
         return true
 }
