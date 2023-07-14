@@ -4,8 +4,6 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
-import com.google.gson.Gson
-import java.util.regex.Pattern
 
 class VuigheProvider : MainAPI() {
     override var mainUrl = "https://mehoathinh2.com"
@@ -156,15 +154,18 @@ class VuigheProvider : MainAPI() {
             ).text.substringAfterLast("hls: \"")
                     .substringBefore("\"")
         var link = encodeString(sources as String, 69)
+            safeApiCall {
                     callback.invoke(
                         ExtractorLink(
                             link,
+                            source = "Vuighe",
                             link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
                         )
                     )
+            }
         }
         return true
     }
