@@ -158,7 +158,7 @@ class VuigheProvider : MainAPI() {
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            "Vuighe"
+                            "Vuighe",
                             link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
