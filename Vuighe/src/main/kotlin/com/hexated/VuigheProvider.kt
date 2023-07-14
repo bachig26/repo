@@ -156,9 +156,9 @@ class VuigheProvider : MainAPI() {
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            link,
+                            sources,
                             "Vuighe",
-                            link,
+                            sources,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
