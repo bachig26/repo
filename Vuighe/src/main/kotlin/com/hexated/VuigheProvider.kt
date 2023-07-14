@@ -152,13 +152,13 @@ class VuigheProvider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources.hls")
-        var link = encodeString("$sources" as String, 69)
+        var link = encodeString(sources as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            sources,
+                            link,
                             "Vuighe",
-                            sources,
+                            link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
