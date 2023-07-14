@@ -124,6 +124,50 @@ class VuigheProvider : MainAPI() {
             }
         }
     }
+
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+
+        val document = app.get(data).document
+
+        document.select("div.container").apmap { script ->
+        val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
+        val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
+
+            app.get(
+                url = "$mainUrl/api/pa/films/$Id/episodes/$epId",
+                referer = data,
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-Requested-With" to "XMLHttpRequest"
+                )
+            ).parsedSafe<Responses>()?.let { res ->
+                callback.invoke(
+                    ExtractorLink(
+                        source = this.name,
+                        name = this.name,
+                        url = res.formats?.auto ?: return@let,
+                        referer = "$mainUrl/",
+                        quality = Qualities.Unknown.value,
+                        isM3u8 = true
+                    )
+                )
+            }
+        }
+        return true
+    }
+
+    data class Formats(
+        @JsonProperty("auto") val auto: String?,
+    )
+
+    data class Responses(
+        @JsonProperty("formats") val formats: Formats?,
+    )
 }
 // https://Vuighe.in/api/v2/films/21975/episodes/303806 - api link m3u8
 // https://Vuighe.in/api/v2/films/21975/episodes?sort=name - api tập phim
