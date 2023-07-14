@@ -151,15 +151,14 @@ class VuigheProvider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfterLast("hls: \"")
-                    .substringBefore("\"")
+            ).document.select("sources.hls")
         var link = encodeString("$sources" as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            link,
+                            sources,
                             "Vuighe",
-                            link,
+                            sources,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
