@@ -161,7 +161,8 @@ class VuigheProvider : MainAPI() {
                             link,
                             link,
                             mainUrl,
-                            link.contains(".m3u8")
+                            quality = Qualities.P1080.value,
+                            isM3u8 = true,
                         )
                     )
         }
