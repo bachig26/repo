@@ -153,12 +153,13 @@ class VuigheProvider : MainAPI() {
                 )
             ).text.substringAfterLast("hls: \"")
                     .substringBefore("\"")
-        var url = encodeString("$sources" as String, 69)
+        var link = encodeString("$sources" as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            link = "$url",
+                            "Vuighe"
+                            link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
