@@ -82,7 +82,7 @@ class VuigheProvider : MainAPI() {
         val document = app.get(url).document
 
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val link = document.select("ul.list-button li:last-child a").attr("href")
+        val link = document.select("head > meta:nth-child(17)").attr("content")
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(2) a").map { it.text() }
         val year = document.selectFirst("div.film-thumbnail img")?.attr("src")
@@ -112,7 +112,7 @@ class VuigheProvider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, url) {
+            newMovieLoadResponse(title, url, TvType.Movie, link) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
@@ -141,7 +141,6 @@ class VuigheProvider : MainAPI() {
 
         val document = app.get(data).document
 
-        document.select("div.container").apmap { script ->
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val sources = app.get(
@@ -151,7 +150,7 @@ class VuigheProvider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources.hls")
+            ).document.select("sources").attr("hls")
         var link = encodeString(sources as String, 69)
             safeApiCall {
                     callback.invoke(
