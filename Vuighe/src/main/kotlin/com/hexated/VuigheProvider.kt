@@ -166,7 +166,6 @@ class VuigheProvider : MainAPI() {
             }
         }
         return true
-    }
 }
 // https://Vuighe.in/api/v2/films/21975/episodes/303806 - api link m3u8
 // https://Vuighe.in/api/v2/films/21975/episodes?sort=name - api tập phim
