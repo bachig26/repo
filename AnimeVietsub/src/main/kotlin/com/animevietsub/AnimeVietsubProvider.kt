@@ -46,28 +46,21 @@ class AnimeVietsubProvider : MainAPI() {
         const val HOST_STREAM = "so-trym.topphimmoi.org";
     }
     
-    override val mainPage = mainPageOf(
-        "$mainUrl/anime-bo/trang-" to "Anime Bộ",
-        "$mainUrl/anime-le/trang-" to "Anime Lẻ",
-        "$mainUrl/anime-sap-chieu/trang-" to "Anime Sắp Chiếu",
-    )
-
-    override suspend fun getMainPage(
-        page: Int,
-        request: MainPageRequest
-    ): HomePageResponse {
-        val document = app.get(request.data + page).document
-        val home = document.select(".TPostMv").mapNotNull {
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
+        val html = app.get(mainUrl).text
+        val doc = Jsoup.parse(html)
+        val listHomePageList = arrayListOf<HomePageList>()
+        doc.select("section").forEach {
+            val name = it.select("h1").text()
+            val urlMore = fixUrl(it.select(".viewall").attr("href"))
+            val listMovie = it.select(".TPostMv").map {
             getItemMovie(it)
+            }
+            if (listMovie.isNotEmpty())
+                listHomePageList.add(HomePageList(name, listMovie))
         }
-        return newHomePageResponse(
-            list = HomePageList(
-                name = request.name,
-                list = home,
-            ),
-            hasNext = true
-        )
-    }
+        return HomePageResponse(listHomePageList)
+    }            
 
     override suspend fun search(query: String): List<SearchResponse>? {
         val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
@@ -76,21 +69,6 @@ class AnimeVietsubProvider : MainAPI() {
 
         return document.select("section .TPostMv").map {
             getItemMovie(it)
-        }
-    }
-
-    override suspend fun quickSearch(query: String): List<SearchResponse>? {
-        try {
-            val url =  "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
-            val html = app.get(url).text
-            val document = Jsoup.parse(html)
-
-            return document.select("section .TPostMv").map {
-                getItemMovie(it)
-            }
-        }catch (e : Exception){
-            e.printStackTrace()
-            return null
         }
     }
 
