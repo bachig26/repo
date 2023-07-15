@@ -78,7 +78,7 @@ class AnimeVietsubProvider : MainAPI() {
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.TPMvCn.anmt span.Time").text()
         return if (temp.contains("/")) {
-            val episode = temp?.substringBefore("/")?.trim()?.toInt()
+            val episode = temp?.substringBefore("/")?.trim()?.toString()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
                 addQuality(episode)
