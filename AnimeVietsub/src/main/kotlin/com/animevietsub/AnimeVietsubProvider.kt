@@ -46,21 +46,29 @@ class AnimeVietsubProvider : MainAPI() {
         const val HOST_STREAM = "so-trym.topphimmoi.org";
     }
     
-    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-        val html = app.get(mainUrl).text
-        val doc = Jsoup.parse(html)
-        val listHomePageList = arrayListOf<HomePageList>()
-        doc.select("section").forEach {
-            val name = it.select("h1").text()
-            val urlMore = fixUrl(it.select(".viewall").attr("href"))
-            val listMovie = it.select(".TPostMv").map {
+    override val mainPage = mainPageOf(
+        "$mainUrl/danh-sach/list-dang-chieu/////trang-" to "Anime Đang Chiếu",
+        "$mainUrl/anime-bo/trang-" to "Anime Bộ",
+        "$mainUrl/anime-le/trang-" to "Anime Lẻ",
+        "$mainUrl/anime-sap-chieu/trang-" to "Anime Sắp Chiếu",
+    )
+
+    override suspend fun getMainPage(
+        page: Int,
+        request: MainPageRequest
+    ): HomePageResponse {
+        val document = app.get(request.data + page).document
+        val home = document.select(".TPostMv").mapNotNull {
             getItemMovie(it)
-            }
-            if (listMovie.isNotEmpty())
-                listHomePageList.add(HomePageList(name, listMovie))
         }
-        return HomePageResponse(listHomePageList)
-    }            
+        return newHomePageResponse(
+            list = HomePageList(
+                name = request.name,
+                list = home,
+            ),
+            hasNext = true
+        )
+    }
 
     override suspend fun search(query: String): List<SearchResponse>? {
         val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
@@ -76,17 +84,22 @@ class AnimeVietsubProvider : MainAPI() {
         val title = it.selectFirst("a .Title")!!.text()
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
         val image = it.selectFirst("img")!!.attr("src")
-        val temp = it.select("div.TPMvCn.anmt span.Time").text()
-        return if (temp.contains("/")) {
-            val episode = temp?.substringBefore("/")?.trim().toString()
+        val temp = it.select("div.Image span").text()
+        return if (temp.contains(Regex("\\d"))) {
+            val episode = it.select("div.TPMvCn.anmt span.Time").text().substringBefore("/").trim().toIntOrNull()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
-                addQuality(episode)
+                addSub(episode)
+            }
+        } else if (temp.contains("HD")){
+            newMovieSearchResponse(title, href, TvType.Movie) {
+                this.posterUrl = image
+                addQuality("HD")
             }
         } else {
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
-                addQuality("HD")
+                addQuality(temp)
             }
         }
     }
