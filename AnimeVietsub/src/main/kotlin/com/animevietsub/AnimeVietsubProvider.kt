@@ -76,22 +76,17 @@ class AnimeVietsubProvider : MainAPI() {
         val title = it.selectFirst("a .Title")!!.text()
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
         val image = it.selectFirst("img")!!.attr("src")
-        val temp = it.select("div.Image span").text()
-        return if (it.select("div.TPMvCn.anmt span.Time").text().contains("/")) {
-            val episode = temp?.trim()?.split("/")?.first()?.toIntOrNull()
+        val temp = it.select("div.TPMvCn.anmt span.Time").text()
+        return if (temp.contains("/")) {
+            val episode = temp?.substringBefore("/")?.trim()?.toIntOrNull()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
                 addQuality(episode)
             }
-        } else if (temp.contains("HD")){
-            newMovieSearchResponse(title, href, TvType.Movie) {
-                this.posterUrl = image
-                addQuality("HD")
-            }
         } else {
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = image
-                addQuality(temp)
+                addQuality("HD")
             }
         }
     }
