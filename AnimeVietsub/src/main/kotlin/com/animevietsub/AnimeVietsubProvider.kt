@@ -84,14 +84,14 @@ class AnimeVietsubProvider : MainAPI() {
         val title = it.selectFirst("a .Title")!!.text()
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
         val image = it.selectFirst("img")!!.attr("src")
-        val temp = it.select("div.Image span").text()
-        val epNum = it.selectFirst("div.TPMvCn.anmt span.Time")?.text()?.let { eps ->
-            val num = eps.filter { it.isDigit() }.toIntOrNull()
-        }
-        return newAnimeSearchResponse(title, href, TvType.Anime) {
-            this.posterUrl = posterUrl
-            addSub(epNum)
-        }
+        return MovieSearchResponse(
+            title,
+            href,
+            this.name,
+            TvType.Movie,
+            image,
+            posterHeaders = mapOf("referer" to mainUrl)
+        )
     }
 
     fun findUrls(input: String): List<String> {
