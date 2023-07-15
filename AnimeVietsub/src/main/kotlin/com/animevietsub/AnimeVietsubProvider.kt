@@ -42,9 +42,9 @@ class AnimeVietsubProvider : MainAPI() {
     override val vpnStatus: VPNStatus
         get() = VPNStatus.None
 
-    companion object {
-        const val HOST_STREAM = "so-trym.topphimmoi.org";
-    }
+//    companion object {
+//        const val HOST_STREAM = "so-trym.topphimmoi.org";
+//    }
     
     override val mainPage = mainPageOf(
         "$mainUrl/danh-sach/list-dang-chieu/////trang-" to "Anime Đang Chiếu",
@@ -85,22 +85,12 @@ class AnimeVietsubProvider : MainAPI() {
         val href = fixUrl(it.selectFirst("a")!!.attr("href"))
         val image = it.selectFirst("img")!!.attr("src")
         val temp = it.select("div.Image span").text()
-        return if (temp.contains(Regex("\\d"))) {
-            val episode = it.select("div.TPMvCn.anmt span.Time").text().substringBefore("/").trim().toIntOrNull()
-            newMovieSearchResponse(title, href, TvType.Movie) {
-                this.posterUrl = image
-                addSub(episode: Int?)
-            }
-        } else if (temp.contains("HD")){
-            newMovieSearchResponse(title, href, TvType.Movie) {
-                this.posterUrl = image
-                addQuality("HD")
-            }
-        } else {
-            newMovieSearchResponse(title, href, TvType.Movie) {
-                this.posterUrl = image
-                addQuality(temp)
-            }
+        val epNum = it.selectFirst("div.TPMvCn.anmt span.Time")?.text()?.let { eps ->
+            val num = eps.filter { it.isDigit() }.toIntOrNull()
+        }
+        return newAnimeSearchResponse(title, href, TvType.Anime) {
+            this.posterUrl = posterUrl
+            addSub(epNum)
         }
     }
 
@@ -223,7 +213,7 @@ class AnimeVietsubProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("DuongKK", "data LoadLinks ---> $data ")
+//        Log.d("DuongKK", "data LoadLinks ---> $data ")
         val idEp = data
 
         try {
@@ -235,13 +225,13 @@ class AnimeVietsubProvider : MainAPI() {
                 data = mapOf("episodeId" to idEp, "backup" to "1")
                 , headers = mapOf("Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8")
             ).text
-            Log.d("BLUE","text = ${response}")
+//            Log.d("BLUE","text = ${response}")
             val serverRes  =
                 Gson().fromJson<ServerResponse>(response, ServerResponse::class.java)
-            Log.d("BLUE","serverRes $serverRes")
+//            Log.d("BLUE","serverRes $serverRes")
             val doc: Document = Jsoup.parse(serverRes.html)
             val jsHtml = doc.html()
-            Log.d("BLUE", "jsHtml $jsHtml")
+//            Log.d("BLUE", "jsHtml $jsHtml")
 
 
             doc.select(".btn3dsv").amap {
@@ -262,7 +252,7 @@ class AnimeVietsubProvider : MainAPI() {
                 ).text
                 val linkRes  =
                     Gson().fromJson<LinkResponse>(responseLink, LinkResponse::class.java)
-                Log.d("BLUE", "linkRes $responseLink $linkRes")
+//                Log.d("BLUE", "linkRes $responseLink $linkRes")
                 linkRes.link.forEach {
                     var link = it.file
                     if(link.startsWith("//")){
