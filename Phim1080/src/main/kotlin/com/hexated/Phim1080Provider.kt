@@ -3,11 +3,12 @@ package com.hexated
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
+import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import org.jsoup.nodes.Element
 
-class VuigheProvider : MainAPI() {
+class Phim1080Provider : MainAPI() {
     override var mainUrl = "https://xem1080.com"
-    override var name = "Vuighe"
+    override var name = "Phim1080"
     override val hasMainPage = true
     override var lang = "vi"
     override val hasDownloadSupport = true
@@ -84,12 +85,12 @@ class VuigheProvider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
 
-        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("Tập")?.trim().toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val tags = document.select("div.film-content div.film-info-genre:nth-child(2) a").map { it.text() }
-        val year = document.selectFirst("div.film-thumbnail img")?.attr("src")
-            ?.substringAfter("ff/")?.trim()?.split("/")?.first()?.toIntOrNull()
-        val tvType = if (document.select("a.episode-item").isNotEmpty()
+        val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
+        val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
+            ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
+        val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
         val recommendations = document.select("div.related-block div.related-item").map {
@@ -97,7 +98,7 @@ class VuigheProvider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-            val episodes = document.select("div.film-episode a").map {
+            val episodes = document.select("div.episode-list a").map {
                 val href = it.select("a").attr("href")
                 val episode = it.select("a").text().trim().toIntOrNull()
                 val name = "$episode"
@@ -153,9 +154,9 @@ class VuigheProvider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources").attr("hls")
-        var a = "-1156jj6s}wk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$"
-        var link = encodeString(a as String, 69)
+            ).document.select("sources")?.attr("hls")
+                
+        var link = encodeString(sources as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
@@ -171,6 +172,6 @@ class VuigheProvider : MainAPI() {
             return true
         }
 }
-// https://Vuighe.in/api/v2/films/21975/episodes/303806 - api link m3u8
-// https://Vuighe.in/api/v2/films/21975/episodes?sort=name - api tập phim
+// https://Phim1080.in/api/v2/films/21975/episodes/303806 - api link m3u8
+// https://Phim1080.in/api/v2/films/21975/episodes?sort=name - api tập phim
 // https://s198.imacdn.com/ff/2023/07/11/28055bb4c0e59e7c_d7a07589b2d87354_2662141689057850316068.jpg - api ảnh
