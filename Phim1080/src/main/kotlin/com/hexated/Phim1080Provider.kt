@@ -61,13 +61,13 @@ class Phim1080Provider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = temp.split("/").first()?.toIntOrNull()
+            val episode = temp.substringBefore("/")?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
         } else {
-            val quality = this.select("div.tray-item-quality").text().replace("FHD", "HD").trim()
+            val quality = this.select("div.tray-item-quality").text().replace("FHD", "HD").trim().toString()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
@@ -172,9 +172,9 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document
-        
-        var link = encodeString(video.select("sources.m3u8.hls") as String, 69)
+            ).document.select("sources.m3u8.hls")
+        var ss = "-1156jj6s}qk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$ss#s$! |!r &'$w|ps&r!|&jqurv&##&$ss#s$! |!r &'$w|ps&r!|&k(v0}z-$6-x66*t\u0016r\u00065\u00101\u000b\u0012\u0001\u00067r?\u00111*v2c =5,7 xts}|susrpw"
+        var link = encodeString(ss as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
