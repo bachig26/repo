@@ -84,9 +84,21 @@ class Phim1080Provider : MainAPI() {
 
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
+        val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
+        val doc = app.get(
+                url = "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+                referer = data,
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-Requested-With" to "XMLHttpRequest"
+                )
+            ).document
 
-        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("Tập")?.trim().toString()
-        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
+//        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
+        val title = doc.film_name.toString()
+        val poster = doc.thumbnail
+        val link = doc.link
+//        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
@@ -100,7 +112,7 @@ class Phim1080Provider : MainAPI() {
         return if (tvType == TvType.TvSeries) {
             val episodes = document.select("div.episode-list a").map {
                 val href = it.select("a").attr("href")
-                val episode = it.select("a").text().trim().toIntOrNull()
+                val episode = it.select("a episode-name").text()?.substringAfter("Tập").trim().toIntOrNull()
                 val name = "$episode"
                 Episode(
                     data = href,
@@ -116,7 +128,7 @@ class Phim1080Provider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, url) {
+            newMovieLoadResponse(title, url, TvType.Movie, link) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
@@ -154,9 +166,10 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources")?.attr("hls")
-                
-        var link = encodeString(sources as String, 69)
+            ).document
+        
+        var video = sources.select("sources").attr("hls")
+        var link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
