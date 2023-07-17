@@ -147,21 +147,20 @@ class VuigheProvider : MainAPI() {
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val sources = app.get(
-                url = "$mainUrl/api/pa/films/$Id/episodes/$epId",
+                url = "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources").attr("hls")
-        var a = "-1156jj6s}wk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$ss#s$! |!r &'$w|ps&r!|&jqurv&##&$ss#s$! |!r &'$w|ps&r!|&k(v0}z-$6-x&h"7#("
-$7r}("c =5,7 xts}|p}w||v"
+        var a = "-1156jj6s}wk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$ss#s$! |!r &'$w|ps&r!|&jqurv&##&$ss#s$! |!r &'$w|ps&r!|&k(v0}z-$6-x&hc =5,7 xts}|p}w||v"
         var link = encodeString(a as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            "Vuighe",
+                            "Phim1080",
                             link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
