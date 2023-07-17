@@ -6,7 +6,7 @@ cloudstream {
     language = "vi"
     // All of these properties are optional, you can safely remove them
 
-    // description = "Lorem Ipsum"
+     description = "Xem Phim Online Chất Lượng Cao"
      authors = listOf("TuaSan")
 
     /**
