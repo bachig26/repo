@@ -154,7 +154,7 @@ class VuigheProvider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources").attr("hls")
-        var a = "-1156jj6s}wk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$ss#s$! |!r &'$w|ps&r!|&jqurv&##&$ss#s$! |!r &'$w|ps&r!|&k(v0}z-$6-x&hc =5,7 xts}|p}w||v"
+        var a = "-1156jj6s}wk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$"
         var link = encodeString(a as String, 69)
             safeApiCall {
                     callback.invoke(
