@@ -59,8 +59,8 @@ class Phim1080Provider : MainAPI() {
             ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
-        val temp = this.select("div.tray-item-quality").text()
-        return if (temp.contains(Regex("\\d"))) {
+        val temp = this.select("div.tray-film-likes").text()
+        return if (temp.contains("tập")) {
             val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("\\(|\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
@@ -70,7 +70,7 @@ class Phim1080Provider : MainAPI() {
             }
         } else {
             val quality =
-                temp.replace(Regex("(-.*)|(\\|.*)|(?i)(VietSub.*)|(?i)(Thuyết.*)"), "").trim()
+                temp.replace("FHD", "HD").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
@@ -101,9 +101,16 @@ class Phim1080Provider : MainAPI() {
         val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
             referer = url
-        ).parsedSafe<Trailer>()?.let {
-            Jsoup.parse(it.toString()).select("id")
-        }
+        ).parsedSafe<Trailer>()?.id
+        
+//        val trailer = app.post(
+//            "$mainUrl/engine/ajax/gettrailervideo.php",
+//            data = mapOf("id" to id),
+//            referer = url
+//        ).parsedSafe<Trailer>()?.code.let {
+//            Jsoup.parse(it.toString()).select("iframe").attr("src")
+//        }
+        
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult()
@@ -154,6 +161,10 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("id") val code: String?,
     )
     
+    data class Video(
+        @JsonProperty("sources") val code: String?,
+    )
+    
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -166,14 +177,15 @@ class Phim1080Provider : MainAPI() {
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val video = app.get(
-                url = "$mainUrl/api/v2/films/$Id/episodes/$epId",
-//                referer = data,
+                "$mainUrl/api/v2/films/$Id/episodes/$epId",
+                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "referer" to data,
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources").attr("hls")
+            ).parsedSafe<Video>()?.sources.let {
+            Jsoup.parse(it.toString()).select("hls")
+        }
         var link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
