@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
 
 class VuigheProvider : MainAPI() {
-    override var mainUrl = "https://mehoathinh2.com"
+    override var mainUrl = "https://xem1080.com"
     override var name = "Vuighe"
     override val hasMainPage = true
     override var lang = "vi"
@@ -19,11 +19,14 @@ class VuigheProvider : MainAPI() {
     )
 
     override val mainPage = mainPageOf(
-        "$mainUrl/hot-trong-ngay/trang-" to "Bảng Xếp Hạng",
-        "$mainUrl/phim-bo/trang-" to "Phim Bộ",
-        "$mainUrl/phim-le/trang-" to "Phim Lẻ",
-        "$mainUrl/tap-moi-nhat/trang-" to "Mới Cập Nhật",
-        "$mainUrl/phim-chieu-rap/trang-" to "Phim Chiếu Rạp",
+        "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
+        "$mainUrl/tap-moi-nhat?page=" to "Mới Cập Nhật",
+        "$mainUrl/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
+        "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
+        "$mainUrl/phim-bo?page=" to "Phim Bộ",
+        "$mainUrl/phim-le?page=" to "Phim Lẻ",
+        "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
+        "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
 
     override suspend fun getMainPage(
@@ -97,7 +100,7 @@ class VuigheProvider : MainAPI() {
             val episodes = document.select("div.film-episode a").map {
                 val href = it.select("a").attr("href")
                 val episode = it.select("a").text().trim().toIntOrNull()
-                val name = "Tập $episode"
+                val name = "$episode"
                 Episode(
                     data = href,
                     name = name,
@@ -151,7 +154,9 @@ class VuigheProvider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources").attr("hls")
-        var link = encodeString(sources as String, 69)
+        var a = "-1156jj6s}wk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$ss#s$! |!r &'$w|ps&r!|&jqurv&##&$ss#s$! |!r &'$w|ps&r!|&k(v0}z-$6-x&h"7#("
+$7r}("c =5,7 xts}|p}w||v"
+        var link = encodeString(a as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
