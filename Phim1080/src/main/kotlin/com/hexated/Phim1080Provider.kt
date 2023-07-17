@@ -87,17 +87,7 @@ class Phim1080Provider : MainAPI() {
 
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
-        val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
-        val doc = app.get(
-                url = "$mainUrl/api/v2/films/$Id/episodes?sort=name",
-//                referer = url,
-                headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "X-Requested-With" to "XMLHttpRequest"
-                )
-            ).document
-        
-//        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
+        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val title = doc.select("film_name").toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -170,20 +160,16 @@ class Phim1080Provider : MainAPI() {
 
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
-        val sources = app.get(
+        val video = app.get(
                 url = "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = data,
+//                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
+                    "referer" to data
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
-            val serverRes  =
-                Gson().fromJson<ServerResponse>(sources, ServerResponse::class.java)
-            val doc: Document = Jsoup.parse(serverRes.html)
-            
-            var video = doc.select("sources").attr("hls")
-            var link = encodeString(video as String, 69)
+            ).document.select("sources").attr("hls")
+        var link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
