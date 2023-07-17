@@ -150,7 +150,7 @@ class AnimeVietsubProvider : MainAPI() {
             recommendations = recommendations,
             showStatus = null,
             episodes = episodes,
-            addTrailer(trailer),
+            addTrailer(trailer : String?),
             comingSoon = episodes.isEmpty(),
             posterHeaders = mapOf("referer" to mainUrl)
         )
