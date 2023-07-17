@@ -99,7 +99,7 @@ class Phim1080Provider : MainAPI() {
         val linkRes  =
             Gson().fromJson<LinkResponse>(doc, LinkResponse::class.java)
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = linkRes.filmName.toString()
+        val title = linkRes.filmName
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
