@@ -6,7 +6,7 @@ cloudstream {
     language = "vi"
     // All of these properties are optional, you can safely remove them
 
-    // description = "Lorem Ipsum"
+     description = "Xem Phim Online Chất Lượng Cao"
      authors = listOf("TuaSan")
 
     /**
@@ -24,5 +24,5 @@ cloudstream {
         "Movie",
     )
 
-    iconUrl = "https://www.google.com/s2/favicons?domain=xem1080.com&sz=%size%"
+    iconUrl = "https://www.google.com/s2/favicons?domain=xem1080.com"
 }
