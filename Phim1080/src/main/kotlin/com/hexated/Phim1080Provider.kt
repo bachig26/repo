@@ -101,7 +101,9 @@ class Phim1080Provider : MainAPI() {
         val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
             referer = url
-        ).parsedSafe<Trailer>()?.id
+        ).parsedSafe<Trailer>()?.id.let {
+            Jsoup.parse(it.toString())
+        }
         
 //        val trailer = app.post(
 //            "$mainUrl/engine/ajax/gettrailervideo.php",
@@ -161,7 +163,7 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("id") val code: String?,
     )
     
-    data class Video(
+    data class VideoSrc(
         @JsonProperty("sources") val code: String?,
     )
     
@@ -183,7 +185,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).parsedSafe<Video>()?.sources.let {
+            ).parsedSafe<VideoSrc>()?.sources.let {
             Jsoup.parse(it.toString()).select("hls")
         }
         var link = encodeString(video as String, 69)
