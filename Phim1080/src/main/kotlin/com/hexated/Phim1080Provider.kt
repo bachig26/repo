@@ -3,7 +3,6 @@ package com.hexated
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
-import com.google.gson.Gson
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -88,7 +87,6 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = doc.select("film_name").toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -139,16 +137,6 @@ class Phim1080Provider : MainAPI() {
         return a
     }
     
-    data class LinkResponse(
-        @JsonProperty("film_name") val filmName: String,
-        @JsonProperty("success") val success: Int
-    )
-    
-    data class ServerResponse(
-        @JsonProperty("html") val html: String,
-        @JsonProperty("success") val success: Int
-    )
-    
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -165,7 +153,7 @@ class Phim1080Provider : MainAPI() {
 //                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "referer" to data
+                    "referer" to data,
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources").attr("hls")
