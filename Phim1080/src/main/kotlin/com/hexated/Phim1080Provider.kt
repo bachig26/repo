@@ -166,11 +166,10 @@ class Phim1080Provider : MainAPI() {
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val video = app.get(
-                url = "$mainUrl/api/v2/films/$Id/episodes/$epId",
-//                referer = data,
+                "$mainUrl/api/v2/films/$Id/episodes/$epId",
+                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "referer" = data,
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources.hls")
