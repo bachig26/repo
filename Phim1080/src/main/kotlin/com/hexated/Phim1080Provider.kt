@@ -98,7 +98,7 @@ class Phim1080Provider : MainAPI() {
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
-        val trailerCode = app.post(
+        val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
             referer = url
         ).parsedSafe<Trailer>()?.let {
