@@ -127,7 +127,7 @@ class AnimeVietsubProvider : MainAPI() {
         }
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-//        val trailer = doc.select("div#MvTb-Trailer").attr("src")
+        val trailer = doc.select("div#MvTb-Trailer").attr("src").toString()
         val description = doc.select(".Description").text()
         val urlPoster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
@@ -150,7 +150,7 @@ class AnimeVietsubProvider : MainAPI() {
             recommendations = recommendations,
             showStatus = null,
             episodes = episodes,
-//            addTrailer(trailer : String?),
+            addTrailer(trailer),
             comingSoon = episodes.isEmpty(),
             posterHeaders = mapOf("referer" to mainUrl)
         )
