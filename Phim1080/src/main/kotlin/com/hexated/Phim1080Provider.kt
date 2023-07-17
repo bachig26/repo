@@ -90,16 +90,15 @@ class Phim1080Provider : MainAPI() {
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val doc = app.get(
                 url = "$mainUrl/api/v2/films/$Id/episodes?sort=name",
-                referer = url,
+//                referer = url,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
-        val linkRes  =
-            Gson().fromJson<LinkResponse>(doc, LinkResponse::class.java)
+            ).document
+        
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = linkRes.filmName
+        val title = doc.select("film_name").toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
