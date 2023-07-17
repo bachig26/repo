@@ -4,6 +4,8 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.google.gson.Gson
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 class Phim1080Provider : MainAPI() {
@@ -148,7 +150,6 @@ class Phim1080Provider : MainAPI() {
     }
     
     data class LinkResponse(
-        @JsonProperty("link") val link: List<FileResponse>,
         @JsonProperty("film_name") val filmName: String,
         @JsonProperty("success") val success: Int
     )
