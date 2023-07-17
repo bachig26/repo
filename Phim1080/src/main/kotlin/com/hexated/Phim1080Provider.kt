@@ -101,8 +101,8 @@ class Phim1080Provider : MainAPI() {
         val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
             referer = url
-        ).parsedSafe<Trailer>()?.id.let {
-            Jsoup.parse(it.toString())
+        ).parsedSafe<Trailer>()?.let {
+            Jsoup.parse(it.toString()).select("id")
         }
         
 //        val trailer = app.post(
@@ -185,8 +185,8 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).parsedSafe<VideoSrc>()?.sources.let {
-            Jsoup.parse(it.toString()).select("hls")
+            ).parsedSafe<VideoSrc>()?.let {
+            Jsoup.parse(it.toString()).select("sources.hls")
         }
         var link = encodeString(video as String, 69)
             safeApiCall {
