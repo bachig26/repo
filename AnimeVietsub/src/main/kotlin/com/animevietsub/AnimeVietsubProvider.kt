@@ -41,10 +41,6 @@ class AnimeVietsubProvider : MainAPI() {
         )
     override val vpnStatus: VPNStatus
         get() = VPNStatus.None
-
-//    companion object {
-//        const val HOST_STREAM = "so-trym.topphimmoi.org";
-//    }
     
     override val mainPage = mainPageOf(
         "$mainUrl/danh-sach/list-dang-chieu/////trang-" to "Anime Đang Chiếu",
@@ -71,7 +67,7 @@ class AnimeVietsubProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse>? {
-        val url = "$mainUrl/tim-kiem/${query}/"//https://chillhay.net/search/boyhood
+        val url = "$mainUrl/tim-kiem/${query}/"
         val html = app.get(url).text
         val document = Jsoup.parse(html)
 
@@ -131,8 +127,9 @@ class AnimeVietsubProvider : MainAPI() {
         }
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-//        val trailer = doc.select("div#MvTb-Trailer").attr("src")
+        val trailer = doc.select("div#MvTb-Trailer").attr("src")
         val description = doc.select(".Description").text()
+        val urlPoster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val urlBackdoor = fixUrl(doc.select(".TPostBg img").attr("src"))
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
                 getItemMovie(it)
@@ -144,18 +141,18 @@ class AnimeVietsubProvider : MainAPI() {
             url = url,
             apiName = this.name,
             type = TvType.TvSeries,
-            posterUrl = urlBackdoor,
+            posterUrl = urlPoster,
+            backgroundPosterUrl = urlBackdoor,
             year = year,
             rating = rating,
             tags = tags,
-//            trailer = trailer,
             plot = description,
             recommendations = recommendations,
             showStatus = null,
             episodes = episodes,
             comingSoon = episodes.isEmpty(),
             posterHeaders = mapOf("referer" to mainUrl)
-        )
+        ) { addTrailer(trailer) }
     }
 
     fun getDataEpisode(
@@ -213,26 +210,21 @@ class AnimeVietsubProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-//        Log.d("DuongKK", "data LoadLinks ---> $data ")
         val idEp = data
 
         try {
             //get server
             val urlRequest =
-                "${this.mainUrl}/ajax/player?v=2019a" //'https://subnhanh.net/frontend/default/ajax-player'
+                "${this.mainUrl}/ajax/player?v=2019a"
             var response = app.post(
                 urlRequest,
                 data = mapOf("episodeId" to idEp, "backup" to "1")
                 , headers = mapOf("Content-Type" to "application/x-www-form-urlencoded; charset=UTF-8")
             ).text
-//            Log.d("BLUE","text = ${response}")
             val serverRes  =
                 Gson().fromJson<ServerResponse>(response, ServerResponse::class.java)
-//            Log.d("BLUE","serverRes $serverRes")
             val doc: Document = Jsoup.parse(serverRes.html)
             val jsHtml = doc.html()
-//            Log.d("BLUE", "jsHtml $jsHtml")
-
 
             doc.select(".btn3dsv").amap {
                 val linkHash = it.attr("data-href")
@@ -252,7 +244,6 @@ class AnimeVietsubProvider : MainAPI() {
                 ).text
                 val linkRes  =
                     Gson().fromJson<LinkResponse>(responseLink, LinkResponse::class.java)
-//                Log.d("BLUE", "linkRes $responseLink $linkRes")
                 linkRes.link.forEach {
                     var link = it.file
                     if(link.startsWith("//")){
