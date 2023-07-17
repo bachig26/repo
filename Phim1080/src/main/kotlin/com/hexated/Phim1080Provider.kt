@@ -3,6 +3,9 @@ package com.hexated
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
+import com.lagradost.cloudstream3.utils.AppUtils.toJson
+import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
+import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -86,6 +89,7 @@ class Phim1080Provider : MainAPI() {
 
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
+        val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -94,6 +98,13 @@ class Phim1080Provider : MainAPI() {
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
         ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
+        val trailerCode = app.post(
+            "$mainUrl/api/v2/films/$Id/trailer",
+            referer = url
+        ).parsedSafe<Trailer>()?.let {
+            Jsoup.parse(it.toString()).select("id")
+        }
+        val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult()
         }
@@ -114,6 +125,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
+                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         } else {
@@ -122,6 +134,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
+                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         }
@@ -136,6 +149,10 @@ class Phim1080Provider : MainAPI() {
         }
         return a
     }
+    
+    data class Trailer(
+        @JsonProperty("id") val code: String?,
+    )
     
     override suspend fun loadLinks(
         data: String,
