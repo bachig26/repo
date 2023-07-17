@@ -61,15 +61,13 @@ class Phim1080Provider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
-                num.replace(Regex("\\(|\\s"), "")
-            }?.distinct()?.firstOrNull()?.toIntOrNull()
+            val episode = temp.split("/").first()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
         } else {
-            val quality = this.select("tray-item-quality").text().replace("FHD", "HD").trim()
+            val quality = this.select("div.tray-item-quality").text().replace("FHD", "HD").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
@@ -168,15 +166,15 @@ class Phim1080Provider : MainAPI() {
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val video = app.get(
-                "$mainUrl/api/v2/films/$Id/episodes/$epId",
+                url = "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources.hls")
+            ).document
         
-        var link = encodeString(video as String, 69)
+        var link = encodeString(video.select("sources.m3u8.hls") as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
