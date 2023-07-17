@@ -167,14 +167,14 @@ class Phim1080Provider : MainAPI() {
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val video = app.get(
                 url = "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = data,
+//                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
+                    "referer" = data,
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources.m3u8.hls")
-        var ss = "-1156jj6s}qk( 5-,($+-k&*(j(}j5)$<),61jqurv&##&$ss#s$! |!r &'$w|ps&r!|&jqurv&##&$ss#s$! |!r &'$w|ps&r!|&k(v0}z-$6-x66*t\u0016r\u00065\u00101\u000b\u0012\u0001\u00067r?\u00111*v2c =5,7 xts}|susrpw"
-        var link = encodeString(ss as String, 69)
+            ).document.select("sources.hls")
+        var link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
@@ -192,4 +192,5 @@ class Phim1080Provider : MainAPI() {
 }
 // https://Phim1080.in/api/v2/films/21975/episodes/303806 - api link m3u8
 // https://Phim1080.in/api/v2/films/21975/episodes?sort=name - api tập phim
+// $mainUrl/api/v2/films/$Id/trailer - api trailer
 // https://s198.imacdn.com/ff/2023/07/11/28055bb4c0e59e7c_d7a07589b2d87354_2662141689057850316068.jpg - api ảnh
