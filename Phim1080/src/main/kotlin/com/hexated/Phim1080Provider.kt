@@ -3,7 +3,6 @@ package com.hexated
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import org.jsoup.nodes.Element
 
 class Phim1080Provider : MainAPI() {
@@ -92,11 +91,11 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document
+            ).text
 
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = doc.select("film_name").toString()
-        val poster = doc.attr("thumbnail")
+        val title = doc.substringAfterLast("film_name":\"").substringBefore("\"")
+        val poster = doc.substringAfterLast("thumbnail":\"").substringBefore("\"")
         val link = doc.attr("link")
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
