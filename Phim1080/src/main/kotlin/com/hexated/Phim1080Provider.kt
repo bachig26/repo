@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.Jsoup
 
 class Phim1080Provider : MainAPI() {
     override var mainUrl = "https://xem1080.com"
