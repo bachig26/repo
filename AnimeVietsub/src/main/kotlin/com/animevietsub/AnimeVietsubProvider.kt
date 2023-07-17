@@ -225,8 +225,6 @@ class AnimeVietsubProvider : MainAPI() {
             val serverRes  =
                 Gson().fromJson<ServerResponse>(response, ServerResponse::class.java)
             val doc: Document = Jsoup.parse(serverRes.html)
-            val jsHtml = doc.html()
-
             doc.select(".btn3dsv").amap {
                 val linkHash = it.attr("data-href")
                 val nameSv = it.text()
