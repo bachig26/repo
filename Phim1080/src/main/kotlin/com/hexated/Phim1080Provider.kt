@@ -87,7 +87,7 @@ class Phim1080Provider : MainAPI() {
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val doc = app.get(
                 url = "$mainUrl/api/v2/films/$Id/episodes?sort=name",
-                referer = data,
+                referer = url,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
@@ -95,9 +95,9 @@ class Phim1080Provider : MainAPI() {
             ).document
 
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = doc.film_name.toString()
-        val poster = doc.thumbnail
-        val link = doc.link
+        val title = doc.select("film_name").toString()
+        val poster = doc.attr("thumbnail")
+        val link = doc.attr("link")
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -112,7 +112,7 @@ class Phim1080Provider : MainAPI() {
         return if (tvType == TvType.TvSeries) {
             val episodes = document.select("div.episode-list a").map {
                 val href = it.select("a").attr("href")
-                val episode = it.select("a episode-name").text()?.substringAfter("Tập").trim().toIntOrNull()
+                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
                 val name = "$episode"
                 Episode(
                     data = href,
