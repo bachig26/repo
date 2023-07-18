@@ -122,15 +122,15 @@ class Phim1080Provider : MainAPI() {
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
-//        val description = document.select("div.film-info-description").text().trim()
-        val description =  decodeUtf8(app.get(
-            "$mainUrl/api/v2/films/$Id",
-            referer = url,
-            headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "X-Requested-With" to "XMLHttpRequest"
-                )
-            ).text).replace(Regex("\\\\"), "")
+        val description = document.select("div.film-info-description").text().trim()
+//        val description =  decodeUtf8(app.get(
+//            "$mainUrl/api/v2/films/$Id",
+//            referer = url,
+//            headers = mapOf(
+//                    "Content-Type" to "application/json",
+//                    "X-Requested-With" to "XMLHttpRequest"
+//                )
+//            ).text).replace(Regex("\\\\"), "")
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
@@ -154,7 +154,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-//                addTrailer(trailer)
+                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         } else {
@@ -164,7 +164,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-//                addTrailer(trailer)
+                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         }
