@@ -103,7 +103,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val slug = filmInfo.parsedSafe<filmInfo>()?.fdata.select("film_name")?.trim().toString()
+        val slug = filmInfo.parsedSafe<filmInfo>()?.fdata?.trim().toString()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val title = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
         val link = "$mainUrl/$slug"
