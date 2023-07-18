@@ -176,9 +176,9 @@ class Phim1080Provider : MainAPI() {
                 )
             ).text.substringAfterLast("-1156")
                     .substringBefore("srvq}w")
-        val pre = "-1156"
-        val suf = "srvq}w"
-        val video =  "$pre$sources$suf"
+//        val pre = "-1156"
+//        val suf = "srvq}w"
+        val video =  "-1156" + "$sources" + "srvq}w"
         val link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
