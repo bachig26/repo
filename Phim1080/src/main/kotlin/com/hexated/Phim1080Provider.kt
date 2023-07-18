@@ -197,7 +197,7 @@ class Phim1080Provider : MainAPI() {
 
         val Id = document.select("div.container")?.attr("data-id")?.trim()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()
-        val sources = app.get(
+        val doc = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
@@ -206,8 +206,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Video>()
-        val aaa = sources?.hls
-        val link = encodeString(aaa as String, 69)
+        val link = encodeString(doc?.sources?.hls as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
