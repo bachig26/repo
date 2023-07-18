@@ -61,7 +61,7 @@ class Phim1080Provider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = Regex("/\d+/").find(temp)?.groupValues?.map { num ->
+            val episode = Regex("[0-9]+/").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("/"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
