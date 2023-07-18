@@ -71,7 +71,7 @@ class Phim1080Provider : MainAPI() {
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
-        return if (temp.contains("tập")) {
+        return if (temp.contains("/")) {
 //            val episode = Regex("((\\d+)\\()|((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
 //                num.replace(Regex("\\(|\\s"), "")
 //            }?.distinct()?.firstOrNull()?.toIntOrNull()
@@ -110,10 +110,10 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            )
+            ).text.toByteArray(Charsets.UTF_8)
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val poster = filmInfo.text.substringAfter("poster\":\"").substringBefore("\",")
-        val background = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
+        val poster = filmInfosubstringAfter("poster\":\"").substringBefore("\",")
+        val background = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
@@ -127,8 +127,8 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
-        val trailerCode = filmInfo.text.substringAfter("id\":\"").substringBefore("\",")
+            ).text.toByteArray(Charsets.UTF_8)
+        val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult()
