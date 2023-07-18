@@ -115,13 +115,7 @@ class Phim1080Provider : MainAPI() {
     )    
     
     override suspend fun load( url: String ): LoadResponse {
-        val document = app.get(
-            url,
-            headers = mapOf(
-                "Sec-Ch-Ua-Mobile" to "?1",
-                "Sec-Ch-Ua-Platform" to "Android"
-            ),
-        ).document
+        val document = app.get(url).document
         val Id = document.select("div.container")?.attr("data-id")?.trim()
         val filmInfo =  app.get(
             "$mainUrl/api/v2/films/$Id",
@@ -153,18 +147,18 @@ class Phim1080Provider : MainAPI() {
                         "Content-Type" to "application/json",
                         "X-Requested-With" to "XMLHttpRequest",
                     )
-                ).text
-            val episodes = document.select("div.episode-list").map {
-                val href = it.select("a").attr("href")
-                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
-                val name = "$episode"
-                Episode(
-                    data = href,
-                    name = name,
-                    episode = episode,
+                ).parsedSafe<Season>()
+            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
+            epInfo.data.forEachIndexed { index, episode ->
+                listEp.addAll(episode.map { serverData ->
+                    com.lagradost.cloudstream3.Episode(
+                        data = serverData.link,
+                        name = serverData.name,
+                    )
+                }
                 )
             }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, listEp) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
