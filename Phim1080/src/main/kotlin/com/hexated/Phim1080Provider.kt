@@ -99,7 +99,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.toJson()
+        val title = filmInfo.document
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val poster = fixUrl(filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\","))
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -180,7 +180,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfter("hls\": \"")
+            ).text.substringAfter(":{\"hls\":\"")
                     .substringBefore("\"},")
         val link = encodeString(sources as String, 69)
             safeApiCall {
