@@ -96,6 +96,10 @@ class Phim1080Provider : MainAPI() {
         }
     }
     
+    data class Info(
+        @JsonProperty("name") val name: String? = null,
+    )
+    
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
         val Id = document.select("div.container")?.attr("data-id")?.trim()
@@ -106,17 +110,17 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
+            )
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
-        val background = filmInfo.substringAfter("poster\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
+        val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
+        val background = filmInfo.text.substringAfter("poster\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
 //        val description = document.select("div.film-info-description").text().trim()
-        val description =  Jsoup.parse(filmInfo).toString()
+        val description =  filmInfo.parsedSafe<Info>()?.name
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
