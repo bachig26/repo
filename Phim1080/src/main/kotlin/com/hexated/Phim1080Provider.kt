@@ -148,14 +148,14 @@ class Phim1080Provider : MainAPI() {
                         "X-Requested-With" to "XMLHttpRequest",
                     )
                 ).parsedSafe<Season>()
-            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
-            epInfo?.eps.forEachIndexed { index, episode ->
-                    com.lagradost.cloudstream3.Episode(
+//            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
+//            epInfo?.eps.forEachIndexed { index, episode ->
+//                    com.lagradost.cloudstream3.Episode(
 //                        data = episode?.link,
-                        name = episode?.name,
-                    )
-                }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, listEp) {
+//                        name = episode?.name,
+//                    )
+//            }
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, url) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
