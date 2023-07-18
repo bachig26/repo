@@ -97,7 +97,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).toJson.substringAfter("film_name: \"")
+            ).toJson().substringAfter("film_name: \"")
                     .substringBefore("\"").text().trim().toString()
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
