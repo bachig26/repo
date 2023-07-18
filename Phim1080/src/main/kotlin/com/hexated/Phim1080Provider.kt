@@ -75,8 +75,8 @@ class Phim1080Provider : MainAPI() {
 //            val episode = Regex("((\\d+)\\()|((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
 //                num.replace(Regex("\\(|\\s"), "")
 //            }?.distinct()?.firstOrNull()?.toIntOrNull()
-            val episode = Regex("((\\d+)\\()").find(temp)?.groupValues?.map { num ->
-                num.replace(Regex("\\("), "")
+            val episode = Regex("((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
+                num.replace(Regex("\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
@@ -103,8 +103,8 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
         val Id = document.select("div.container")?.attr("data-id")?.trim()
-        val filmInfo = app.get(
-            "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+        val filmInfo =  app.get(
+            "$mainUrl/api/v2/films/$Id",
             referer = url,
             headers = mapOf(
                     "Content-Type" to "application/json",
@@ -112,7 +112,8 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
+        val poster = filmInfo.text.substringAfter("poster\":\"").substringBefore("\",")
+        val background = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
@@ -127,14 +128,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).text
-        val trailerCode = app.get(
-            "$mainUrl/api/v2/films/$Id/trailer",
-            referer = url,
-            headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "X-Requested-With" to "XMLHttpRequest"
-                )
-            ).text.substringAfter("id\":\"").substringBefore("\",")
+        val trailerCode = filmInfo.text.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult()
@@ -153,6 +147,7 @@ class Phim1080Provider : MainAPI() {
             }
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
+                this.backgroundPosterUrl = background
                 this.year = year
                 this.plot = description
                 this.tags = tags
