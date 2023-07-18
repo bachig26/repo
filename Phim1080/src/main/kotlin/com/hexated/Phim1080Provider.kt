@@ -116,7 +116,7 @@ class Phim1080Provider : MainAPI() {
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
 //        val description = document.select("div.film-info-description").text().trim()
-        val description =  Jsoup.parse(filmInfo).select("name").toString()
+        val description =  Jsoup.parse(filmInfo).toString()
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
