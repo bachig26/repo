@@ -102,11 +102,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             )
-//        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.parsedSafe<filmInfo>()?.fdata.toString()
-//        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val slug = filmInfo.text.substringAfter("link\":\"").substringBefore("\",")
-//        val link = "$mainUrl/$slug"
+        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -193,9 +189,9 @@ class Phim1080Provider : MainAPI() {
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            sources,
+                            link,
                             "Phim1080",
-                            sources,
+                            link,
                             referer = "$mainUrl/",
                             quality = Qualities.Unknown.value,
                             isM3u8 = true,
