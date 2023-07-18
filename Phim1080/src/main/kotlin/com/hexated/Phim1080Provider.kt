@@ -206,8 +206,8 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Video>()
-        val hls = sources?.hls
-        val link = encodeString(hls as String, 69)
+        val aaa = sources?.hls
+        val link = encodeString(aaa as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
@@ -224,11 +224,11 @@ class Phim1080Provider : MainAPI() {
         }
     
     data class Video(
-        @JsonProperty("sources") val sources: Link? = null,
+        @JsonProperty("sources") val sources: Server? = null,
         @JsonProperty("subtitle") val subtitle: SubInfo? = null,
     )
     
-    data class Link(
+    data class Server(
         @JsonProperty("hls") val hls: String? = null,
     )    
     
