@@ -61,8 +61,8 @@ class Phim1080Provider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = Regex("(\\d+)/").find(temp)?.groupValues?.map { num ->
-                num.replace(Regex("/"), "")
+            val episode = Regex("((\\d+)\\()|((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
+                num.replace(Regex("\\(|\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
@@ -116,7 +116,7 @@ class Phim1080Provider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-            val episodes = document.select("div.episode-list a").map {
+            val episodes = document.select("div.episode-list").map {
                 val href = it.select("a").attr("href")
                 val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
                 val name = "$episode"
@@ -174,14 +174,14 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("hls")
-        var link = encodeString(video as String, 69)
+            ).document.select("sources.hls")
+        val link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            link,
+                            video,
                             "Phim1080",
-                            link,
+                            video,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
