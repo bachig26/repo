@@ -97,11 +97,11 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document
+            ).text
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val title = filmInfo.substringAfter("film_name\":\"").substringBefore("\",")
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
+        val poster = fixUrl(filmInfo.substringAfter("thumbnail\":\"").substringBefore("\","))
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
