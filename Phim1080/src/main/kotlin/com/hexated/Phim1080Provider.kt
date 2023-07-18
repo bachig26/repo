@@ -90,17 +90,18 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
-        val title = app.get(
+        val filmInfo = app.get(
             "$mainUrl/api/v2/films/$Id/episodes?sort=name",
             referer = url,
             headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).toJson().substringAfter("film_name")
-                    .substringBefore("name").trim().toString()
+            ).document
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
+        val title = filmInfo.substringAfter("film_name\":\"").substringBefore("\",")
+//        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
+        val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
