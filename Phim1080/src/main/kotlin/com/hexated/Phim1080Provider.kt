@@ -90,8 +90,6 @@ class Phim1080Provider : MainAPI() {
         }
     }
     
-    private fun encode(input: String): String? = java.net.URLEncoder.encode(input, "utf-8")
-    
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
         val Id = document.select("div.container")?.attr("data-id")?.trim()
@@ -104,7 +102,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = encode(filmInfo.text.substringAfter("film_name\":\"").substringBefore("\","))?.trim().toString()
+        val title = decode(filmInfo.text.substringAfter("film_name\":\"").substringBefore("\","))?.trim().toString()
         val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -165,6 +163,10 @@ class Phim1080Provider : MainAPI() {
         }
         return a
     }
+    
+    private fun encode(input: String): String? = java.net.URLEncoder.encode(input, "utf-8")
+    
+    private fun decode(input: String): String? = java.net.URLEncoder.decode(input, "utf-8")
     
     override suspend fun loadLinks(
         data: String,
