@@ -86,6 +86,10 @@ class Phim1080Provider : MainAPI() {
             it.toSearchResult()
         }
     }
+    
+    data class filmInfo(
+        @JsonProperty("film_name") val name: String?,
+    )
 
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
@@ -99,8 +103,10 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.document.toString()
+        val title = filmInfo.parsedSafe<filmInfo>()?.name
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
+        val slug = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
+        val link = "$mainUrl/$slug"
         val poster = fixUrl(filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\","))
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -141,7 +147,7 @@ class Phim1080Provider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, url) {
+            newMovieLoadResponse(title, url, TvType.Movie, link) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
@@ -163,7 +169,7 @@ class Phim1080Provider : MainAPI() {
     }
     
     override suspend fun loadLinks(
-        url: String,
+        data: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
@@ -175,7 +181,7 @@ class Phim1080Provider : MainAPI() {
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = url,
+                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
@@ -186,9 +192,9 @@ class Phim1080Provider : MainAPI() {
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            link,
+                            sources,
                             "Phim1080",
-                            link,
+                            sources,
                             referer = "$mainUrl/",
                             quality = Qualities.Unknown.value,
                             isM3u8 = true,
