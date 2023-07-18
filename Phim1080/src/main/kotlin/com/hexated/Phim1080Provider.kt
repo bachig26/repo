@@ -126,7 +126,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            )Jsoup.parse()
+            ).text
         val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
             referer = url,
