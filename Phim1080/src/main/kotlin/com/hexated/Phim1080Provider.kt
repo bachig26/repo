@@ -25,6 +25,8 @@ class Phim1080Provider : MainAPI() {
         TvType.AsianDrama
     )
     
+    private fun decode(input: String): String? = URLDecoder.decode(input, "utf-8")
+
     private fun encodeString(e: String, t: Int): String {
         var a = ""
         for (i in 0 until e.length) {
@@ -112,22 +114,22 @@ class Phim1080Provider : MainAPI() {
                 )
             ).text.replace(Regex("\\\\"), "/")
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val poster = filmInfo.substringAfter("poster\":\"").substringBefore("\",")
-        val background = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
+        val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
+        val background = filmInfo.substringAfter("poster\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
 //        val description = document.select("div.film-info-description").text().trim()
-        val description =  app.get(
+        val description =  decode(app.get(
             "$mainUrl/api/v2/films/$Id",
             referer = url,
             headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.toByteArray(Charsets.UTF_8).toString()
+            ).text)
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
@@ -151,16 +153,17 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                addTrailer(trailer)
+//                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         } else {
             newMovieLoadResponse(title, url, TvType.Movie, url) {
                 this.posterUrl = poster
+                this.backgroundPosterUrl = background
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                addTrailer(trailer)
+//                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         }
