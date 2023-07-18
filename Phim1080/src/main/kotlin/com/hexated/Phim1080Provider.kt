@@ -155,8 +155,6 @@ class Phim1080Provider : MainAPI() {
                         name = episode?.name,
                     )
                 }
-                )
-            }
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, listEp) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
