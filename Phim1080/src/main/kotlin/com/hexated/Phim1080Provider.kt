@@ -149,11 +149,10 @@ class Phim1080Provider : MainAPI() {
                     )
                 ).parsedSafe<Season>()
             val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
-            epInfo?.data.forEachIndexed { index, episode ->
-                listEp.addAll(episode.map { serverData ->
+            epInfo?.data?.forEachIndexed { index, episode ->
                     com.lagradost.cloudstream3.Episode(
-                        data = serverData?.link,
-                        name = serverData?.name,
+                        data = episode?.link,
+                        name = episode?.name,
                     )
                 }
                 )
