@@ -98,8 +98,8 @@ class Phim1080Provider : MainAPI() {
     
     data class Info(
         @JsonProperty("name") val name: String? = null,
-        @JsonProperty("poster") val name: String? = null,
-        @JsonProperty("thumbnail") val name: String? = null,
+        @JsonProperty("poster") val poster: String? = null,
+        @JsonProperty("thumbnail") val thumbnail: String? = null,
     )
     
     override suspend fun load( url: String ): LoadResponse {
