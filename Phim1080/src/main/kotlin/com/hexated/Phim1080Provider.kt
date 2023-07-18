@@ -26,7 +26,7 @@ class Phim1080Provider : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
-        "$mainUrl/tap-moi-nhat?page=" to "Mới Cập Nhật",
+//        "$mainUrl/tap-moi-nhat?page=" to "Mới Cập Nhật",
         "$mainUrl/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
         "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
         "$mainUrl/phim-bo?page=" to "Phim Bộ",
@@ -59,9 +59,10 @@ class Phim1080Provider : MainAPI() {
             ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
+        val hd = this.select("div.tray-item-quality").text()
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = Regex("[0-9]+/").find(temp)?.groupValues?.map { num ->
+            val episode = Regex("\\d+/").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("/"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
@@ -69,7 +70,7 @@ class Phim1080Provider : MainAPI() {
                 addSub(episode)
             }
         } else {
-            val quality = this.select("div.tray-item-quality").text().trim()
+            val quality = hd.replace("FHD", "HD").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
@@ -172,6 +173,7 @@ class Phim1080Provider : MainAPI() {
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
+                    "cookie" to "xem1080=%3D"
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources.hls")
