@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.Jsoup
+import java.io.ByteArrayOutputStream
 
 class Phim1080Provider : MainAPI() {
     override var mainUrl = "https://xem1080.com"
@@ -35,7 +36,7 @@ class Phim1080Provider : MainAPI() {
     }
 
     private fun decode(e: String): String {
-          val a = e.toByteBuffer(Charsets.UTF_8)
+          val a = e.toByteArray(Charsets.UTF_8)
           val decoded = Charsets.UTF_8.decode(a).toString()
       return decoded
     }
