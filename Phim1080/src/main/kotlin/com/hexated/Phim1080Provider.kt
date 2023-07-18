@@ -23,6 +23,20 @@ class Phim1080Provider : MainAPI() {
         TvType.Anime,
         TvType.AsianDrama
     )
+    
+    private fun encodeString(e: String, t: Int): String {
+        var a = ""
+        for (i in 0 until e.length) {
+            val r = e[i].toInt()
+            val o = r xor t
+            a += o.toChar()
+        }
+        return a
+    }
+    
+    private fun encode(input: String): String? = java.net.URLEncoder.encode(input, "utf-8")
+    
+    private fun decode(input: String): String? = java.net.URLDecoder.decode(input, "utf-8")
 
     override val mainPage = mainPageOf(
         "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
@@ -153,20 +167,6 @@ class Phim1080Provider : MainAPI() {
             }
         }
     }
-    
-    private fun encodeString(e: String, t: Int): String {
-        var a = ""
-        for (i in 0 until e.length) {
-            val r = e[i].toInt()
-            val o = r xor t
-            a += o.toChar()
-        }
-        return a
-    }
-    
-    private fun encode(input: String): String? = java.net.URLEncoder.encode(input, "utf-8")
-    
-    private fun decode(input: String): String? = java.net.URLEncoder.decode(input, "utf-8")
     
     override suspend fun loadLinks(
         data: String,
