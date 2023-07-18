@@ -88,12 +88,12 @@ class Phim1080Provider : MainAPI() {
     }
     
     data class filmInfo(
-        @JsonProperty("film_name") val name: String?,
+        @JsonProperty("data") val fdata: String?,
     )
 
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
-        val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
+        val Id = document.select("div.container")?.attr("data-id")?.trim()
         val filmInfo = app.get(
             "$mainUrl/api/v2/films/$Id/episodes?sort=name",
             referer = url,
@@ -103,7 +103,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.parsedSafe<filmInfo>()?.name?.trim().toString()
+        val title = filmInfo.parsedSafe<filmInfo>()?.fdata.select("film_name")?.trim().toString()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val slug = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
         val link = "$mainUrl/$slug"
@@ -177,16 +177,17 @@ class Phim1080Provider : MainAPI() {
 
         val document = app.get(data).document
 
-        val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
-        val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
+        val Id = document.select("div.container")?.attr("data-id")?.trim()
+        val epId = document.select("div.container")?.attr("data-episode-id")?.trim()
         val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = data,
+                referer = link,
                 headers = mapOf(
                     "Content-Type" to "application/json",
+                    "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfter(":{\"hls\":\"")
+            ).text.substringAfter("hls\":\"")
                     .substringBefore("\"},")
         val link = encodeString(sources as String, 69)
             safeApiCall {
