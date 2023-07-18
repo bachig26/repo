@@ -61,13 +61,15 @@ class Phim1080Provider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = temp.substringBefore("/")?.toIntOrNull()
+            val episode = Regex("/\d+/").find(temp)?.groupValues?.map { num ->
+                num.replace(Regex("/"), "")
+            }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
         } else {
-            val quality = this.select("div.tray-item-quality").text().replace("FHD", "HD").trim().toString()
+            val quality = this.select("div.tray-item-quality").text().trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
