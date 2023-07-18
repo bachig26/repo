@@ -33,10 +33,6 @@ class Phim1080Provider : MainAPI() {
         }
         return a
     }
-    
-    private fun encode(input: String): String? = java.net.URLEncoder.encode(input, "utf-8")
-    
-    private fun decode(input: String): String? = java.net.URLDecoder.decode(input, "utf-8")
 
     override val mainPage = mainPageOf(
         "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
@@ -116,7 +112,14 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = decode(filmInfo.text.substringAfter("film_name\":\"").substringBefore("\","))?.trim().toString()
+        val title =  app.get(
+            "$mainUrl/api/v2/films/$Id",
+            referer = url,
+            headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-Requested-With" to "XMLHttpRequest"
+                )
+            ).text
         val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
