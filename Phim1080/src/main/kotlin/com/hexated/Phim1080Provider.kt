@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.Jsoup
-import kotlin.text.Charsets
 
 class Phim1080Provider : MainAPI() {
     override var mainUrl = "https://xem1080.com"
@@ -25,12 +24,6 @@ class Phim1080Provider : MainAPI() {
         TvType.AsianDrama
     )
     
-    private fun decodeUtf8(input: String): String {
-        val bytes = input.toByteArray()
-        val decodedString = String(bytes, Charsets.UTF_8)
-        return decodedString
-    }
-
     private fun encodeString(e: String, t: Int): String {
         var a = ""
         for (i in 0 until e.length) {
@@ -113,24 +106,17 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.replace(Regex("\\\\"), "")
+            ).text
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
-        val background = filmInfo.substringAfter("poster\":\"").substringBefore("\",")
+        val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
+        val background = filmInfo.substringAfter("poster\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
-        val description = document.select("div.film-info-description").text().trim()
-//        val description =  decodeUtf8(app.get(
-//            "$mainUrl/api/v2/films/$Id",
-//            referer = url,
-//            headers = mapOf(
-//                    "Content-Type" to "application/json",
-//                    "X-Requested-With" to "XMLHttpRequest"
-//                )
-//            ).text).replace(Regex("\\\\"), "")
+//        val description = document.select("div.film-info-description").text().trim()
+        val description =  Jsoup.parse(filmInfo).select("name")
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
