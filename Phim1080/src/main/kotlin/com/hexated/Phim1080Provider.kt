@@ -105,9 +105,9 @@ class Phim1080Provider : MainAPI() {
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val slug = filmInfo.parsedSafe<filmInfo>()?.fdata?.trim().toString()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val title = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
+        val title = filmInfo.text.substringAfter("link\":\"").substringBefore("\",").replace(Regex("\\", "")
         val link = "$mainUrl/$slug"
-        val poster = fixUrl(filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\","))
+        val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
@@ -184,7 +184,6 @@ class Phim1080Provider : MainAPI() {
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).text.substringAfter("hls\":\"")
