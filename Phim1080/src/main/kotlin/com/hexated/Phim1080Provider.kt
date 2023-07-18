@@ -132,8 +132,8 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).toString()
-        val trailerCode = filmInfo.text.substringAfter("id\":\"").substringBefore("\",")
+            ).text
+        val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult()
@@ -156,7 +156,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-//                addTrailer(trailer)
+                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         } else {
@@ -166,7 +166,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-//                addTrailer(trailer)
+                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         }
