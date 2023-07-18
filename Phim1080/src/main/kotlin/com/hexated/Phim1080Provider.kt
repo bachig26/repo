@@ -99,7 +99,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.toJson()
+        val title = filmInfo.document
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val poster = fixUrl(filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\","))
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -163,35 +163,34 @@ class Phim1080Provider : MainAPI() {
     }
     
     override suspend fun loadLinks(
-        data: String,
+        url: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
 
-        val document = app.get(data).document
+        val document = app.get(url).document
 
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = data,
+                referer = url,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfter("-1156")
-                    .substringBefore("srvq}w")
-        val video =  "-1156" + "$sources" + "srvq}w"
-        val link = encodeString(video as String, 69)
+            ).text.substringAfter(":{\"hls\":\"")
+                    .substringBefore("\"},")
+        val link = encodeString(sources as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            video,
+                            link,
                             "Phim1080",
-                            video,
+                            link,
                             referer = "$mainUrl/",
-                            quality = Qualities.P1080.value,
+                            quality = Qualities.Unknown.value,
                             isM3u8 = true,
                         )
                     )
