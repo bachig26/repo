@@ -219,7 +219,7 @@ class Phim1080Provider : MainAPI() {
     
     data class Episode(
         @JsonProperty("detail_name") val name: String? = null,
-        @JsonProperty("link") val link: String? = null,
+        @JsonProperty("link") val link: String,
     )    
     
     data class Video(
