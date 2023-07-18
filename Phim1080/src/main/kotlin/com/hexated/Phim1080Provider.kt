@@ -169,15 +169,13 @@ class Phim1080Provider : MainAPI() {
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = data,
+                referer = url,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfterLast("-1156")
+            ).text.substringAfter("-1156")
                     .substringBefore("srvq}w")
-//        val pre = "-1156"
-//        val suf = "srvq}w"
         val video =  "-1156" + "$sources" + "srvq}w"
         val link = encodeString(video as String, 69)
             safeApiCall {
