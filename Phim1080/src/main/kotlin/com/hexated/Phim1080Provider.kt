@@ -155,7 +155,17 @@ class Phim1080Provider : MainAPI() {
 //                        name = episode?.name,
 //                    )
 //            }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, url) {
+            val episodes = document.select("div.episode-list").map {
+                val href = it.select("a").attr("href")
+                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
+                val name = "$episode"
+                Episode(
+                    data = href,
+                    name = name,
+                    episode = episode,
+                )
+            }
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
