@@ -32,8 +32,8 @@ class Phim1080Provider : MainAPI() {
         "$mainUrl/phim-bo?page=" to "Phim Bộ",
         "$mainUrl/phim-le?page=" to "Phim Lẻ",
         "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
-        "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
         "$mainUrl/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
+        "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
 
     override suspend fun getMainPage(
@@ -97,8 +97,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfter("film_name:")
-                    .substringBefore("full_name").trim().toString()
+            ).document.select("film_name").text().trim().toString()
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -109,8 +108,13 @@ class Phim1080Provider : MainAPI() {
         val description = document.select("div.film-info-description").text().trim()
         val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
-            referer = url
-        ).document.select("id")
+            referer = url,
+            headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-Requested-With" to "XMLHttpRequest"
+                )
+            ).text.substringAfter("id\":\"")
+                    .substringBefore("\",")
         
 //        val trailer = app.post(
 //            "$mainUrl/engine/ajax/gettrailervideo.php",
@@ -191,9 +195,9 @@ class Phim1080Provider : MainAPI() {
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            link,
+                            video,
                             "Phim1080",
-                            link,
+                            video,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
