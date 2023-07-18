@@ -173,7 +173,7 @@ class Phim1080Provider : MainAPI() {
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "cookie" to "xem1080=%3D"
+                    "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).document.select("sources.hls")
