@@ -151,7 +151,7 @@ class Phim1080Provider : MainAPI() {
             val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
             epInfo?.data?.forEachIndexed { index, episode ->
                     com.lagradost.cloudstream3.Episode(
-                        data = episode?.link,
+//                        data = episode?.link,
                         name = episode?.name,
                     )
                 }
