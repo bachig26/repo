@@ -103,7 +103,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.parsedSafe<filmInfo>()?.name
+        val title = filmInfo.parsedSafe<filmInfo>()?.name?.trim().toString()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val slug = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
         val link = "$mainUrl/$slug"
@@ -175,7 +175,7 @@ class Phim1080Provider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
 
-        val document = app.get(url).document
+        val document = app.get(data).document
 
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
