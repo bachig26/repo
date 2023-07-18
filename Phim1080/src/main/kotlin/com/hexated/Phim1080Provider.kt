@@ -35,7 +35,7 @@ class Phim1080Provider : MainAPI() {
     }
 
     private fun decode(e: String): String {
-          val a = e.toByteArray(Charsets.UTF_8)
+          val a = e.toByteBuffer(Charsets.UTF_8)
           val decoded = Charsets.UTF_8.decode(a).toString()
       return decoded
     }
