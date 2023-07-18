@@ -33,6 +33,7 @@ class Phim1080Provider : MainAPI() {
         "$mainUrl/phim-le?page=" to "Phim Lẻ",
         "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
         "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
+        "$mainUrl/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
     )
 
     override suspend fun getMainPage(
@@ -89,7 +90,16 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
-        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
+        val title = app.get(
+            "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+            referer = url,
+            headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "X-Requested-With" to "XMLHttpRequest"
+                )
+            ).text.substringAfter("film_name:")
+                    .substringBefore("full_name").trim().toString()
+//        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -169,7 +179,7 @@ class Phim1080Provider : MainAPI() {
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
         val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = url,
+                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
