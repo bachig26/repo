@@ -103,10 +103,10 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val slug = filmInfo.parsedSafe<filmInfo>()?.fdata?.trim().toString()
+        val title = filmInfo.parsedSafe<filmInfo>()?.fdata.toString()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val title = filmInfo.text.substringAfter("link\":\"").substringBefore("\",").replace(Regex("\\", "")
-        val link = "$mainUrl/$slug"
+        val slug = filmInfo.text.substringAfter("link\":\"").substringBefore("\",")
+//        val link = "$mainUrl/$slug"
         val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",")
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
@@ -147,7 +147,7 @@ class Phim1080Provider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, link) {
+            newMovieLoadResponse(title, url, TvType.Movie, url) {
                 this.posterUrl = poster
                 this.year = year
                 this.plot = description
@@ -184,6 +184,7 @@ class Phim1080Provider : MainAPI() {
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
+                    "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).text.substringAfter("hls\":\"")
