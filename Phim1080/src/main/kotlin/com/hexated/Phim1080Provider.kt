@@ -110,7 +110,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
+            ).text.replace(Regex("\\\\"), "/")
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = filmInfo.substringAfter("poster\":\"").substringBefore("\",")
         val background = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
@@ -127,7 +127,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.toByteArray(Charsets.UTF_8)
+            ).text.toByteArray(Charsets.UTF_8).toString()
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
