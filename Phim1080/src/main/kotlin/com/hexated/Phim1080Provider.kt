@@ -113,7 +113,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Info>()
-        val title = filmInfo?.name
+        val title = filmInfo?.name.toString()
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
 //        val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
         val poster = filmInfo?.thumbnail
@@ -132,7 +132,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
+            ).toString()
         val trailerCode = filmInfo.text.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
@@ -156,7 +156,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                addTrailer(trailer)
+//                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         } else {
@@ -166,7 +166,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
-                addTrailer(trailer)
+//                addTrailer(trailer)
                 this.recommendations = recommendations
             }
         }
@@ -209,7 +209,3 @@ class Phim1080Provider : MainAPI() {
             return true
         }
 }
-// https://Phim1080.in/api/v2/films/21975/episodes/303806 - api link m3u8
-// https://Phim1080.in/api/v2/films/21975/episodes?sort=name - api tập phim
-// $mainUrl/api/v2/films/$Id/trailer - api trailer
-// https://s198.imacdn.com/ff/2023/07/11/28055bb4c0e59e7c_d7a07589b2d87354_2662141689057850316068.jpg - api ảnh
