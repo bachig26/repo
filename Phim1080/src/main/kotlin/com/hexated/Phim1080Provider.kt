@@ -103,9 +103,9 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.parsedSafe<filmInfo>()?.fdata.select("film_name")?.trim().toString()
+        val slug = filmInfo.parsedSafe<filmInfo>()?.fdata.select("film_name")?.trim().toString()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val slug = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
+        val title = fixUrl(filmInfo.text.substringAfter("link\":\"").substringBefore("\","))
         val link = "$mainUrl/$slug"
         val poster = fixUrl(filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\","))
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -181,7 +181,7 @@ class Phim1080Provider : MainAPI() {
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()
         val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
-                referer = link,
+                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "cookie" to "xem1080=%3D",
