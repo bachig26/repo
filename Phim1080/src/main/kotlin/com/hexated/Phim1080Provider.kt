@@ -167,21 +167,23 @@ class Phim1080Provider : MainAPI() {
 
         val Id = document.select("div.container")?.attr("data-id")?.trim()?.toIntOrNull()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()?.toIntOrNull()
-        val video = app.get(
+        val sources = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources.hls")
+            ).text.substringAfterLast("-1156")
+                    .substringBefore("srvq}w")
+        val video = "-1156$sourcessrvq}w"
         val link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            video,
+                            link,
                             "Phim1080",
-                            video,
+                            link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
                             isM3u8 = true,
