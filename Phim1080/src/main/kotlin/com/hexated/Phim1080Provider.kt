@@ -97,16 +97,16 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text
+            )
 //        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
-        val title = filmInfo.substringAfter("film_name\":\"").substringBefore("\",")
+        val title = filmInfo.toJson()
 //        val poster = document.selectFirst("div.film-thumbnail img")?.attr("src")
-        val poster = fixUrl(filmInfo.substringAfter("thumbnail\":\"").substringBefore("\","))
+        val poster = fixUrl(filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\","))
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = document.select("div.film-content div.film-info-genre:nth-child(2)")?.text()
             ?.substringAfter("Năm phát hành:")?.trim()?.toIntOrNull()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
-        ) TvType.TvSeries else TvType.Movie
+                        ) TvType.TvSeries else TvType.Movie
         val description = document.select("div.film-info-description").text().trim()
         val trailerCode = app.get(
             "$mainUrl/api/v2/films/$Id/trailer",
@@ -115,17 +115,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfter("id\":\"")
-                    .substringBefore("\",")
-        
-//        val trailer = app.post(
-//            "$mainUrl/engine/ajax/gettrailervideo.php",
-//            data = mapOf("id" to id),
-//            referer = url
-//        ).parsedSafe<Trailer>()?.code.let {
-//            Jsoup.parse(it.toString()).select("iframe").attr("src")
-//        }
-        
+            ).text.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
             it.toSearchResult()
