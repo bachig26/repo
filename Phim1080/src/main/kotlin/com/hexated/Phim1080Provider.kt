@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.Jsoup
-import java.io.ByteArrayOutputStream
+import kotlin.text.Charsets
 
 class Phim1080Provider : MainAPI() {
     override var mainUrl = "https://xem1080.com"
@@ -78,9 +78,6 @@ class Phim1080Provider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("/")) {
-//            val episode = Regex("((\\d+)\\()|((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
-//                num.replace(Regex("\\(|\\s"), "")
-//            }?.distinct()?.firstOrNull()?.toIntOrNull()
             val episode = Regex("((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
@@ -116,7 +113,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.replace(Regex("\\\\"), "/")
+            ).text.replace(Regex("\\\\"), "")
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
         val background = filmInfo.substringAfter("poster\":\"").substringBefore("\",")
@@ -133,7 +130,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text).replace(Regex("\\\\"), "/")
+            ).text).replace(Regex("\\\\"), "")
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
