@@ -34,6 +34,12 @@ class Phim1080Provider : MainAPI() {
         return a
     }
 
+    private fun decode(e: String): String {
+          val a = e.toByteArray(Charsets.UTF_8)
+          val decoded = Charsets.UTF_8.decode(a).toString()
+      return decoded
+    }
+
     override val mainPage = mainPageOf(
         "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
 //        "$mainUrl/tap-moi-nhat?page=" to "Mới Cập Nhật",
@@ -110,7 +116,7 @@ class Phim1080Provider : MainAPI() {
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.replace(RegExp("\\\\/|/\\\\", "g"), "/")
+            ).text
         val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
         val poster = filmInfo.substringAfter("poster\":\"").substringBefore("\",")
         val background = filmInfo.substringAfter("thumbnail\":\"").substringBefore("\",")
@@ -120,14 +126,14 @@ class Phim1080Provider : MainAPI() {
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
 //        val description = document.select("div.film-info-description").text().trim()
-        val description =  app.get(
+        val description =  decode(app.get(
             "$mainUrl/api/v2/films/$Id",
             referer = url,
             headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.replace(RegExp("\\\\/|/\\\\", "g"), "/")
+            ).text)
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
