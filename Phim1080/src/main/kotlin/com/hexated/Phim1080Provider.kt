@@ -102,7 +102,7 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("thumbnail") val thumbnail: String? = null,
         @JsonProperty("upcoming") val description: String? = null,
         @JsonProperty("year") val year: Int? = null,
-        @JsonProperty("time") val year: Int? = null,
+        @JsonProperty("time") val time: Int? = null,
         @JsonProperty("trailer") val trailer: TrailerInfo? = null,
     )
 
@@ -131,7 +131,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<filmInfo>()
-        val title = filmInfo?.name.trim().toString()
+        val title = filmInfo?.name?.trim().toString()
         val poster = filmInfo?.thumbnail
         val background = filmInfo?.poster
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
@@ -149,12 +149,11 @@ class Phim1080Provider : MainAPI() {
             val epInfo =  app.get(
                 "$mainUrl/api/v2/films/$Id/episodes?sort=name",
                 referer = url,
-                data = mapOf( "sort" to "name")
                 headers = mapOf(
                         "Content-Type" to "application/json",
-                        "X-Requested-With" to "XMLHttpRequest"
+                        "X-Requested-With" to "XMLHttpRequest",
                     )
-                )
+                ).text
             val episodes = document.select("div.episode-list").map {
                 val href = it.select("a").attr("href")
                 val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
@@ -207,7 +206,8 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Video>()
-        val link = encodeString(sources?.hls as String, 69)
+        val hls = sources?.hls
+        val link = encodeString(hls as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
