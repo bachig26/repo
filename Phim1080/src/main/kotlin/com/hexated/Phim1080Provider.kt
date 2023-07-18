@@ -59,10 +59,9 @@ class Phim1080Provider : MainAPI() {
             ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
-        val hd = this.select("div.tray-item-quality").text()
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("tập")) {
-            val episode = Regex("\\d+/").find(temp)?.groupValues?.map { num ->
+            val episode = Regex("(\\d+)/").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("/"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
@@ -70,7 +69,7 @@ class Phim1080Provider : MainAPI() {
                 addSub(episode)
             }
         } else {
-            val quality = hd.replace("FHD", "HD").trim()
+            val quality = this.select("span.tray-item-quality").text().replace("FHD", "HD").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
@@ -173,10 +172,9 @@ class Phim1080Provider : MainAPI() {
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
-                    "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).document.select("sources.hls")
+            ).document.select("hls")
         var link = encodeString(video as String, 69)
             safeApiCall {
                     callback.invoke(
