@@ -35,15 +35,8 @@ class Phim1080Provider : MainAPI() {
         return a
     }
 
-    private fun decode(e: String): String {
-          val a = e.toByteArray(Charsets.UTF_8)
-          val decoded = Charsets.UTF_8.decode(a).toString()
-      return decoded
-    }
-
     override val mainPage = mainPageOf(
         "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
-//        "$mainUrl/tap-moi-nhat?page=" to "Mới Cập Nhật",
         "$mainUrl/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
         "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
         "$mainUrl/phim-bo?page=" to "Phim Bộ",
@@ -127,14 +120,14 @@ class Phim1080Provider : MainAPI() {
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
 //        val description = document.select("div.film-info-description").text().trim()
-        val description =  decode(app.get(
+        val description =  app.get(
             "$mainUrl/api/v2/films/$Id",
             referer = url,
             headers = mapOf(
                     "Content-Type" to "application/json",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text)
+            ).text.toByteArray(Charsets.UTF_8)
         val trailerCode = filmInfo.substringAfter("id\":\"").substringBefore("\",")
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
