@@ -113,7 +113,8 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Info>()
-        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
+        val title = filmInfo?.name
+//        val title = document.selectFirst("h1.film-info-title")?.text()?.substringBefore("tập")?.trim().toString()
 //        val poster = filmInfo.text.substringAfter("thumbnail\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
         val poster = filmInfo?.thumbnail
 //        val background = filmInfo.text.substringAfter("poster\":\"").substringBefore("\",").replace(Regex("\\\\"), "")
