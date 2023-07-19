@@ -196,8 +196,8 @@ class Phim1080Provider : MainAPI() {
                     "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).parsedSafe<Video>()
-        val link = encodeString(doc?.sources?.hls as String, 69)
+            ).parsedSafe<Media>()
+        val link = encodeString(doc?.sources?.m3u8?.hls as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
@@ -223,9 +223,13 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("name") val episodeNumber: Int? = null,
     )    
     
-    data class Video(
-        @JsonProperty("sources") val sources: Server? = null,
+    data class Media(
+        @JsonProperty("sources") val sources: Video? = null,
         @JsonProperty("subtitle") val subtitle: SubInfo? = null,
+    )
+    
+    data class Video(
+        @JsonProperty("m3u8") val m3u8: Server? = null,
     )
     
     data class Server(
