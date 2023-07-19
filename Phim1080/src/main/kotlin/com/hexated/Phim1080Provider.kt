@@ -211,6 +211,7 @@ class Phim1080Provider : MainAPI() {
         val subId = doc?.subtitle?.vi
             subtitleCallback.invoke(
                 SubtitleFile(
+                    getLanguage("vi"),
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
@@ -218,7 +219,7 @@ class Phim1080Provider : MainAPI() {
         safeApiCall {
             link,
             subtitleCallback,
-            callback
+            callback,
         }
         return true
     }
