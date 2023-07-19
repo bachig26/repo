@@ -192,7 +192,7 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = true,
                 )
             )
-        val subId = doc.parsedSafe<Media>()?.subtitle?.vi ?: return
+        val subId = doc.parsedSafe<Media>()?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
             subtitleCallback.invoke(
