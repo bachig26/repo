@@ -1,7 +1,6 @@
 package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.google.android.gms.tasks.Tasks
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
@@ -96,7 +95,13 @@ class Phim1080Provider : MainAPI() {
     }
     
     override suspend fun load( url: String ): LoadResponse {
-        val document = app.get(url).mobileDocument()
+        val document = app.get(
+            url,
+            url,
+            headers = mapOf(
+                    "Sec-Ch-Ua-Mobile" to "?1",
+                )
+        ).document
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
             "$mainUrl/api/v2/films/$fId",
