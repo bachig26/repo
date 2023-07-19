@@ -61,10 +61,10 @@ class Phim1080Provider : MainAPI() {
     }
 
     private fun Element.toSearchResult(): SearchResponse {
-        val title1 = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
-        val title2 = this.selectFirst("div.related-item-title")?.text()?.trim().toString()
-        val title = if (this.select("div.tray-item-title").isNotEmpty()
-            ) title1 else title2
+        val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
+//        val title2 = this.selectFirst("div.related-item-title")?.text()?.trim().toString()
+//        val title = if (this.select("div.tray-item-title").isNotEmpty()
+//            ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
@@ -126,7 +126,7 @@ class Phim1080Provider : MainAPI() {
         val comingSoon = document.select("button.direction-trailer").isNotEmpty()
         val trailerCode = filmInfo?.trailer?.original?.id
         val trailer = "https://www.youtube.com/embed/$trailerCode"
-        val recommendations = document.select("div.related-block div.related-item").map {
+        val recommendations = document.select("section.tray.index.related div.tray-content.carousel div.tray-item").map {
             it.toSearchResult()
         }
 
@@ -189,7 +189,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val link = encodeString(source as String, 69)
+        val link = encodeString(source, 69)
             callback.invoke(
                 ExtractorLink(
                     "HS",
