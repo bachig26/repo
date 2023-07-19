@@ -1,18 +1,10 @@
 package com.hexated
 
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.utils.AppUtils.toJson
-import com.lagradost.cloudstream3.utils.AppUtils.parseJson
-import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.jsoup.Jsoup
 
 class Phim1080Provider : MainAPI() {
     override var mainUrl = "https://xem1080.com"
@@ -98,25 +90,6 @@ class Phim1080Provider : MainAPI() {
             it.toSearchResult()
         }
     }
-    
-    data class filmInfo(
-        @JsonProperty("name") val name: String? = null,
-        @JsonProperty("poster") val poster: String? = null,
-        @JsonProperty("thumbnail") val thumbnail: String? = null,
-        @JsonProperty("slug") val slug: String? = null,
-//        @JsonProperty("upcoming") val upcoming: String? = null,
-        @JsonProperty("year") val year: Int? = null,
-//        @JsonProperty("time") val time: Int? = null,
-        @JsonProperty("trailer") val trailer: TrailerInfo? = null,
-    )
-
-    data class TrailerInfo(
-        @JsonProperty("original") val original: TrailerKey? = null,
-    )
-    
-    data class TrailerKey(
-        @JsonProperty("id") val id: String? = null,
-    )
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
@@ -224,33 +197,41 @@ class Phim1080Provider : MainAPI() {
         return true
     }
     
+    data class filmInfo(
+        @JsonProperty("name") val name: String? = null,
+        @JsonProperty("poster") val poster: String? = null,
+        @JsonProperty("thumbnail") val thumbnail: String? = null,
+        @JsonProperty("slug") val slug: String? = null,
+//        @JsonProperty("upcoming") val upcoming: String? = null,
+        @JsonProperty("year") val year: Int? = null,
+//        @JsonProperty("time") val time: Int? = null,
+        @JsonProperty("trailer") val trailer: TrailerInfo? = null,
+    )
+
+    data class TrailerInfo(
+        @JsonProperty("original") val original: TrailerKey? = null,
+    )
+    
+    data class TrailerKey(
+        @JsonProperty("id") val id: String? = null,
+    )
+    
     data class MediaDetailEpisodes(
         @JsonProperty("data") val eps: ArrayList<Episodes>? = arrayListOf(),
     )
     
     data class Episodes(
-        @JsonProperty("detail_name") val detailname: String? = null,
         @JsonProperty("link") val link: String? = null,
+        @JsonProperty("detail_name") val detailname: String? = null,
         @JsonProperty("name") val episodeNumber: Int? = null,
     )    
     
     data class Media(
-        @JsonProperty("sources") val sources: Video? = null,
         @JsonProperty("subtitle") val subtitle: SubInfo? = null,
     )
     
-    data class Video(
-        @JsonProperty("m3u8") val m3u8: Server? = null,
-        @JsonProperty("hls") val hls: String? = null,
-    )
-    
-    data class Server(
-        @JsonProperty("hls") val hls: String? = null,
-    )    
-    
     data class SubInfo(
         @JsonProperty("vi") val vi: String? = null,
-        @JsonProperty("en") val en: String? = null,
     )    
     
 }
