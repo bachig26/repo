@@ -2,9 +2,10 @@ package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.LoadResponse.Companion.addDuration
+import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import org.jsoup.nodes.Element
 
 class Phim1080Provider : MainAPI() {
@@ -110,6 +111,7 @@ class Phim1080Provider : MainAPI() {
         val link = "$mainUrl/$slug"
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
+        var duration = filmInfo?.time
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
         val description =  document.select("div.film-info-description").text().trim()
@@ -150,6 +152,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
+                addDuration(duration)
                 addTrailer(trailer)
                 this.recommendations = recommendations
             }
@@ -205,7 +208,7 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("slug") val slug: String? = null,
 //        @JsonProperty("upcoming") val upcoming: String? = null,
         @JsonProperty("year") val year: Int? = null,
-//        @JsonProperty("time") val time: Int? = null,
+        @JsonProperty("time") val time: String? = null,
         @JsonProperty("trailer") val trailer: TrailerInfo? = null,
     )
 
