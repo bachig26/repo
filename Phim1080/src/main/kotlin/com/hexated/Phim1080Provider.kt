@@ -227,7 +227,7 @@ class Phim1080Provider : MainAPI() {
     ): Boolean {
         
         safeApiCall {
-            invokeKotakAjairSource(
+            invokeSource(
                 link,
                 subtitleCallback,
                 callback
