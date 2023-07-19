@@ -140,14 +140,19 @@ class Phim1080Provider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-//            val epInfo =  app.get(
-//                "$mainUrl/api/v2/films/$Id/episodes?sort=name",
-//                referer = url,
-//                headers = mapOf(
-//                        "Content-Type" to "application/json",
-//                        "X-Requested-With" to "XMLHttpRequest",
-//                    )
-//                ).parsedSafe<Season>()
+            val episodes =  app.get(
+                "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+                referer = url,
+                headers = mapOf(
+                        "Content-Type" to "application/json",
+                        "X-Requested-With" to "XMLHttpRequest",
+                    )
+                ).parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
+                Episode(
+                    data = eps?.link
+                    name = eps?.name
+                    )
+            }
 //            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
 //            epInfo?.eps.forEachIndexed { index, episode ->
 //                    com.lagradost.cloudstream3.Episode(
@@ -155,16 +160,16 @@ class Phim1080Provider : MainAPI() {
 //                        name = episode?.name,
 //                    )
 //            }
-            val episodes = document.select("div.episode-list").map {
-                val href = it.select("a").attr("href")
-                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
-                val name = "$episode"
-                Episode(
-                    data = href,
-                    name = name,
-                    episode = episode,
-                )
-            }
+//            val episodes = document.select("div.episode-list").map {
+//                val href = it.select("a").attr("href")
+//                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
+//                val name = "$episode"
+//                Episode(
+//                    data = href,
+//                    name = name,
+//                    episode = episode,
+//                )
+//            }
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
@@ -223,11 +228,11 @@ class Phim1080Provider : MainAPI() {
             return true
         }
     
-    data class Season(
-        @JsonProperty("data") val eps: Episode? = null,
+    data class MediaDetailEpisodes(
+        @JsonProperty("data") val episodes: ArrayList<Episodes>? = arrayListOf(),
     )
     
-    data class Episode(
+    data class Episodes(
         @JsonProperty("detail_name") val name: String? = null,
         @JsonProperty("link") val link: String? = null,
     )    
