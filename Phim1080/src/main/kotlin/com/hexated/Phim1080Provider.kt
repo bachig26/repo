@@ -96,11 +96,11 @@ class Phim1080Provider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(
-            url,
-            url,
+            url = url,
             headers = mapOf(
-                    "Sec-Ch-Ua-Mobile" to "?1",
-                )
+                "Sec-Ch-Ua-Mobile" to "?1",
+                "Sec-Ch-Ua-Platform" to "\"Android\""
+            )
         ).document
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
