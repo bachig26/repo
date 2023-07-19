@@ -100,8 +100,8 @@ class Phim1080Provider : MainAPI() {
             referer = "$mainUrl/",
             headers = mapOf(
                 "Sec-Ch-Ua-Mobile" to "?1",
-                "Sec-Ch-Ua-Platform" to "\"Android\""
-                "User-Agent" to "Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36 Edg/114.0.0.0"
+                "Sec-Ch-Ua-Platform" to "\"Android\"",
+                "User-Agent" to "Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36 Edg/114.0.0.0",
             )
         ).document
         val fId = document.select("div.container").attr("data-id")
