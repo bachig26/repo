@@ -111,7 +111,8 @@ class Phim1080Provider : MainAPI() {
         val link = "$mainUrl/$slug"
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
-        var duration = filmInfo?.time
+        var duration = document.select("div.film-content div.film-info-genre:nth-child(5)").text()
+            .substringAfter("Thời lượng:").substringBefore("phút").toIntOrNull()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
         val description =  document.select("div.film-info-description").text().trim()
@@ -208,7 +209,7 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("slug") val slug: String? = null,
 //        @JsonProperty("upcoming") val upcoming: String? = null,
         @JsonProperty("year") val year: Int? = null,
-        @JsonProperty("time") val time: String? = null,
+//        @JsonProperty("time") val time: String? = null,
         @JsonProperty("trailer") val trailer: TrailerInfo? = null,
     )
 
