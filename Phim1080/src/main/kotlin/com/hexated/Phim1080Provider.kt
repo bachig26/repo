@@ -153,9 +153,9 @@ class Phim1080Provider : MainAPI() {
                         "Content-Type" to "application/json",
                         "X-Requested-With" to "XMLHttpRequest",
                     )
-                ).parsedSafe<MediaDetailEpisodes>()?.eps?.map { ep ->
+                ).parsedSafe<MediaDetailEpisodes>()?.eps?.apmap { ep ->
                 Episode(
-                    data = fixUrl(ep.link.toString()),
+                    data = fixUrl(ep.link),
                     episode = ep.episodeNumber,
                     name = ep.detailname,
                     )
@@ -216,7 +216,7 @@ class Phim1080Provider : MainAPI() {
         val subId = doc?.subtitle?.vi
             subtitleCallback.invoke(
                 SubtitleFile(
-                    "Tiếng Việt",
+                    "Vietnamese",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
