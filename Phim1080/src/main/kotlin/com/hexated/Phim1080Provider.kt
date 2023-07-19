@@ -190,8 +190,7 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = true,
                 )
             )
-        val subId = doc.parsedSafe<Media>()?.subtitle?.vi
-        if (subId?.isNotEmpty()) {
+        val subId = if (doc.parsedSafe<Media>()?.subtitle?.vi?.isNotEmpty()) {
             subtitleCallback.invoke(
                 SubtitleFile(
                     "Vietnamese",
