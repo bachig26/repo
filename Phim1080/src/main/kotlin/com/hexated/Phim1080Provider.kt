@@ -112,11 +112,11 @@ class Phim1080Provider : MainAPI() {
     
     data class TrailerKey(
         @JsonProperty("id") val id: String? = null,
-    )    
+    )
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
-        val Id = document.select("div.container")?.attr("data-id")?.trim()
+        val Id = document.select("div.container")?.attr("data-id")
         val filmInfo =  app.get(
             "$mainUrl/api/v2/films/$Id",
             referer = url,
@@ -140,14 +140,14 @@ class Phim1080Provider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-            val epInfo =  app.get(
-                "$mainUrl/api/v2/films/$Id/episodes?sort=name",
-                referer = url,
-                headers = mapOf(
-                        "Content-Type" to "application/json",
-                        "X-Requested-With" to "XMLHttpRequest",
-                    )
-                ).parsedSafe<Season>()
+//            val epInfo =  app.get(
+//                "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+//                referer = url,
+//                headers = mapOf(
+//                        "Content-Type" to "application/json",
+//                        "X-Requested-With" to "XMLHttpRequest",
+//                    )
+//                ).parsedSafe<Season>()
 //            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
 //            epInfo?.eps.forEachIndexed { index, episode ->
 //                    com.lagradost.cloudstream3.Episode(
@@ -212,7 +212,7 @@ class Phim1080Provider : MainAPI() {
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            "Phim1080",
+                            "Hls",
                             link,
                             referer = "$mainUrl/",
                             quality = Qualities.Unknown.value,
@@ -224,12 +224,12 @@ class Phim1080Provider : MainAPI() {
         }
     
     data class Season(
-        @JsonProperty("data") val eps: List<Episode>,
+        @JsonProperty("data") val eps: Episode? = null,
     )
     
     data class Episode(
         @JsonProperty("detail_name") val name: String? = null,
-        @JsonProperty("link") val link: String,
+        @JsonProperty("link") val link: String? = null,
     )    
     
     data class Video(
@@ -238,7 +238,7 @@ class Phim1080Provider : MainAPI() {
     )
     
     data class Server(
-        @JsonProperty("hls") val hls: List<String>? = null,
+        @JsonProperty("hls") val hls: String? = null,
     )    
     
     data class SubInfo(
