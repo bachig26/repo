@@ -95,7 +95,7 @@ class Phim1080Provider : MainAPI() {
     }
     
     override suspend fun load( url: String ): LoadResponse {
-        val document = app.get(url).document
+        val document = app.get(url).mobileDocument()
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
             "$mainUrl/api/v2/films/$fId",
