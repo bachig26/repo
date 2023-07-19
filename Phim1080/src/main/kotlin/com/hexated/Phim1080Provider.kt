@@ -229,7 +229,6 @@ class Phim1080Provider : MainAPI() {
         safeApiCall {
             invokeSource(
                 link,
-                data,
                 subtitleCallback,
                 callback
             )
