@@ -1,6 +1,7 @@
 package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.google.android.gms.tasks.Tasks
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
