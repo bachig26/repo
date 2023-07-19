@@ -180,47 +180,59 @@ class Phim1080Provider : MainAPI() {
         }
     }
     
-    override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
-    ): Boolean {
+    private suspend fun invokeSource(
+        url: String,
+        subCallback: (SubtitleFile) -> Unit,
+        sourceCallback: (ExtractorLink) -> Unit
+    ) {
 
-        val document = app.get(data).document
-
+        val document = app.get(url).document
         val fId = document.select("div.container").attr("data-id")
         val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
                 "$mainUrl/api/v2/films/$fId/episodes/$epId",
-                referer = data,
+                referer = url,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Media>()
+        
         val link = encodeString(doc?.sources?.hls as String, 69)
-            callback.invoke(
+            sourceCallback.invoke(
                 ExtractorLink(
                     name,
                     "HS",
                     link,
-                    referer = "$mainUrl/",
+                    referer = url,
                     quality = Qualities.Unknown.value,
                 )
             )
             
         val subId = doc?.subtitle?.vi
-            subtitleCallback.invoke(
+            subCallback.invoke(
                 SubtitleFile(
                     "Tiếng Việt",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
+    }
+            
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
         
-        loadExtractor(link, "$mainUrl/", subtitleCallback, callback)
-        
+        safeApiCall {
+            invokeKotakAjairSource(
+                link,
+                subtitleCallback,
+                callback
+            )
+        }
         return true
     }
     
