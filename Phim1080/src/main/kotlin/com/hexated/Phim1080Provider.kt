@@ -62,9 +62,6 @@ class Phim1080Provider : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
-//        val title2 = this.selectFirst("div.related-item-title")?.text()?.trim().toString()
-//        val title = if (this.select("div.tray-item-title").isNotEmpty()
-//            ) title1 else title2
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
@@ -109,10 +106,10 @@ class Phim1080Provider : MainAPI() {
             "$mainUrl/api/v2/films/$fId",
             referer = url,
             headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "X-Requested-With" to "XMLHttpRequest"
-                )
-            ).parsedSafe<filmInfo>()
+                "Content-Type" to "application/json",
+                "X-Requested-With" to "XMLHttpRequest"
+            )
+        ).parsedSafe<filmInfo>()
         val title = filmInfo?.name?.trim().toString()
         val poster = filmInfo?.thumbnail
         val background = filmInfo?.poster
@@ -120,8 +117,7 @@ class Phim1080Provider : MainAPI() {
         val link = "$mainUrl/$slug"
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
-        val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
-                        ) TvType.TvSeries else TvType.Movie
+        val tvType = if (document.select("div.episode-group-tab").isNotEmpty()) TvType.TvSeries else TvType.Movie
         val description =  document.select("div.film-info-description").text().trim()
         val comingSoon = document.select("button.direction-trailer").isNotEmpty()
         val trailerCode = filmInfo?.trailer?.original?.id
