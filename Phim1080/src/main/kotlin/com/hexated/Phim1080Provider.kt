@@ -155,8 +155,7 @@ class Phim1080Provider : MainAPI() {
                 Episode(
                     data = fixUrl(ep.link.toString()),
                     episode = ep.episodeNumber,
-                    name = ep.link.toString()
-//                    name = ep.detailname,
+                    name = ep.detailname,
                     )
             } ?: listOf()
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo) {
@@ -204,7 +203,7 @@ class Phim1080Provider : MainAPI() {
         val link = encodeString(doc?.sources?.hls as String, 69)
             callback.invoke(
                 ExtractorLink(
-                    link,
+                    name,
                     "HS",
                     link,
                     referer = "$mainUrl/",
@@ -220,7 +219,7 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         
-        loadExtractor(link, subtitleCallback, callback)
+        loadExtractor(link, "$mainUrl/", subtitleCallback, callback)
         
         return true
     }
