@@ -4,6 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
+import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -147,10 +148,10 @@ class Phim1080Provider : MainAPI() {
                         "Content-Type" to "application/json",
                         "X-Requested-With" to "XMLHttpRequest",
                     )
-                ).parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
+                ).parsedSafe<MediaDetailEpisodes>()?.episodes.map {
                 Episode(
-                    data = eps?.link,
-                    name = eps?.detailname,
+                    data = episodes?.link,
+                    name = episodes?.detailname,
                     )
             }
 //            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
