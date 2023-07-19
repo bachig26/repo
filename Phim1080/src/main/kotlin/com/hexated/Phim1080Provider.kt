@@ -186,8 +186,8 @@ class Phim1080Provider : MainAPI() {
 
         val document = app.get(data).document
 
-        val Id = document.select("div.container").attr("data-id")
-        val epId = document.select("div.container").attr("data-episode-id")
+        val Id = document.select("div.container").attr("data-id").trim().toInt()
+        val epId = document.select("div.container").attr("data-episode-id").trim().toInt()
         val doc = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
@@ -197,18 +197,23 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Media>()
-        val link = encodeString(doc?.sources?.m3u8?.hls as String, 69)
+        val hls = encodeString(doc?.sources?.m3u8?.hls as String, 69)
+        val opt = encodeString(doc?.sources?.m3u8?.opt as String, 69)
+        listOf(
+            Pair("$hls", "HS"),
+            Pair("$opt", "SG"),
+        ).apmap { (link, source) ->
             safeApiCall {
-                    callback.invoke(
-                        ExtractorLink(
-                            link,
-                            "Hls",
-                            link,
-                            referer = "$mainUrl/",
-                            quality = Qualities.Unknown.value,
-                            isM3u8 = true,
-                        )
+                callback.invoke(
+                    ExtractorLink(
+                        source,
+                        source,
+                        link,
+                        referer = "$mainUrl/",
+                        quality = Qualities.Unknown.value,
+                        isM3u8 = true,
                     )
+                )
             }
             return true
         }
@@ -234,6 +239,7 @@ class Phim1080Provider : MainAPI() {
     
     data class Server(
         @JsonProperty("hls") val hls: String? = null,
+        @JsonProperty("opt") val opt: String? = null,
     )    
     
     data class SubInfo(
