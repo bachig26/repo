@@ -100,8 +100,9 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("poster") val poster: String? = null,
         @JsonProperty("thumbnail") val thumbnail: String? = null,
-        @JsonProperty("description") val description: String? = null,
+        @JsonProperty("upcoming") val upcoming: String? = null,
         @JsonProperty("year") val year: Int? = null,
+        @JsonProperty("time") val time: Int? = null,
         @JsonProperty("trailer") val trailer: TrailerInfo? = null,
     )
 
@@ -111,11 +112,11 @@ class Phim1080Provider : MainAPI() {
     
     data class TrailerKey(
         @JsonProperty("id") val id: String? = null,
-    )    
+    )
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
-        val Id = document.select("div.container")?.attr("data-id")
+        val Id = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
             "$mainUrl/api/v2/films/$Id",
             referer = url,
@@ -124,14 +125,14 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<filmInfo>()
-        val title = filmInfo?.name.toString()
+        val title = filmInfo?.name?.trim().toString()
         val poster = filmInfo?.thumbnail
         val background = filmInfo?.poster
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
-        val description = document.select("div.film-info-description").text().trim()
+        val description =  document.select("div.film-info-description").text().trim()
         val trailerCode = filmInfo?.trailer?.original?.id
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
@@ -139,6 +140,21 @@ class Phim1080Provider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
+//            val epInfo =  app.get(
+//                "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+//                referer = url,
+//                headers = mapOf(
+//                        "Content-Type" to "application/json",
+//                        "X-Requested-With" to "XMLHttpRequest",
+//                    )
+//                ).parsedSafe<Season>()
+//            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
+//            epInfo?.eps.forEachIndexed { index, episode ->
+//                    com.lagradost.cloudstream3.Episode(
+//                        data = episode?.link,
+//                        name = episode?.name,
+//                    )
+//            }
             val episodes = document.select("div.episode-list").map {
                 val href = it.select("a").attr("href")
                 val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
@@ -182,7 +198,7 @@ class Phim1080Provider : MainAPI() {
 
         val Id = document.select("div.container")?.attr("data-id")?.trim()
         val epId = document.select("div.container")?.attr("data-episode-id")?.trim()
-        val sources = app.get(
+        val doc = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
                 headers = mapOf(
@@ -190,14 +206,13 @@ class Phim1080Provider : MainAPI() {
                     "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            ).text.substringAfter("hls\":\"")
-                    .substringBefore("\"},")
-        val link = encodeString(sources as String, 69)
+            ).parsedSafe<Video>()
+        val link = encodeString(doc?.sources?.hls as String, 69)
             safeApiCall {
                     callback.invoke(
                         ExtractorLink(
                             link,
-                            "Phim1080",
+                            "Hls",
                             link,
                             referer = "$mainUrl/",
                             quality = Qualities.Unknown.value,
@@ -207,4 +222,28 @@ class Phim1080Provider : MainAPI() {
             }
             return true
         }
+    
+    data class Season(
+        @JsonProperty("data") val eps: Episode? = null,
+    )
+    
+    data class Episode(
+        @JsonProperty("detail_name") val name: String? = null,
+        @JsonProperty("link") val link: String? = null,
+    )    
+    
+    data class Video(
+        @JsonProperty("sources") val sources: Server? = null,
+        @JsonProperty("subtitle") val subtitle: SubInfo? = null,
+    )
+    
+    data class Server(
+        @JsonProperty("hls") val hls: String? = null,
+    )    
+    
+    data class SubInfo(
+        @JsonProperty("vi") val vi: String? = null,
+        @JsonProperty("en") val en: String? = null,
+    )    
+    
 }
