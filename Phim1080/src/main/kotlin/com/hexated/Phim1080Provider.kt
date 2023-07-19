@@ -37,6 +37,8 @@ class Phim1080Provider : MainAPI() {
         "$mainUrl/phim-bo?page=" to "Phim Bộ",
         "$mainUrl/phim-le?page=" to "Phim Lẻ",
         "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
+        "$mainUrl/bo-suu-tap/disney-plus?page=" to "Disney+",
+        "$mainUrl/bo-suu-tap/netflix-original?page=" to "Netflix",
         "$mainUrl/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
         "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
@@ -191,14 +193,14 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
-        return if (subId?.isNotEmpty()) {
+        if (subId.isNotEmpty()) {
             subtitleCallback.invoke(
                 SubtitleFile(
                     "Vietnamese",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
-        } else null
+        }
             
         return true
     }
