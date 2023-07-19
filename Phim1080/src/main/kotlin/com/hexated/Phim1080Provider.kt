@@ -213,7 +213,7 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = true,
                 )
             )
-        val subId = doc?.subtitle?.vi
+        val subId = doc.subtitle.vi
             subtitleCallback.invoke(
                 SubtitleFile(
                     "Vietnamese",
