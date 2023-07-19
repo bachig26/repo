@@ -155,7 +155,7 @@ class Phim1080Provider : MainAPI() {
                     )
                 ).parsedSafe<MediaDetailEpisodes>()?.eps?.apmap { ep ->
                 Episode(
-                    data = fixUrl(ep.link),
+                    data = fixUrl(ep.link).toString(),
                     episode = ep.episodeNumber,
                     name = ep.detailname,
                     )
