@@ -100,9 +100,9 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("poster") val poster: String? = null,
         @JsonProperty("thumbnail") val thumbnail: String? = null,
-        @JsonProperty("upcoming") val upcoming: String? = null,
+//        @JsonProperty("upcoming") val upcoming: String? = null,
         @JsonProperty("year") val year: Int? = null,
-        @JsonProperty("time") val time: Int? = null,
+//        @JsonProperty("time") val time: Int? = null,
         @JsonProperty("trailer") val trailer: TrailerInfo? = null,
     )
 
@@ -196,8 +196,8 @@ class Phim1080Provider : MainAPI() {
 
         val document = app.get(data).document
 
-        val Id = document.select("div.container")?.attr("data-id")?.trim()
-        val epId = document.select("div.container")?.attr("data-episode-id")?.trim()
+        val Id = document.select("div.container").attr("data-id")
+        val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
                 "$mainUrl/api/v2/films/$Id/episodes/$epId",
                 referer = data,
