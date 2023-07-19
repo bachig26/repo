@@ -101,6 +101,7 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("poster") val poster: String? = null,
         @JsonProperty("thumbnail") val thumbnail: String? = null,
+        @JsonProperty("slug") val slug: String? = null,
 //        @JsonProperty("upcoming") val upcoming: String? = null,
         @JsonProperty("year") val year: Int? = null,
 //        @JsonProperty("time") val time: Int? = null,
@@ -129,6 +130,8 @@ class Phim1080Provider : MainAPI() {
         val title = filmInfo?.name?.trim().toString()
         val poster = filmInfo?.thumbnail
         val background = filmInfo?.poster
+        val slug = filmInfo?.slug
+        val link = "$mainUrl/$slug"
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
@@ -143,7 +146,7 @@ class Phim1080Provider : MainAPI() {
         return if (tvType == TvType.TvSeries) {
             val epsInfo =  app.get(
                 "$mainUrl/api/v2/films/$fId/episodes?sort=name",
-                referer = url,
+                referer = link,
                 headers = mapOf(
                         "Content-Type" to "application/json",
                         "X-Requested-With" to "XMLHttpRequest",
@@ -152,7 +155,8 @@ class Phim1080Provider : MainAPI() {
                 Episode(
                     data = fixUrl(ep.link.toString()),
                     episode = ep.episodeNumber,
-                    name = ep.detailname,
+                    name = ep.link.toString()
+//                    name = ep.detailname,
                     )
             } ?: listOf()
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo) {
@@ -165,7 +169,7 @@ class Phim1080Provider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, url) {
+            newMovieLoadResponse(title, url, TvType.Movie, link) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
@@ -197,12 +201,12 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Media>()
-        val sources = encodeString(doc?.sources?.hls as String, 69)
+        val link = encodeString(doc?.sources?.hls as String, 69)
             callback.invoke(
                 ExtractorLink(
-                    name,
+                    link,
                     "HS",
-                    sources,
+                    link,
                     referer = "$mainUrl/",
                     quality = Qualities.Unknown.value,
                 )
@@ -211,7 +215,7 @@ class Phim1080Provider : MainAPI() {
         val subId = doc?.subtitle?.vi
             subtitleCallback.invoke(
                 SubtitleFile(
-                    "vi",
+                    "Tiếng Việt",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
