@@ -179,12 +179,13 @@ class Phim1080Provider : MainAPI() {
             }
         }
     }
-    
-    private suspend fun invokeSource(
-        url: String,
-        subCallback: (SubtitleFile) -> Unit,
-        sourceCallback: (ExtractorLink) -> Unit
-    ) {
+            
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
 
         val document = app.get(url).document
         val fId = document.select("div.container").attr("data-id")
@@ -200,39 +201,16 @@ class Phim1080Provider : MainAPI() {
             ).parsedSafe<Media>()
         
         val link = encodeString(doc?.sources?.hls as String, 69)
-            sourceCallback.invoke(
-                ExtractorLink(
-                    name,
-                    "HS",
-                    link,
-                    referer = url,
-                    quality = Qualities.Unknown.value,
-                )
-            )
-            
         val subId = doc?.subtitle?.vi
-            subCallback.invoke(
+            subtitleCallback.invoke(
                 SubtitleFile(
                     "Tiếng Việt",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
-    }
             
-    override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
-    ): Boolean {
+        loadExtractor(link, "$mainUrl/", subtitleCallback, callback)
         
-        safeApiCall {
-            invokeSource(
-                link,
-                subtitleCallback,
-                callback
-            )
-        }
         return true
     }
     
