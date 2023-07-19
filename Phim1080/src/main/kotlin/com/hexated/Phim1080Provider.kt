@@ -199,21 +199,22 @@ class Phim1080Provider : MainAPI() {
             ).parsedSafe<Media>()
         val hls = encodeString(doc?.sources?.m3u8?.hls as String, 69)
         val opt = encodeString(doc?.sources?.m3u8?.opt as String, 69)
-        listOf(
-            Pair("$hls", "HS"),
-            Pair("$opt", "SG"),
-        ).apmap { (link, source) ->
-            safeApiCall {
-                callback.invoke(
-                    ExtractorLink(
-                        source,
-                        source,
-                        link,
-                        referer = "$mainUrl/",
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true,
+            listOf(
+                Pair("$hls", "HS"),
+                Pair("$opt", "SG"),
+            ).apmap { (link, source) ->
+                safeApiCall {
+                    callback.invoke(
+                        ExtractorLink(
+                            source,
+                            source,
+                            link,
+                            referer = "$mainUrl/",
+                            quality = Qualities.Unknown.value,
+                            isM3u8 = true,
+                        )
                     )
-                )
+                }
             }
             return true
         }
