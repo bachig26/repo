@@ -112,10 +112,11 @@ class Phim1080Provider : MainAPI() {
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
         var duration = document.select("div.film-content div.film-info-genre:nth-child(5)").text()
-            .substringAfter("Thời lượng:").substringBefore("phút").toIntOrNull()
+            .substringAfter("Thời lượng:").substringBefore("phút").toString()
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
         val description =  document.select("div.film-info-description").text().trim()
+        val comingSoon = document.select("button.direction-trailer").isnotEmpty()
         val trailerCode = filmInfo?.trailer?.original?.id
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
@@ -143,6 +144,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
+                this.comingSoon = comingSoon
                 addTrailer(trailer)
                 this.recommendations = recommendations
             }
@@ -153,6 +155,7 @@ class Phim1080Provider : MainAPI() {
                 this.year = year
                 this.plot = description
                 this.tags = tags
+                this.comingSoon = comingSoon
                 addDuration(duration)
                 addTrailer(trailer)
                 this.recommendations = recommendations
