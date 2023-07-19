@@ -203,6 +203,16 @@ class Phim1080Provider : MainAPI() {
             ).parsedSafe<Media>()
         
         val link = encodeString(doc?.sources?.hls as String, 69)
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    "HS",
+                    link,
+                    referer = "$mainUrl/",
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = true,
+                )
+            )
         val subId = doc?.subtitle?.vi
             subtitleCallback.invoke(
                 SubtitleFile(
@@ -211,8 +221,6 @@ class Phim1080Provider : MainAPI() {
                 )
             )
             
-        loadExtractor(link, "$mainUrl/", subtitleCallback, callback)
-        
         return true
     }
     
