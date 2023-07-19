@@ -180,8 +180,8 @@ class Phim1080Provider : MainAPI() {
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> String,
-        callback: (ExtractorLink) -> Int
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
     ): Boolean {
 
         val document = app.get(data).document
@@ -204,8 +204,8 @@ class Phim1080Provider : MainAPI() {
                         link,
                         "HS",
                         "$mainUrl/",
-                        subtitleCallback,
-                        callback
+                        quality = Qualities.Unknown.value,
+                        isM3u8 = true,
                      )
                 )
             }
