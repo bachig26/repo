@@ -149,8 +149,8 @@ class Phim1080Provider : MainAPI() {
                     )
                 ).parsedSafe<MediaDetailEpisodes>()?.episodes?.map { eps ->
                 Episode(
-                    data = eps?.link
-                    name = eps?.name
+                    data = eps?.link,
+                    name = eps?.detailname,
                     )
             }
 //            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
@@ -233,7 +233,7 @@ class Phim1080Provider : MainAPI() {
     )
     
     data class Episodes(
-        @JsonProperty("detail_name") val name: String? = null,
+        @JsonProperty("detail_name") val detailname: String? = null,
         @JsonProperty("link") val link: String? = null,
     )    
     
