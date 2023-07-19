@@ -151,7 +151,7 @@ class Phim1080Provider : MainAPI() {
                 ).parsedSafe<MediaDetailEpisodes>()?.eps?.map { ep ->
                 Episode(
                     data = fixUrl(ep.link.toString()),
-                    episode = eps.episodeNumber,
+                    episode = ep.episodeNumber,
                     name = ep.detailname,
                     )
             } ?: listOf()
@@ -205,6 +205,7 @@ class Phim1080Provider : MainAPI() {
                             "Hls",
                             link,
                             referer = "$mainUrl/",
+                            subtitleCallback,
                             quality = Qualities.Unknown.value,
                             isM3u8 = true,
                         )
