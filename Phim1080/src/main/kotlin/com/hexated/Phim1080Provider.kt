@@ -196,7 +196,7 @@ class Phim1080Provider : MainAPI() {
                 "$mainUrl/api/v2/films/$fId/episodes/$epId",
                 referer = data,
                 headers = mapOf(
-                    "Content-Type" to "application/json",
+//                    "Content-Type" to "application/json",
                     "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
@@ -205,7 +205,7 @@ class Phim1080Provider : MainAPI() {
         val link = encodeString(doc?.sources?.m3u8?.hls as String, 69)
             callback.invoke(
                 ExtractorLink(
-                    this.name,
+                    "HS",
                     "HS",
                     link,
                     referer = data,
