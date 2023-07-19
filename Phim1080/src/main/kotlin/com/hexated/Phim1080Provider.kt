@@ -153,7 +153,7 @@ class Phim1080Provider : MainAPI() {
                     data = fixUrl(ep?.link.toString()),
                     name = ep?.detailname,
                     )
-            }
+            } ?: listOf()
 //            val episodes = document.select("div.episode-list").map {
 //                val href = it.select("a").attr("href")
 //                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
@@ -164,7 +164,7 @@ class Phim1080Provider : MainAPI() {
 //                    episode = episode,
 //                )
 //            }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo: List<Episode>) {
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
