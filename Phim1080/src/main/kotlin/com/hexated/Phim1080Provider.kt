@@ -203,6 +203,7 @@ class Phim1080Provider : MainAPI() {
                     ExtractorLink(
                         link,
                         "HS",
+                        link,
                         referer = "$mainUrl/",
                         quality = Qualities.Unknown.value,
                         isM3u8 = true,
