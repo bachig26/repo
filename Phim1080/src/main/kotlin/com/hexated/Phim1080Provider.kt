@@ -141,7 +141,7 @@ class Phim1080Provider : MainAPI() {
         }
 
         return if (tvType == TvType.TvSeries) {
-            val episodes =  app.get(
+            val epsInfo =  app.get(
                 "$mainUrl/api/v2/films/$Id/episodes?sort=name",
                 referer = url,
                 headers = mapOf(
@@ -150,17 +150,10 @@ class Phim1080Provider : MainAPI() {
                     )
                 ).parsedSafe<MediaDetailEpisodes>()?.eps?.map { ep ->
                 Episode(
-                    data = fixUrl(ep?.link),
+                    data = fixUrl(ep?.link.toString()),
                     name = ep?.detailname,
                     )
             }
-//            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
-//            epInfo?.eps.forEachIndexed { index, episode ->
-//                    com.lagradost.cloudstream3.Episode(
-//                        data = episode?.link,
-//                        name = episode?.name,
-//                    )
-//            }
 //            val episodes = document.select("div.episode-list").map {
 //                val href = it.select("a").attr("href")
 //                val episode = it.select("a episode-name")?.text()?.substringAfter("Tập")?.trim()?.toIntOrNull()
@@ -171,7 +164,7 @@ class Phim1080Provider : MainAPI() {
 //                    episode = episode,
 //                )
 //            }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
@@ -235,7 +228,7 @@ class Phim1080Provider : MainAPI() {
     
     data class Episodes(
         @JsonProperty("detail_name") val detailname: String? = null,
-        @JsonProperty("link") val link: String = null,
+        @JsonProperty("link") val link: String? = null,
     )    
     
     data class Video(
