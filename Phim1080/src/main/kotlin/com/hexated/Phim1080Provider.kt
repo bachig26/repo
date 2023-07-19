@@ -155,9 +155,9 @@ class Phim1080Provider : MainAPI() {
                     )
                 ).parsedSafe<MediaDetailEpisodes>()?.eps?.apmap { ep ->
                 Episode(
-                    data = fixUrl(ep.link).toString(),
-                    episode = ep.episodeNumber,
+                    data = fixUrl(ep.link.toString()),
                     name = ep.detailname,
+                    episode = ep.episodeNumber,
                     )
             } ?: listOf()
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo) {
@@ -202,7 +202,7 @@ class Phim1080Provider : MainAPI() {
                 )
             ).parsedSafe<Media>()
         
-        val link = encodeString(doc?.sources?.hls as String, 69)
+        val link = encodeString(doc?.sources?.m3u8?.hls as String, 69)
             callback.invoke(
                 ExtractorLink(
                     this.name,
