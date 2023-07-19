@@ -148,10 +148,10 @@ class Phim1080Provider : MainAPI() {
                         "Content-Type" to "application/json",
                         "X-Requested-With" to "XMLHttpRequest",
                     )
-                ).parsedSafe<MediaDetailEpisodes>()?.episodes.map {
+                ).parsedSafe<MediaDetailEpisodes>()?.episodes?.map {
                 Episode(
-                    data = episodes?.link,
-                    name = episodes?.detailname,
+                    data = link,
+                    name = detailname,
                     )
             }
 //            val listEp = arrayListOf<com.lagradost.cloudstream3.Episode>()
