@@ -153,7 +153,7 @@ class Phim1080Provider : MainAPI() {
                         "Content-Type" to "application/json",
                         "X-Requested-With" to "XMLHttpRequest",
                     )
-                ).parsedSafe<MediaDetailEpisodes>()?.eps?.apmap { ep ->
+                ).parsedSafe<MediaDetailEpisodes>()?.eps?.map { ep ->
                 Episode(
                     data = fixUrl(ep.link.toString()),
                     name = ep.detailname,
@@ -208,7 +208,7 @@ class Phim1080Provider : MainAPI() {
                     this.name,
                     "HS",
                     link,
-                    referer = "$mainUrl/",
+                    referer = data,
                     quality = Qualities.Unknown.value,
                     isM3u8 = true,
                 )
