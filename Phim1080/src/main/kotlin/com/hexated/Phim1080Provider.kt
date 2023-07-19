@@ -193,13 +193,15 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi ?: return
+        val isSubIdEmpty = subId.isNullOrBlank()
+        if (!isSubIdEmpty) {
             subtitleCallback.invoke(
                 SubtitleFile(
                     "Vietnamese",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
-            
+        }
         return true
     }
     
