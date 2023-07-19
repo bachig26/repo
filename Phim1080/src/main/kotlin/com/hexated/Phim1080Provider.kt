@@ -28,7 +28,7 @@ class Phim1080Provider : MainAPI() {
     private fun encodeString(e: String, t: Int): String {
         var a = ""
         for (i in 0 until e.length) {
-            val r = e[i].toInt()
+            val r = e[i].code
             val o = r xor t
             a += o.toChar()
         }
@@ -151,8 +151,8 @@ class Phim1080Provider : MainAPI() {
                 ).parsedSafe<MediaDetailEpisodes>()?.eps?.map { ep ->
                 Episode(
                     data = fixUrl(ep.link.toString()),
-                    name = fixUrl(ep.link.toString()),
-//                    name = ep.detailname,
+                    episode = eps.episodeNumber,
+                    name = ep.detailname,
                     )
             } ?: listOf()
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, epsInfo) {
@@ -214,12 +214,13 @@ class Phim1080Provider : MainAPI() {
         }
     
     data class MediaDetailEpisodes(
-        @JsonProperty("data") val eps: ArrayList<Episodes> = arrayListOf(),
+        @JsonProperty("data") val eps: ArrayList<Episodes>? = arrayListOf(),
     )
     
     data class Episodes(
         @JsonProperty("detail_name") val detailname: String? = null,
         @JsonProperty("link") val link: String? = null,
+        @JsonProperty("name") val episodeNumber: Int? = null,
     )    
     
     data class Video(
