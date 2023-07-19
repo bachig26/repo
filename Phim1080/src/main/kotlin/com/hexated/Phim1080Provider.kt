@@ -187,12 +187,12 @@ class Phim1080Provider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
 
-        val document = app.get(url).document
+        val document = app.get(data).document
         val fId = document.select("div.container").attr("data-id")
         val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
                 "$mainUrl/api/v2/films/$fId/episodes/$epId",
-                referer = url,
+                referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
                     "cookie" to "xem1080=%3D",
