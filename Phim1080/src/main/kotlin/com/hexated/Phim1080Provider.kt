@@ -116,7 +116,7 @@ class Phim1080Provider : MainAPI() {
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()
                         ) TvType.TvSeries else TvType.Movie
         val description =  document.select("div.film-info-description").text().trim()
-        val comingSoon = document.select("button.direction-trailer").isnotEmpty()
+        val comingSoon = document.select("button.direction-trailer").isNotEmpty()
         val trailerCode = filmInfo?.trailer?.original?.id
         val trailer = "https://www.youtube.com/embed/$trailerCode"
         val recommendations = document.select("div.related-block div.related-item").map {
