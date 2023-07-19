@@ -117,9 +117,9 @@ class Phim1080Provider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
-        val Id = document.select("div.container").attr("data-id")
+        val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
-            "$mainUrl/api/v2/films/$Id",
+            "$mainUrl/api/v2/films/$fId",
             referer = url,
             headers = mapOf(
                     "Content-Type" to "application/json",
@@ -142,7 +142,7 @@ class Phim1080Provider : MainAPI() {
 
         return if (tvType == TvType.TvSeries) {
             val epsInfo =  app.get(
-                "$mainUrl/api/v2/films/$Id/episodes?sort=name",
+                "$mainUrl/api/v2/films/$fId/episodes?sort=name",
                 referer = url,
                 headers = mapOf(
                         "Content-Type" to "application/json",
@@ -186,10 +186,10 @@ class Phim1080Provider : MainAPI() {
 
         val document = app.get(data).document
 
-        val Id = document.select("div.container").attr("data-id")
+        val fId = document.select("div.container").attr("data-id")
         val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
-                "$mainUrl/api/v2/films/$Id/episodes/$epId",
+                "$mainUrl/api/v2/films/$fId/episodes/$epId",
                 referer = data,
                 headers = mapOf(
                     "Content-Type" to "application/json",
@@ -197,21 +197,31 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Media>()
-        val link = encodeString(doc!!.sources!!.hls as String, 69)
-            safeApiCall {
-                callback.invoke(
-                    ExtractorLink(
-                        link,
-                        "HS",
-                        link,
-                        referer = "$mainUrl/",
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true,
-                     )
+        val link = encodeString(doc?.sources?.hls as String, 69)
+            callback.invoke(
+                ExtractorLink(
+                    name,
+                    "HS",
+                    link,
+                    referer = "$mainUrl/",
+                    quality = Qualities.Unknown.value,
                 )
-            }
-            return true
+            )
+            
+        val subId = doc?.subtitle?.vi
+            subtitleCallback.invoke(
+                SubtitleFile(
+                    "$mainUrl/subtitle/$subId.vtt"
+                )
+            )
+            
+        safeApiCall {
+            link,
+            subtitleCallback,
+            callback
         }
+        return true
+    }
     
     data class MediaDetailEpisodes(
         @JsonProperty("data") val eps: ArrayList<Episodes>? = arrayListOf(),
