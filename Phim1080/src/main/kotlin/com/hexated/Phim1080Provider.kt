@@ -229,12 +229,12 @@ class Phim1080Provider : MainAPI() {
         }
     
     data class MediaDetailEpisodes(
-        @JsonProperty("data") val episodes: ArrayList<Episodes>? = arrayListOf(),
+        @JsonProperty("data") val episodes: ArrayList<Episodes> = arrayListOf(),
     )
     
     data class Episodes(
         @JsonProperty("detail_name") val detailname: String? = null,
-        @JsonProperty("link") val link: String? = null,
+        @JsonProperty("link") val link: String,
     )    
     
     data class Video(
