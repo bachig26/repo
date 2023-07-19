@@ -100,7 +100,7 @@ class Phim1080Provider : MainAPI() {
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("poster") val poster: String? = null,
         @JsonProperty("thumbnail") val thumbnail: String? = null,
-        @JsonProperty("upcoming") val description: String? = null,
+        @JsonProperty("upcoming") val upcoming: String? = null,
         @JsonProperty("year") val year: Int? = null,
         @JsonProperty("time") val time: Int? = null,
         @JsonProperty("trailer") val trailer: TrailerInfo? = null,
@@ -116,7 +116,7 @@ class Phim1080Provider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(url).document
-        val Id = document.select("div.container")?.attr("data-id")
+        val Id = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
             "$mainUrl/api/v2/films/$Id",
             referer = url,
