@@ -197,16 +197,15 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             ).parsedSafe<Media>()
-        val link = encodeString(doc.sources.hls as String, 69)
+        val link = encodeString(doc!!.sources!!.hls as String, 69)
             safeApiCall {
                 callback.invoke(
                     ExtractorLink(
                         link,
                         "HS",
-                        link,
-                        referer = "$mainUrl/",
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true,
+                        "$mainUrl/",
+                        subtitleCallback,
+                        callback
                      )
                 )
             }
