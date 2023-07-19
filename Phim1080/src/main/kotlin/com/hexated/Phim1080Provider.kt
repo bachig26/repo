@@ -216,7 +216,7 @@ class Phim1080Provider : MainAPI() {
         val subId = doc?.subtitle?.vi
             subtitleCallback.invoke(
                 SubtitleFile(
-                    "Tiếng Việt",
+                    "Vietnamese",
                     "$mainUrl/subtitle/$subId.vtt"
                 )
             )
