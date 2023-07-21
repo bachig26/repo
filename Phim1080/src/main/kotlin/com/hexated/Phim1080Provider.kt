@@ -186,9 +186,9 @@ class Phim1080Provider : MainAPI() {
                 )
             )
 //        val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val source = doc.parsedSafe<Media>()?.sources?.hls
-        val hs = encodeString(source, 69).toString()
-        val fb = doc.parsedSafe<Media>()?.sources?.fb
+        val source = doc.parsedSafe<Media>()?.sources?.hls.toString()
+        val hs = encodeString(source, 69)
+        val fb = doc.parsedSafe<Media>()?.sources?.fb.toString()
 //        val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         listOf(
             Pair("$hs", "HS"),
