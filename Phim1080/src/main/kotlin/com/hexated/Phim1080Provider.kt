@@ -186,11 +186,11 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val hs = encodeString(hlsEncode, 69)
+        val link = encodeString(hlsEncode, 69)
             callback.invoke(
                 ExtractorLink(
-                    source,
-                    source,
+                    "HS",
+                    "HS",
                     link,
                     referer = data,
                     quality = Qualities.Unknown.value,
