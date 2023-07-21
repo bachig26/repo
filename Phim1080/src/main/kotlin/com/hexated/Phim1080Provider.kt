@@ -185,7 +185,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             )
-        val hlsEncode = doc.parsedSafe<Media>()?.sources?.hls.toString()
+        val hlsEncode = doc.parsedSafe<Media>()?.sources?.m3u8?.hls.toString()
 //        val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
         val link = encodeString(hlsEncode, 69)
             callback.invoke(
@@ -243,6 +243,11 @@ class Phim1080Provider : MainAPI() {
     )
     
     data class Server(
+        @JsonProperty("hls") val hls: String? = null,
+        @JsonProperty("m3u8") val m3u8: MiniServer? = null,
+    )    
+    
+    data class MiniServer(
         @JsonProperty("hls") val hls: String? = null,
     )    
     
