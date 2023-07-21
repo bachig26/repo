@@ -185,28 +185,18 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             )
-//        val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val source = doc.parsedSafe<Media>()?.sources?.hls.toString()
-        val hs = encodeString(source, 69)
-        val fb = doc.parsedSafe<Media>()?.sources?.fb.toString()
-//        val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
-        listOf(
-            Pair("$hs", "HS"),
-            Pair("$fb", "FB"),
-        ).apmap { (link, source) ->
-            safeApiCall {
-                callback.invoke(
-                    ExtractorLink(
-                        source,
-                        source,
-                        link,
-                        referer = data,
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true,
-                    )
+        val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
+        val hs = encodeString(hlsEncode, 69)
+            callback.invoke(
+                ExtractorLink(
+                    source,
+                    source,
+                    link,
+                    referer = data,
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = true,
                 )
-            }
-        }
+            )
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
@@ -249,12 +239,6 @@ class Phim1080Provider : MainAPI() {
     
     data class Media(
         @JsonProperty("subtitle") val subtitle: SubInfo? = null,
-        @JsonProperty("sources") val sources: Server? = null,
-    )
-    
-    data class Server(
-        @JsonProperty("hls") val hls: String? = null,
-        @JsonProperty("fb") val fb: String? = null,
     )
     
     data class SubInfo(
