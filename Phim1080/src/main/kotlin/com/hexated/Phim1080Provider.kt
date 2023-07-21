@@ -185,9 +185,11 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             )
-        val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
+//        val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
+        val source = doc.parsedSafe<Media>()?.sources?.hls
         val hs = encodeString(source, 69)
-        val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
+        val fb = doc.parsedSafe<Media>()?.sources?.fb
+//        val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         listOf(
             Pair("$hs", "HS"),
             Pair("$fb", "FB"),
@@ -247,6 +249,12 @@ class Phim1080Provider : MainAPI() {
     
     data class Media(
         @JsonProperty("subtitle") val subtitle: SubInfo? = null,
+        @JsonProperty("sources") val sources: Server? = null,
+    )
+    
+    data class Server(
+        @JsonProperty("hls") val hls: String? = null,
+        @JsonProperty("fb") val fb: String? = null,
     )
     
     data class SubInfo(
