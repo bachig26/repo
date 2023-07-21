@@ -205,16 +205,16 @@ class Phim1080Provider : MainAPI() {
                     }
                 }
         }
-        val subId = doc?.subtitle?.vi
-        val isSubIdEmpty = subId.isNullOrBlank()
-        if (!isSubIdEmpty) {
-            subtitleCallback.invoke(
-                SubtitleFile(
-                    "Vietnamese",
-                    "$mainUrl/subtitle/$subId.vtt"
-                )
-            )
-        }
+//        val subId = doc?.subtitle?.vi
+//        val isSubIdEmpty = subId.isNullOrBlank()
+//        if (!isSubIdEmpty) {
+//            subtitleCallback.invoke(
+//                SubtitleFile(
+//                    "Vietnamese",
+//                    "$mainUrl/subtitle/$subId.vtt"
+//                )
+//            )
+//        }
         return true
     }
     
