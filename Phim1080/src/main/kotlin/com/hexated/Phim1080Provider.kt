@@ -184,21 +184,27 @@ class Phim1080Provider : MainAPI() {
                     "cookie" to "xem1080=%3D",
                     "X-Requested-With" to "XMLHttpRequest"
                 )
-            )
-        val hlsEncode = doc.parsedSafe<Media>()!!.sources!!.hls
+            ).parsedSafe<Media>()?.let {
+                listOf(
+                    Pair(encodeString(it.sources.hls as String, 69), "HD"),
+                ).map { source ->
+                    suspendSafeApiCall {
+//        val hlsEncode = doc?.sources?.hls
 //        val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val link = encodeString(hlsEncode as String, 69)
+//        val link = encodeString(hlsEncode as String, 69)
             callback.invoke(
                 ExtractorLink(
-                    "HS",
-                    "HS",
-                    link,
+                    "${this.name} ${source.second}",
+                    "${this.name} ${source.second}",
+                    ${source.first}",
                     referer = data,
                     quality = Qualities.Unknown.value,
-                    isM3u8 = true,
                 )
             )
-        val subId = doc.parsedSafe<Media>()?.subtitle?.vi
+                    }
+                }
+        }
+        val subId = doc?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
             subtitleCallback.invoke(
