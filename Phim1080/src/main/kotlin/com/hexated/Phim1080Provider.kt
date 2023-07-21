@@ -3,6 +3,7 @@ package com.hexated
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
+import com.lagradost.cloudstream3.mvvm.safeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
@@ -185,17 +186,25 @@ class Phim1080Provider : MainAPI() {
                 )
             )
         val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val link = encodeString(source, 69)
-            callback.invoke(
-                ExtractorLink(
-                    "HS",
-                    "HS",
-                    link,
-                    referer = data,
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = true,
+        val hs = encodeString(source, 69)
+        val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",")
+        listOf(
+            Pair("$hs", "HS"),
+            Pair("$fb", "FB"),
+        ).apmap { (link, source) ->
+            safeApiCall {
+                callback.invoke(
+                    ExtractorLink(
+                        source,
+                        source,
+                        link,
+                        referer = data,
+                        quality = Qualities.Unknown.value,
+                        isM3u8 = true,
+                    )
                 )
-            )
+            }
+        }
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
