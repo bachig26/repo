@@ -185,7 +185,7 @@ class Phim1080Provider : MainAPI() {
                     "X-Requested-With" to "XMLHttpRequest"
                 )
             )
-        val hlsEncode = doc.parsedSafe<Media>()?.sources?.hls
+        val hlsEncode = doc.parsedSafe<Media>()!!.sources!!.hls
 //        val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
         val link = encodeString(hlsEncode as String, 69)
             callback.invoke(
@@ -195,6 +195,7 @@ class Phim1080Provider : MainAPI() {
                     link,
                     referer = data,
                     quality = Qualities.Unknown.value,
+                    isM3u8 = true,
                 )
             )
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
