@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.mvvm.safeApiCall
+import com.lagradost.cloudstream3.mvvm.suspendSafeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
@@ -186,7 +187,7 @@ class Phim1080Provider : MainAPI() {
                 )
             ).parsedSafe<Media>()?.let {
                 listOf(
-                    Pair(encodeString(it.sources.hls as String, 69), "HD"),
+                    Pair(encodeString(it?.sources?.hls as String, 69), "HD"),
                 ).map { source ->
                     suspendSafeApiCall {
 //        val hlsEncode = doc?.sources?.hls
@@ -196,8 +197,8 @@ class Phim1080Provider : MainAPI() {
                 ExtractorLink(
                     "${this.name} ${source.second}",
                     "${this.name} ${source.second}",
-                    ${source.first}",
-                    referer = data,
+                    "${source.first}",
+                    referer = "$mainUrl/",
                     quality = Qualities.Unknown.value,
                 )
             )
