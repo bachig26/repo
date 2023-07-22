@@ -193,18 +193,18 @@ class Phim1080Provider : MainAPI() {
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         
         listOfNotNull(
-            if (hls.contains(".m3u8")) {Pair("$hls", true)} else null,
-            if (fb.contains(".mp4")) {Pair("$fb", false)} else null,
-            if (opt.contains(".m3u8")) {Pair("$opt", true)} else null,
-        ).apmap { (link, isM3u8) ->
+            if (hls.contains(".m3u8")) {Pair("$hls", "HS", true)} else null,
+            if (fb.contains(".mp4")) {Pair("$fb", "FB", false)} else null,
+            if (opt.contains(".m3u8")) {Pair("$opt", "OP", true)} else null,
+        ).apmap { (link, source, isM3u8) ->
                 safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            "${this.name}",
-                            "${this.name}",
+                            source,
+                            source,
                             link,
-                            referer = "$mainUrl/",
-                            quality = Qualities.P1080.value,
+                            referer = data,
+                            quality = Qualities.Unknown.value,
                             isM3u8,
                             )
                         )
