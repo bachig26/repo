@@ -192,10 +192,10 @@ class Phim1080Provider : MainAPI() {
         val hls = encodeString(hlsEncode as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         
-        listOf(
-            if (hls.contains(".m3u8")) {Pair("$hls", true)} else {},
-            if (fb.contains(".mp4")) {Pair("$fb", false)} else {},
-            if (opt.contains(".m3u8")) {Pair("$opt", true)} else {},
+        listOfNotNull(
+            if (hls.contains(".m3u8")) {Pair("$hls", true)} else null,
+            if (fb.contains(".mp4")) {Pair("$fb", false)} else null,
+            if (opt.contains(".m3u8")) {Pair("$opt", true)} else null,
         ).apmap { (link, isM3u8) ->
                 safeApiCall {
                     callback.invoke(
