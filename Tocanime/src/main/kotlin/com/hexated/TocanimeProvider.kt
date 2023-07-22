@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.Qualities
 import org.jsoup.nodes.Element
-import crypto.CryptoAES
+import kotlin.crypto.CryptoAES
 import java.util.*
 
 class TocanimeProvider : MainAPI() {
@@ -109,20 +109,9 @@ class TocanimeProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
 
-        val document = app.get(
-            data,
-            headers = mapOf("Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"),
-        ).document
-
-        document.select("script").apmap { script ->
-            if (script.data().contains("var PnPlayer")) {
-                val key = script.data().substringAfter("\"btsurl\":[[").substringBefore("]}]")
-                    .replace("]", "").replace("\"", "").split(",")
-                val keyEncode = encode(key.first())
-                val id = data.split("_").last().substringBefore(".html")
                 val key = "motchill.com45904818772018"
-                val url = CryptoAES().decrypt("U2FsdGVkX1+1HqHaIbgqqncrWjcPcoTRY6oa8WtR89IsP6zA83Blho8nRuEDw3wmkiPHZ0C8wDQM785o565emA==", $key)
-
+                val cryptoAES = CryptoAES()
+                val url = cryptoAES.decrypt("U2FsdGVkX1+1HqHaIbgqqncrWjcPcoTRY6oa8WtR89IsP6zA83Blho8nRuEDw3wmkiPHZ0C8wDQM785o565emA==", $key)
 
                     callback.invoke(
                         ExtractorLink(
@@ -134,8 +123,6 @@ class TocanimeProvider : MainAPI() {
                             isM3u8 = true
                         )
                     )
-            }
-        }
         return true
     }
 
