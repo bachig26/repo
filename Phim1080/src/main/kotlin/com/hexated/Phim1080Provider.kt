@@ -190,19 +190,17 @@ class Phim1080Provider : MainAPI() {
         val hls = encodeString(hlsEncode as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         when {
-        opt.contains(".m3u8") -> 
-            callback.invoke(
+            hls.contains(".m3u8") -> callback.invoke(
                 ExtractorLink(
-                    "OP",
-                    "OP",
-                    opt,
+                    "HS",
+                    "HS",
+                    hls,
                     referer = data,
                     quality = Qualities.Unknown.value,
                     isM3u8 = true,
                 )
             )
-        fb.contains(".mp4") -> 
-            callback.invoke(
+            fb.contains(".mp4") -> callback.invoke(
                 ExtractorLink(
                     "FB",
                     "FB",
@@ -212,15 +210,14 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = false,
                 )
             )
-        hls.contains(".m3u8") -> 
-            callback.invoke(
+            opt.contains(".m3u8") -> callback.invoke(
                 ExtractorLink(
-                    "HS",
-                    "HS",
-                    hls,
+                    "OP",
+                    "OP",
+                    opt,
                     referer = data,
                     quality = Qualities.Unknown.value,
-                    isM3u8 = true,
+                    isM3u8 = false,
                 )
             )
         }
