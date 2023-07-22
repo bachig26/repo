@@ -3,8 +3,6 @@ package com.hexated
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
-import com.lagradost.cloudstream3.mvvm.safeApiCall
-import com.lagradost.cloudstream3.mvvm.suspendSafeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
@@ -186,10 +184,23 @@ class Phim1080Provider : MainAPI() {
                 "X-Requested-With" to "XMLHttpRequest"
             )
         )
-        val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val link = encodeString(source as String, 69)
+        val optEncode = doc.text.substringAfter(",\"opt\":\"").substringBefore("\"},")
+        val opt = encodeString(optEncode as String, 69)
+        val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
+        val hls = encodeString(hlsEncode as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         when {
+        opt.contains(".m3u8") -> 
+            callback.invoke(
+                ExtractorLink(
+                    "SG",
+                    "SG",
+                    fb,
+                    referer = data,
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = true,
+                )
+            )
         fb.contains(".mp4") -> 
             callback.invoke(
                 ExtractorLink(
@@ -206,15 +217,13 @@ class Phim1080Provider : MainAPI() {
                 ExtractorLink(
                     "HS",
                     "HS",
-                    link,
+                    hls,
                     referer = data,
                     quality = Qualities.Unknown.value,
                     isM3u8 = true,
                 )
             )
-//        else -> return null
         }
-            // Do nothing
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
