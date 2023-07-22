@@ -197,16 +197,16 @@ class Phim1080Provider : MainAPI() {
             if (fb.contains(".mp4")) {Triple("$fb", "FB", false)} else {},
             if (opt.contains(".m3u8")) {Triple("$opt", "OP", true)} else {},
         ).let {
-            it.map { (link, source, isM3u8) ->
+            it.map { source ->
                 safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            source,
-                            source,
-                            link,
+                            source.component2(),
+                            source.component2(),
+                            source.component1(),
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
-                            isM3u8,
+                            source.component3(),
                             )
                         )
                     }
