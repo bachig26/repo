@@ -187,12 +187,13 @@ class Phim1080Provider : MainAPI() {
             )
         )
         val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val link = encodeString(source, 69)
+        val link = encodeString(source as String, 69)
+        val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         callback.invoke(
             ExtractorLink(
                 "HS",
                 "HS",
-                link,
+                fb,
                 referer = data,
                 quality = Qualities.Unknown.value,
                 isM3u8 = false,
