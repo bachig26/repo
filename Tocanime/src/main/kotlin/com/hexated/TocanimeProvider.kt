@@ -6,6 +6,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.Qualities
 import org.jsoup.nodes.Element
+import crypto.CryptoAES
 import java.util.*
 
 class TocanimeProvider : MainAPI() {
@@ -119,26 +120,20 @@ class TocanimeProvider : MainAPI() {
                     .replace("]", "").replace("\"", "").split(",")
                 val keyEncode = encode(key.first())
                 val id = data.split("_").last().substringBefore(".html")
+                val key = "motchill.com45904818772018"
+                val url = CryptoAES().decrypt("U2FsdGVkX1+1HqHaIbgqqncrWjcPcoTRY6oa8WtR89IsP6zA83Blho8nRuEDw3wmkiPHZ0C8wDQM785o565emA==", $key)
 
-                app.get(
-                    url = "$mainUrl/content/parseUrl?v=2&len=0&prefer=&ts=${Date().time}&item_id=$id&username=$id&sv=btsurl&bts_url%5B%5D=$keyEncode&sig=${key.last()}",
-                    referer = data,
-                    headers = mapOf(
-                        "Accept" to "application/json, text/javascript, */*; q=0.01",
-                        "X-Requested-With" to "XMLHttpRequest"
-                    )
-                ).parsedSafe<Responses>()?.let { res ->
+
                     callback.invoke(
                         ExtractorLink(
                             source = this.name,
                             name = this.name,
-                            url = res.formats?.auto ?: return@let,
+                            url,
                             referer = "$mainUrl/",
                             quality = Qualities.Unknown.value,
                             isM3u8 = true
                         )
                     )
-                }
             }
         }
         return true
