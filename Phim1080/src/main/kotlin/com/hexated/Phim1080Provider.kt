@@ -186,8 +186,8 @@ class Phim1080Provider : MainAPI() {
                 "X-Requested-With" to "XMLHttpRequest"
             )
         )
-        val optEncode = doc.text.substringAfter(",\"opt\":\"").substringBefore("\"},")
-        val opt = encodeString(optEncode as String, 69)
+        val optEncode = doc.text.substringAfter("\",\"opt\":\"").substringBefore("\"},")
+        val opt = encodeString(optEncode as String, 69).replace("0uut$", "_").replace("index.m3u8", "3000k/hls/mixed.m3u8")
         val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
         val hls = encodeString(hlsEncode as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
