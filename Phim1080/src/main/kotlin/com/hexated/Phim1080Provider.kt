@@ -200,8 +200,8 @@ class Phim1080Provider : MainAPI() {
                 safeApiCall {
                     callback.invoke(
                         ExtractorLink(
-                            "${this.name},
-                            "${this.name},
+                            "${this.name}",
+                            "${this.name}",
                             link,
                             referer = "$mainUrl/",
                             quality = Qualities.P1080.value,
