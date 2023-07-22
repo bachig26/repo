@@ -197,7 +197,7 @@ class Phim1080Provider : MainAPI() {
                     "FB",
                     fb,
                     referer = data,
-                    quality = Qualities.720.value,
+                    quality = Qualities.Unknown.value,
                     isM3u8 = false,
                 )
             )
@@ -212,7 +212,7 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = true,
                 )
             )
-        else
+        else -> return
         }
             // Do nothing
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
