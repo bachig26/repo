@@ -217,7 +217,7 @@ class Phim1080Provider : MainAPI() {
                     opt,
                     referer = data,
                     quality = Qualities.Unknown.value,
-                    isM3u8 = false,
+                    isM3u8 = true,
                 )
             )
         }
