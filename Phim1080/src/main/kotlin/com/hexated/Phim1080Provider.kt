@@ -193,7 +193,7 @@ class Phim1080Provider : MainAPI() {
         listOf(
             if hls.contains(".m3u8") {Pair("$hls", "HS", true)},
             if fb.contains(".mp4") {Pair("$fb", "FB", false)},
-            if opt.contains(".m3u8") {Pair("$opt", "HS", true)},
+            if opt.contains(".m3u8") {Pair("$opt", "OP", true)},
         ).apmap { (link, source, isM3u8) ->
             safeApiCall {
                 callback.invoke(
