@@ -187,7 +187,7 @@ class Phim1080Provider : MainAPI() {
                 )
             ).parsedSafe<Media>()?.let {
                 listOf(
-                    Pair(encodeString(it?.sources?.hls as String, 69), "HD"),
+                    Pair(encodeString(it.sources.m3u8.hls as String, 69), "HS"),
                 ).map { source ->
                     suspendSafeApiCall {
 //        val hlsEncode = doc?.sources?.hls
