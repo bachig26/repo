@@ -189,16 +189,31 @@ class Phim1080Provider : MainAPI() {
         val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
         val link = encodeString(source as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
-        callback.invoke(
-            ExtractorLink(
-                "HS",
-                "HS",
-                fb,
-                referer = data,
-                quality = Qualities.Unknown.value,
-                isM3u8 = false,
+        if (fb.isNotEmpty()) {
+            callback.invoke(
+                ExtractorLink(
+                    "FB",
+                    "FB",
+                    fb,
+                    referer = data,
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = false,
+                )
             )
-        )
+        } else if (link.isNotEmpty()){
+            callback.invoke(
+                ExtractorLink(
+                    "HS",
+                    "HS",
+                    link,
+                    referer = data,
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = true,
+                )
+            )
+        } else {
+            // Do nothing
+        }
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
