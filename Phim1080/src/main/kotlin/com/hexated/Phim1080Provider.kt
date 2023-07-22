@@ -195,7 +195,7 @@ class Phim1080Provider : MainAPI() {
                 link,
                 referer = data,
                 quality = Qualities.Unknown.value,
-                isM3u8 = true,
+                isM3u8 = false,
             )
         )
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
