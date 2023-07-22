@@ -189,38 +189,57 @@ class Phim1080Provider : MainAPI() {
         val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
         val hls = encodeString(hlsEncode as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
-        when {
-            hls.contains(".m3u8") -> callback.invoke(
-                ExtractorLink(
-                    "HS",
-                    "HS",
-                    hls,
-                    referer = data,
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = true,
+        
+        listOf(
+            if hls.contains(".m3u8") {Pair("$hls", "HS", true)},
+            if fb.contains(".mp4") {Pair("$fb", "FB", false)},
+            if opt.contains(".m3u8") {Pair("$opt", "HS", true)},
+        ).apmap { (link, source, isM3u8) ->
+            safeApiCall {
+                callback.invoke(
+                    ExtractorLink(
+                        source,
+                        source,
+                        link,
+                        referer = "$mainUrl/",
+                        quality = Qualities.P1080.value,
+                        isM3u8,
+                    )
                 )
-            )
-            fb.contains(".mp4") -> callback.invoke(
-                ExtractorLink(
-                    "FB",
-                    "FB",
-                    fb,
-                    referer = data,
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = false,
-                )
-            )
-            opt.contains(".m3u8") -> callback.invoke(
-                ExtractorLink(
-                    "OP",
-                    "OP",
-                    opt,
-                    referer = data,
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = true,
-                )
-            )
+            }
         }
+//        when {
+//            hls.contains(".m3u8") -> callback.invoke(
+//                ExtractorLink(
+//                    "HS",
+//                    "HS",
+//                    hls,
+//                    referer = data,
+//                    quality = Qualities.Unknown.value,
+//                    isM3u8 = true,
+//                )
+//            )
+//            fb.contains(".mp4") -> callback.invoke(
+//                ExtractorLink(
+//                    "FB",
+//                    "FB",
+//                    fb,
+//                    referer = data,
+//                    quality = Qualities.Unknown.value,
+//                    isM3u8 = false,
+//                )
+//            )
+//            opt.contains(".m3u8") -> callback.invoke(
+//                ExtractorLink(
+//                    "OP",
+//                    "OP",
+//                    opt,
+//                    referer = data,
+//                    quality = Qualities.Unknown.value,
+//                    isM3u8 = true,
+//                )
+//            )
+//        }
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
         val isSubIdEmpty = subId.isNullOrBlank()
         if (!isSubIdEmpty) {
