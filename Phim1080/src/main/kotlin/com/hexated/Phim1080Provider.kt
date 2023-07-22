@@ -178,46 +178,39 @@ class Phim1080Provider : MainAPI() {
         val fId = document.select("div.container").attr("data-id")
         val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
-                "$mainUrl/api/v2/films/$fId/episodes/$epId",
+            "$mainUrl/api/v2/films/$fId/episodes/$epId",
+            referer = data,
+            headers = mapOf(
+                "Content-Type" to "application/json",
+                "cookie" to "xem1080=%3D",
+                "X-Requested-With" to "XMLHttpRequest"
+            )
+        )
+        val source = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
+        val link = encodeString(source, 69)
+        callback.invoke(
+            ExtractorLink(
+                "HS",
+                "HS",
+                link,
                 referer = data,
-                headers = mapOf(
-                    "Content-Type" to "application/json",
-                    "cookie" to "xem1080=%3D",
-                    "X-Requested-With" to "XMLHttpRequest"
-                )
-            ).parsedSafe<Media>()?.let {
-                listOf(
-                    Pair(encodeString(it.sources?.m3u8?.hls as String, 69), "HS"),
-                ).map { source ->
-                    suspendSafeApiCall {
-//        val hlsEncode = doc?.sources?.hls
-//        val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-//        val link = encodeString(hlsEncode as String, 69)
-            callback.invoke(
-                ExtractorLink(
-                    "${this.name} ${source.second}",
-                    "${this.name} ${source.second}",
-                    "${source.first}",
-                    referer = "$mainUrl/",
-                    quality = Qualities.Unknown.value,
+                quality = Qualities.Unknown.value,
+                isM3u8 = true,
+            )
+        )
+        val subId = doc.parsedSafe<Media>()?.subtitle?.vi
+        val isSubIdEmpty = subId.isNullOrBlank()
+        if (!isSubIdEmpty) {
+            subtitleCallback.invoke(
+                SubtitleFile(
+                    "Vietnamese",
+                    "$mainUrl/subtitle/$subId.vtt"
                 )
             )
-                    }
-                }
         }
-//        val subId = doc?.subtitle?.vi
-//        val isSubIdEmpty = subId.isNullOrBlank()
-//        if (!isSubIdEmpty) {
-//            subtitleCallback.invoke(
-//                SubtitleFile(
-//                    "Vietnamese",
-//                    "$mainUrl/subtitle/$subId.vtt"
-//                )
-//            )
-//        }
         return true
     }
-    
+
     data class filmInfo(
         @JsonProperty("name") val name: String? = null,
         @JsonProperty("poster") val poster: String? = null,
@@ -230,37 +223,27 @@ class Phim1080Provider : MainAPI() {
     data class TrailerInfo(
         @JsonProperty("original") val original: TrailerKey? = null,
     )
-    
+
     data class TrailerKey(
         @JsonProperty("id") val id: String? = null,
     )
-    
+
     data class MediaDetailEpisodes(
         @JsonProperty("data") val eps: ArrayList<Episodes>? = arrayListOf(),
     )
-    
+
     data class Episodes(
         @JsonProperty("link") val link: String? = null,
         @JsonProperty("detail_name") val detailname: String? = null,
         @JsonProperty("name") val episodeNumber: Int? = null,
-    )    
-    
+    )
+
     data class Media(
         @JsonProperty("subtitle") val subtitle: SubInfo? = null,
-        @JsonProperty("sources") val sources: Server? = null,
     )
-    
-    data class Server(
-        @JsonProperty("hls") val hls: String? = null,
-        @JsonProperty("m3u8") val m3u8: MiniServer? = null,
-    )    
-    
-    data class MiniServer(
-        @JsonProperty("hls") val hls: String? = null,
-    )    
-    
+
     data class SubInfo(
         @JsonProperty("vi") val vi: String? = null,
-    )    
-    
+    )
+
 }
