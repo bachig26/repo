@@ -1,7 +1,6 @@
 package com.hexated
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlin.text.substringAfterOrNull
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.mvvm.safeApiCall
@@ -22,7 +21,7 @@ class Phim1080Provider : MainAPI() {
         TvType.AsianDrama
     )
     
-    private fun encodeString(e: String, t: Int): String {
+    private fun decodeString(e: String, t: Int): String {
         var a = ""
         for (i in 0 until e.length) {
             val r = e[i].code
@@ -186,10 +185,12 @@ class Phim1080Provider : MainAPI() {
                 "X-Requested-With" to "XMLHttpRequest"
             )
         )
-        val optEncode = doc.text.substringAfterOrNull("opt\":\"").substringBefore("\"},")
-        val opt = encodeString(optEncode as String, 69).replace("index.m3u8", "3000k/hls/mixed.m3u8")
+        val optEncode = if (doc.text.indexOf("\",\"opt\":\"") != -1) {
+            doc.text.substringAfter("\",\"opt\":\"").substringBefore("\"},")
+        } else { "" }
+        val opt = decodeString(optEncode as String, 69).replace("index.m3u8", "3000k/hls/mixed.m3u8")
         val hlsEncode = doc.text.substringAfter(":{\"hls\":\"").substringBefore("\"},")
-        val hls = encodeString(hlsEncode as String, 69)
+        val hls = decodeString(hlsEncode as String, 69)
         val fb = doc.text.substringAfter("fb\":[{\"src\":\"").substringBefore("\",").replace("\\", "")
         
         listOfNotNull(
