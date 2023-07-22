@@ -193,9 +193,9 @@ class Phim1080Provider : MainAPI() {
         opt.contains(".m3u8") -> 
             callback.invoke(
                 ExtractorLink(
-                    "SG",
-                    "SG",
-                    fb,
+                    "OP",
+                    "OP",
+                    opt,
                     referer = data,
                     quality = Qualities.Unknown.value,
                     isM3u8 = true,
@@ -212,7 +212,7 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = false,
                 )
             )
-        link.contains(".m3u8") -> 
+        hls.contains(".m3u8") -> 
             callback.invoke(
                 ExtractorLink(
                     "HS",
