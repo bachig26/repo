@@ -212,7 +212,7 @@ class Phim1080Provider : MainAPI() {
                     isM3u8 = true,
                 )
             )
-        else -> return null
+        else -> return undefined
         }
             // Do nothing
         val subId = doc.parsedSafe<Media>()?.subtitle?.vi
