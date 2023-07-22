@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.mvvm.safeApiCall
+import com.lagradost.cloudstream3.mvvm.suspendSafeApiCall
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
@@ -196,7 +197,7 @@ class Phim1080Provider : MainAPI() {
             if (fb.contains(".mp4")) {Triple("$fb", "FB", false)} else {},
             if (opt.contains(".m3u8")) {Triple("$opt", "OP", true)} else {},
         ).map { source ->
-            safeApiCall {
+            suspendSafeApiCall {
                 callback.invoke(
                     ExtractorLink(
                         "${source.second}",
