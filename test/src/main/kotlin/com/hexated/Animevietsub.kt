@@ -107,6 +107,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.comingSoon = comingSoon
                 addTrailer(trailer)
                 this.recommendations = recommendations
+                posterHeaders = mapOf("referer" to mainUrl)
             }
         } else {
             newMovieLoadResponse(title, url, TvType.Movie, link) {
@@ -118,6 +119,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.comingSoon = comingSoon
                 addTrailer(trailer)
                 this.recommendations = recommendations
+                posterHeaders = mapOf("referer" to mainUrl)
             }
         }
     }
