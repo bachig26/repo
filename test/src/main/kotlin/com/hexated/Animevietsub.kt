@@ -100,7 +100,7 @@ class AnimevietsubProvider : MainAPI() {
                 val name = it.selectFirst("a")!!.text()
                 Episode(id, name, 0, null, null, null,id)
             }
-            newTvSeriesLoadResponse(title, url: String, TvType.TvSeries, episodes) {
+            newTvSeriesLoadResponse(title: String, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
@@ -111,7 +111,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url: String, TvType.Movie, link) {
+            newMovieLoadResponse(title, url, TvType.Movie, link: String) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
