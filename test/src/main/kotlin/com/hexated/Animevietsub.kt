@@ -78,8 +78,7 @@ class AnimevietsubProvider : MainAPI() {
     }
     
     override suspend fun load( url: String ): LoadResponse {
-        val html = app.get(url).text
-        val doc: Document = Jsoup.parse(html)
+        val doc = app.get(url).document
         val title = doc.select(".Title").first()?.text()?.trim()?.toString()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val background = fixUrl(doc.select("img.TPostBg").attr("src"))
@@ -101,7 +100,7 @@ class AnimevietsubProvider : MainAPI() {
                 val name = it.selectFirst("a")!!.text()
                 Episode(id, name, 0, null, null, null,id)
             }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
+            newTvSeriesLoadResponse(title, url: String, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
@@ -112,7 +111,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, link) {
+            newMovieLoadResponse(title, url: String, TvType.Movie, link) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
