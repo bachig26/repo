@@ -86,7 +86,7 @@ class AnimevietsubProvider : MainAPI() {
         val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toIntOrNull()
         val description =  doc.select(".Description").text()
         val comingSoon = tags.contains("Anime sắp chiếu")
-        val trailer = doc.select("iframe#_no-clickjacking-0").attr("src").toString()
+        val trailer = doc.select("iframe#_no-clickjacking-0").attr("src")?.toString()
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
             it.toSearchResult()
         }
@@ -101,6 +101,7 @@ class AnimevietsubProvider : MainAPI() {
         return TvSeriesLoadResponse(
             name = title,
             url = url,
+            apiName = this.name,
             type = TvType.TvSeries,
             episodes = episodes,
             posterUrl = poster,
