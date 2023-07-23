@@ -53,7 +53,7 @@ class AnimevietsubProvider : MainAPI() {
             val episode = Regex("((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
                 num.replace(Regex("\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
-            newAnimeSearchResponse(title, href, TvType.TvSeries) {
+            newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
@@ -80,7 +80,7 @@ class AnimevietsubProvider : MainAPI() {
         val title = doc.select(".Title").first()?.text()?.trim()?.toString()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val background = fixUrl(doc.select("img.TPostBg").attr("src"))
-        val link = doc.select(".watch_button_more").attr("href")
+        val link = doc.select(".watch_button_more").attr("href")?.toString()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
         val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toInt()
         val tvType = if (tags.contains("Anime bộ")) TvType.TvSeries else TvType.Movie
@@ -94,7 +94,7 @@ class AnimevietsubProvider : MainAPI() {
         return if (tvType == TvType.TvSeries) {
             val docEpisodes = app.get(link).document
             val episodes = docEpisodes.select(".list-episode li").map {
-                val href = it.select("a")?.attr("href")
+                val href = it.select("a")?.attr("href")?.toString()
                 val name = it.select("a")?.text()
                 Episode(
                     data = href,
