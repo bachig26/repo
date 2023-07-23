@@ -5,6 +5,8 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 class AnimevietsubProvider : MainAPI() {
@@ -75,7 +77,7 @@ class AnimevietsubProvider : MainAPI() {
         }
     }
     
-    override suspend fun load( url: String ): LoadResponse {
+    override suspend fun load( url: String ): LoadResponse? {
         val doc = app.get(url).document
         val title = doc.select(".Title").first()?.text()?.trim()?.toString()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
@@ -107,7 +109,6 @@ class AnimevietsubProvider : MainAPI() {
                 this.comingSoon = comingSoon
                 addTrailer(trailer)
                 this.recommendations = recommendations
-                posterHeaders = mapOf("referer" to mainUrl)
             }
         } else {
             newMovieLoadResponse(title, url, TvType.Movie, link) {
@@ -119,7 +120,6 @@ class AnimevietsubProvider : MainAPI() {
                 this.comingSoon = comingSoon
                 addTrailer(trailer)
                 this.recommendations = recommendations
-                posterHeaders = mapOf("referer" to mainUrl)
             }
         }
     }
