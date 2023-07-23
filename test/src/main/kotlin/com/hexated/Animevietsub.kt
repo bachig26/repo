@@ -77,15 +77,16 @@ class AnimevietsubProvider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val doc = app.get(url).document
-        val title = doc.select(".Title").first().text().trim()
+        val title = doc.select(".Title").first()?.text()?.trim()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val background = fixUrl(doc.select("img.TPostBg").attr("src"))
         val link = doc.select(".watch_button_more").attr("href")
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-        val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")
-        val tvType = if (tags.contain("Anime bộ")) TvType.TvSeries else TvType.Movie
+        val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "").toInt()
+        val tvType = if (doc.select("ul.InfoList li:nth-last-child(4) a")?.text?.contain("Anime bộ"))
+            TvType.TvSeries else TvType.Movie
         val description =  doc.select(".Description").text()
-        val comingSoon = tags.contain("Anime sắp chiếu")
+        val comingSoon = doc.select("ul.InfoList li:nth-last-child(4) a")?.text?.contain("Anime sắp chiếu")
         val trailer = doc.select("div#MvTb-Trailer").attr("src").toString()
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
             it.toSearchResult()
@@ -94,8 +95,8 @@ class AnimevietsubProvider : MainAPI() {
         return if (tvType == TvType.TvSeries) {
             val docEpisodes = app.get(link).document
             val episodes = docEpisodes.select(".list-episode li").map {
-                val href = it.selectFirst("a").attr("data-id")
-                val name = it.selectFirst("a").text()
+                val href = it.selectFirst("a")?.attr("data-id")
+                val name = it.selectFirst("a")?.text()
                 Episode(
                     data = href,
                     name = name,
