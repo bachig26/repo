@@ -49,15 +49,15 @@ class AnimevietsubProvider : MainAPI() {
         val posterUrl = this.selectFirst("img")!!.attr("src")
         val temp = this.select("span.Time.AAIco-access_time").text()
         return if (temp.contains("/")) {
-            val episode = Regex("((\\d+)\\s)").find(temp)?.groupValues?.map { num ->
-                num.replace(Regex("\\s"), "")
+            val episode = Regex("(\\((\\d+))|(\\s(\\d+))").find(temp)?.groupValues?.map { num ->
+                num.replace(Regex("\\(|\\s"), "")
             }?.distinct()?.firstOrNull()?.toIntOrNull()
             newAnimeSearchResponse(title, href, TvType.TvSeries) {
                 this.posterUrl = posterUrl
                 addSub(episode)
             }
         } else {
-            val quality = this.select("span.Qlty").text().replace("FHD", "HD").trim()
+            val quality = this.select("span.Qlty").text().replace("FHD", "HD").replace("CAM HD", "CAM").trim()
             newMovieSearchResponse(title, href, TvType.Movie) {
                 this.posterUrl = posterUrl
                 addQuality(quality)
@@ -84,34 +84,20 @@ class AnimevietsubProvider : MainAPI() {
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
         val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toIntOrNull()
-        val tvType = if (tags.contains("Anime bộ")) TvType.TvSeries else TvType.Movie
         val description =  doc.select(".Description").text()
         val comingSoon = tags.contains("Anime sắp chiếu")
-        val trailer = doc.select("div#MvTb-Trailer").attr("src").toString()
+        val trailer = doc.select("iframe#_no-clickjacking-0").attr("src").toString()
         val recommendations = doc.select("div.MovieListRelated .TPostMv").map {
             it.toSearchResult()
         }
 
-        return if (tvType == TvType.TvSeries) {
-            val docEpisodes = app.get(link).document
-            val episodes = docEpisodes.select(".list-episode li").map {
-                val id = it.selectFirst("a")!!.attr("data-id")
-                val name = it.selectFirst("a")!!.text()
-                Episode(id, name, 0, null, null, null,id)
-            }
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
-                this.posterUrl = poster
-                this.backgroundPosterUrl = background
-                this.year = year
-                this.plot = description
-                this.rating = rating
-                this.tags = tags
-                this.comingSoon = comingSoon
-                addTrailer(trailer)
-                this.recommendations = recommendations
-            }
-        } else {
-            newMovieLoadResponse(title, url, TvType.Movie, link) {
+        val docEpisodes = app.get(link).document
+        val episodes = docEpisodes.select(".list-episode li").map {
+            val id = it.selectFirst("a")!!.attr("data-id")
+            val name = it.selectFirst("a")!!.text()
+            Episode(id, name, 0, null, null, null,id)
+                
+        return TvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
