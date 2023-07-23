@@ -85,7 +85,7 @@ class AnimevietsubProvider : MainAPI() {
         val link = doc.select(".watch_button_more").attr("href")
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
         val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toInt()
-        val tvType = if (tags.contains("Anime bộ")) TvType.TvSeries else TvType.Movie
+        val tvType = if (doc.select("ul.InfoList li:nth-last-child(4) a").text().contains("Anime bộ")) TvType.TvSeries else TvType.Movie
         val description =  doc.select(".Description").text()
         val comingSoon = tags.contains("Anime sắp chiếu")
         val trailer = doc.select("div#MvTb-Trailer").attr("src").toString()
@@ -100,7 +100,7 @@ class AnimevietsubProvider : MainAPI() {
                 val name = it.selectFirst("a")!!.text()
                 Episode(id, name, 0, null, null, null,id)
             }
-            newTvSeriesLoadResponse(title: String, url, TvType.TvSeries, episodes) {
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
@@ -111,7 +111,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.recommendations = recommendations
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, link: String) {
+            newMovieLoadResponse(title, url, TvType.Movie, link) {
                 this.posterUrl = poster
                 this.backgroundPosterUrl = background
                 this.year = year
