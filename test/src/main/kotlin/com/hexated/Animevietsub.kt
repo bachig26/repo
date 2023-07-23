@@ -96,19 +96,23 @@ class AnimevietsubProvider : MainAPI() {
             val id = it.selectFirst("a")!!.attr("data-id")
             val name = it.selectFirst("a")!!.text()
             Episode(id, name, 0, null, null, null,id)
-                
-        return TvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
-                this.posterUrl = poster
-                this.backgroundPosterUrl = background
-                this.year = year
-                this.plot = description
-                this.rating = rating
-                this.tags = tags
-                this.comingSoon = comingSoon
-                addTrailer(trailer)
-                this.recommendations = recommendations
-            }
-        }
+        }           
+        
+        return TvSeriesLoadResponse(
+            name = title,
+            url = url,
+            type = TvType.TvSeries,
+            episodes = episodes,
+            posterUrl = poster,
+            backgroundPosterUrl = background,
+            year = year,
+            plot = description,
+            rating = rating,
+            tags = tags,
+            comingSoon = comingSoon,
+            addTrailer(trailer),
+            recommendations = recommendations,
+        )
     }
 
 }
