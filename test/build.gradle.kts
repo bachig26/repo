@@ -1,13 +1,13 @@
 // use an integer for version numbers
-version = 13
+version = 1
 
 
 cloudstream {
     language = "vi"
     // All of these properties are optional, you can safely remove them
 
-    // description = "TuaSan"
-    authors = listOf("TuaSan")
+     description = "Xem Anime Chất Lượng Cao"
+     authors = listOf("TuaSan")
 
     /**
      * Status int as the following:
@@ -16,12 +16,13 @@ cloudstream {
      * 2: Slow
      * 3: Beta only
      * */
-    status = 1 // will be 3 if unspecified
+    status = 3 // will be 3 if unspecified
     tvTypes = listOf(
-        "AnimeMovie",
+        "AsianDrama",
         "Anime",
-        "OVA",
+        "TvSeries",
+        "Movie",
     )
 
-    iconUrl = "https://www.google.com/s2/favicons?domain=tocanime.co&sz=%size%"
+    iconUrl = "https://www.google.com/s2/favicons?domain=animevietsub.moe"
 }
