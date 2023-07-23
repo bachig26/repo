@@ -1,12 +1,9 @@
 package com.hexated
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 class AnimevietsubProvider : MainAPI() {
@@ -79,13 +76,15 @@ class AnimevietsubProvider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val doc = app.get(url).document
+        
         val title = doc.select(".Title").first()?.text()?.trim()?.toString()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val background = fixUrl(doc.select("img.TPostBg").attr("src"))
         val link = doc.select(".watch_button_more").attr("href")
+        val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
-        val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toInt()
-        val tvType = if (doc.select("ul.InfoList li:nth-last-child(4) a").text().contains("Anime bộ")) TvType.TvSeries else TvType.Movie
+        val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toIntOrNull()
+        val tvType = if (doc.select("div.latest-episode").isNotEmpty()) TvType.TvSeries else TvType.Movie
         val description =  doc.select(".Description").text()
         val comingSoon = tags.contains("Anime sắp chiếu")
         val trailer = doc.select("div#MvTb-Trailer").attr("src").toString()
@@ -105,6 +104,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.backgroundPosterUrl = background
                 this.year = year
                 this.plot = description
+                this.rating = rating
                 this.tags = tags
                 this.comingSoon = comingSoon
                 addTrailer(trailer)
@@ -116,6 +116,7 @@ class AnimevietsubProvider : MainAPI() {
                 this.backgroundPosterUrl = background
                 this.year = year
                 this.plot = description
+                this.rating = rating
                 this.tags = tags
                 this.comingSoon = comingSoon
                 addTrailer(trailer)
