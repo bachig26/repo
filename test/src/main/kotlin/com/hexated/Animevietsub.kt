@@ -94,8 +94,8 @@ class AnimevietsubProvider : MainAPI() {
         return if (tvType == TvType.TvSeries) {
             val docEpisodes = app.get(link).document
             val episodes = docEpisodes.select(".list-episode li").map {
-                val href = it.selectFirst("a")?.attr("href")
-                val name = it.selectFirst("a")?.text()
+                val href = it.select("a")?.attr("href")
+                val name = it.select("a")?.text()
                 Episode(
                     data = href,
                     name = name,
