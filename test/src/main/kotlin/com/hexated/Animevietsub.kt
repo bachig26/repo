@@ -7,7 +7,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
 
 class AnimevietsubProvider : MainAPI() {
-    override var mainUrl = "animevietsub.moe"
+    override var mainUrl = "https://animevietsub.moe"
     override var name = "Animevietsub"
     override val hasMainPage = true
     override var lang = "vi"
@@ -84,7 +84,7 @@ class AnimevietsubProvider : MainAPI() {
         val rating = doc.select("strong#average_score").text().toRatingInt()
         val tags = doc.select("ul.InfoList li:nth-last-child(4) a").map { it.text() }
         val year = doc.selectFirst(".Info .Date")?.text()?.trim()?.replace("(", "")?.replace(")", "")?.toIntOrNull()
-        val tvType = if (doc.select("div.latest-episode").isNotEmpty()) TvType.TvSeries else TvType.Movie
+        val tvType = if (tags.contains("Anime bộ")) TvType.TvSeries else TvType.Movie
         val description =  doc.select(".Description").text()
         val comingSoon = tags.contains("Anime sắp chiếu")
         val trailer = doc.select("div#MvTb-Trailer").attr("src").toString()
