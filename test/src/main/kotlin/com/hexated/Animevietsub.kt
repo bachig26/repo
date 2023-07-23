@@ -77,8 +77,9 @@ class AnimevietsubProvider : MainAPI() {
         }
     }
     
-    override suspend fun load( url: String ): LoadResponse? {
-        val doc = app.get(url).document
+    override suspend fun load( url: String ): LoadResponse {
+        val html = app.get(url).text
+        val doc: Document = Jsoup.parse(html)
         val title = doc.select(".Title").first()?.text()?.trim()?.toString()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val background = fixUrl(doc.select("img.TPostBg").attr("src"))
