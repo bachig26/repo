@@ -77,7 +77,7 @@ class AnimevietsubProvider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val doc = app.get(url).document
         
-        val title = doc.select(".Title").first()?.text()?.trim()?.toString()
+        val title = doc.selectFirst(".Title")?.text()?.trim().toString()
         val poster = fixUrl(doc.select("header figure.Objf img").attr("src"))
         val background = fixUrl(doc.select("img.TPostBg").attr("src"))
         val link = doc.select(".watch_button_more").attr("href")
