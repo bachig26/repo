@@ -9,7 +9,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
 
 class Phim1080Provider : MainAPI() {
-    override var mainUrl = "https://xem1080.com"
+//    override var mainUrl = "https://xem1080.com"
     override var name = "Phim1080"
     override val hasMainPage = true
     override var lang = "vi"
@@ -95,7 +95,7 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(
             url = url,
-            referer = "$mainUrl/",
+            referer = "https://xem1080.com/",
             headers = mapOf(
                 "Sec-Ch-Ua-Mobile" to "?1",
                 "Sec-Ch-Ua-Platform" to "\"Android\"",
@@ -104,7 +104,7 @@ class Phim1080Provider : MainAPI() {
         ).document
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
-            "$mainUrl/api/v2/films/$fId",
+            "https://xem1080.com/api/v2/films/$fId",
             referer = url,
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -129,7 +129,7 @@ class Phim1080Provider : MainAPI() {
 
         return if (tvType == TvType.TvSeries) {
             val epsInfo =  app.get(
-                "$mainUrl/api/v2/films/$fId/episodes?sort=name",
+                "https://xem1080.com/api/v2/films/$fId/episodes?sort=name",
                 referer = link,
                 headers = mapOf(
                         "Content-Type" to "application/json",
@@ -177,7 +177,7 @@ class Phim1080Provider : MainAPI() {
         val fId = document.select("div.container").attr("data-id")
         val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
-            "$mainUrl/api/v2/films/$fId/episodes/$epId",
+            "https://xem1080.com/api/v2/films/$fId/episodes/$epId",
             referer = data,
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -221,7 +221,7 @@ class Phim1080Provider : MainAPI() {
             subtitleCallback.invoke(
                 SubtitleFile(
                     "Vietnamese",
-                    "$mainUrl/subtitle/$subId.vtt"
+                    "https://xem1080.com/subtitle/$subId.vtt"
                 )
             )
         }
