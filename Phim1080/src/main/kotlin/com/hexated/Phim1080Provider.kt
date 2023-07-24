@@ -32,16 +32,16 @@ class Phim1080Provider : MainAPI() {
     }
 
     override val mainPage = mainPageOf(
-        "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
-        "$mainUrl/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
-        "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
-        "$mainUrl/phim-bo?page=" to "Phim Bộ",
-        "$mainUrl/phim-le?page=" to "Phim Lẻ",
-        "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
-        "$mainUrl/bo-suu-tap/disney-plus?page=" to "Disney+",
-        "$mainUrl/bo-suu-tap/netflix-original?page=" to "Netflix",
-        "$mainUrl/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
-        "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
+        "https://xem1080.com/phim-de-cu?page=" to "Phim Đề Cử",
+        "https://xem1080.com/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
+        "https://xem1080.com/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
+        "https://xem1080.com/phim-bo?page=" to "Phim Bộ",
+        "https://xem1080.com/phim-le?page=" to "Phim Lẻ",
+        "https://xem1080.com/bang-xep-hang?page=" to "Bảng Xếp Hạng",
+        "https://xem1080.com/bo-suu-tap/disney-plus?page=" to "Disney+",
+        "https://xem1080.com/bo-suu-tap/netflix-original?page=" to "Netflix",
+        "https://xem1080.com/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
+        "https://xem1080.com/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
 
     override suspend fun getMainPage(
@@ -84,7 +84,7 @@ class Phim1080Provider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val link = "$mainUrl/tim-kiem/$query"
+        val link = "https://xem1080.com/tim-kiem/$query"
         val document = app.get(link).document
 
         return document.select("div.tray-item").map {
@@ -115,7 +115,7 @@ class Phim1080Provider : MainAPI() {
         val poster = filmInfo?.thumbnail
         val background = filmInfo?.poster
         val slug = filmInfo?.slug
-        val link = "$mainUrl/$slug"
+        val link = "https://xem1080.com/$slug"
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()) TvType.TvSeries else TvType.Movie
