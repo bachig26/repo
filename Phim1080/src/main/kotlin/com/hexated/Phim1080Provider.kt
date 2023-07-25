@@ -9,20 +9,17 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Element
 
 class Phim1080Provider : MainAPI() {
+    override var mainUrl = "https://phimnhanh2.com"
     override var name = "Phim1080"
     override val hasMainPage = true
-    override val instantLinkLoading = true
     override var lang = "vi"
+    override val hasDownloadSupport = true
     override val supportedTypes = setOf(
         TvType.Movie,
         TvType.TvSeries,
         TvType.Anime,
         TvType.AsianDrama
     )
-    
-    companion object {
-        private const val API = "https://xem1080.com"
-    }
     
     private fun decodeString(e: String, t: Int): String {
         var a = ""
@@ -35,16 +32,16 @@ class Phim1080Provider : MainAPI() {
     }
 
     override val mainPage = mainPageOf(
-        "$API/phim-de-cu?page=" to "Phim Đề Cử",
-        "$API/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
-        "$API/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
-        "$API/phim-bo?page=" to "Phim Bộ",
-        "$API/phim-le?page=" to "Phim Lẻ",
-        "$API/bang-xep-hang?page=" to "Bảng Xếp Hạng",
-        "$API/bo-suu-tap/disney-plus?page=" to "Disney+",
-        "$API/bo-suu-tap/netflix-original?page=" to "Netflix",
-        "$API/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
-        "$API/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
+        "$mainUrl/phim-de-cu?page=" to "Phim Đề Cử",
+        "$mainUrl/the-loai/hoat-hinh?page=" to "Phim Hoạt Hình",
+        "$mainUrl/phim-chieu-rap?page=" to "Phim Chiếu Rạp",
+        "$mainUrl/phim-bo?page=" to "Phim Bộ",
+        "$mainUrl/phim-le?page=" to "Phim Lẻ",
+        "$mainUrl/bang-xep-hang?page=" to "Bảng Xếp Hạng",
+        "$mainUrl/bo-suu-tap/disney-plus?page=" to "Disney+",
+        "$mainUrl/bo-suu-tap/netflix-original?page=" to "Netflix",
+        "$mainUrl/hom-nay-xem-gi?page=" to "Hôm Nay Xem Gì",
+        "$mainUrl/phim-sap-chieu?page=" to "Phim Sắp Chiếu",
     )
 
     override suspend fun getMainPage(
@@ -66,7 +63,7 @@ class Phim1080Provider : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
-        val href = "$API" + (this.selectFirst("a")!!.attr("href"))
+        val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("/")) {
@@ -87,7 +84,7 @@ class Phim1080Provider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val link = "$API/tim-kiem/$query"
+        val link = "$mainUrl/tim-kiem/$query"
         val document = app.get(link).document
 
         return document.select("div.tray-item").map {
@@ -98,7 +95,7 @@ class Phim1080Provider : MainAPI() {
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(
             url = url,
-            referer = "$API/",
+            referer = "$mainUrl/",
             headers = mapOf(
                 "Sec-Ch-Ua-Mobile" to "?1",
                 "Sec-Ch-Ua-Platform" to "\"Android\"",
@@ -107,7 +104,7 @@ class Phim1080Provider : MainAPI() {
         ).document
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
-            "$API/api/v2/films/$fId",
+            "$mainUrl/api/v2/films/$fId",
             referer = url,
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -118,7 +115,7 @@ class Phim1080Provider : MainAPI() {
         val poster = filmInfo?.thumbnail
         val background = filmInfo?.poster
         val slug = filmInfo?.slug
-        val link = "$API/$slug"
+        val link = "$mainUrl/$slug"
         val tags = document.select("div.film-content div.film-info-genre:nth-child(7) a").map { it.text() }
         val year = filmInfo?.year
         val tvType = if (document.select("div.episode-group-tab").isNotEmpty()) TvType.TvSeries else TvType.Movie
@@ -132,7 +129,7 @@ class Phim1080Provider : MainAPI() {
 
         return if (tvType == TvType.TvSeries) {
             val epsInfo =  app.get(
-                "$API/api/v2/films/$fId/episodes?sort=name",
+                "$mainUrl/api/v2/films/$fId/episodes?sort=name",
                 referer = link,
                 headers = mapOf(
                         "Content-Type" to "application/json",
@@ -180,14 +177,15 @@ class Phim1080Provider : MainAPI() {
         val fId = document.select("div.container").attr("data-id")
         val epId = document.select("div.container").attr("data-episode-id")
         val doc = app.get(
-            "$API/api/v2/films/$fId/episodes/$epId",
+            "$mainUrl/api/v2/films/$fId/episodes/$epId",
             referer = data,
             headers = mapOf(
                 "Content-Type" to "application/json",
-                "cookie" to "xem1080=%3D",
+                "cookie" to "phimnhanh=%3D",
                 "X-Requested-With" to "XMLHttpRequest"
             )
         )
+
         val optEncode = if (doc.text.indexOf("\"opt\":\"") != -1) {
             doc.text.substringAfter("\"opt\":\"").substringBefore("\"},")
         } else { "" }
@@ -224,7 +222,7 @@ class Phim1080Provider : MainAPI() {
             subtitleCallback.invoke(
                 SubtitleFile(
                     "Vietnamese",
-                    "$API/subtitle/$subId.vtt"
+                    "$mainUrl/subtitle/$subId.vtt"
                 )
             )
         }
