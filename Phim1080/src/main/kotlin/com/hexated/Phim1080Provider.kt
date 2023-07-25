@@ -97,7 +97,7 @@ class Phim1080Provider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(
-            url = "$API",
+            url = url,
             referer = "$API/",
             headers = mapOf(
                 "Sec-Ch-Ua-Mobile" to "?1",
@@ -108,7 +108,7 @@ class Phim1080Provider : MainAPI() {
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
             "$API/api/v2/films/$fId",
-            referer = "$API",
+            referer = url,
             headers = mapOf(
                 "Content-Type" to "application/json",
                 "X-Requested-With" to "XMLHttpRequest"
