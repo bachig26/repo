@@ -97,7 +97,7 @@ class Phim1080Provider : MainAPI() {
     
     override suspend fun load( url: String ): LoadResponse {
         val document = app.get(
-            url = $API,
+            url = "$API",
             referer = "$API/",
             headers = mapOf(
                 "Sec-Ch-Ua-Mobile" to "?1",
