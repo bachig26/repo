@@ -12,8 +12,9 @@ class Phim1080Provider : MainAPI() {
 //    override var mainUrl = "https://xem1080.com"
     override var name = "Phim1080"
     override val hasMainPage = true
+    override val instantLinkLoading = true
+    override val useMetaLoadResponse = true
     override var lang = "vi"
-    override val hasDownloadSupport = true
     override val supportedTypes = setOf(
         TvType.Movie,
         TvType.TvSeries,
