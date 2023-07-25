@@ -13,7 +13,6 @@ class Phim1080Provider : MainAPI() {
     override var name = "Phim1080"
     override val hasMainPage = true
     override val instantLinkLoading = true
-    override val useMetaLoadResponse = true
     override var lang = "vi"
     override val supportedTypes = setOf(
         TvType.Movie,
