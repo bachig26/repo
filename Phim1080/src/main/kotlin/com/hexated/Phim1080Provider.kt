@@ -66,7 +66,7 @@ class Phim1080Provider : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.selectFirst("div.tray-item-title")?.text()?.trim().toString()
-        val href = "API" + (this.selectFirst("a")!!.attr("href"))
+        val href = "$API" + (this.selectFirst("a")!!.attr("href"))
         val posterUrl = this.selectFirst("img")!!.attr("data-src")
         val temp = this.select("div.tray-film-likes").text()
         return if (temp.contains("/")) {
