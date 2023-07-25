@@ -108,7 +108,7 @@ class Phim1080Provider : MainAPI() {
         val fId = document.select("div.container").attr("data-id")
         val filmInfo =  app.get(
             "$API/api/v2/films/$fId",
-            referer = url,
+            referer = "$API",
             headers = mapOf(
                 "Content-Type" to "application/json",
                 "X-Requested-With" to "XMLHttpRequest"
